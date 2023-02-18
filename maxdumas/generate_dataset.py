@@ -7,8 +7,14 @@ import pandas as pd
 from tqdm import tqdm
 from tqdm.contrib.concurrent import process_map
 
+# Path to the directory where Textract results from CT Zoning codes live. A
+# folder named "processed-data" should exist at this path that contains the
+# Textract results.
+root_path = "../../data/local-land-use-ct/"
+
 SCHEMA = pa.schema(
     [
+        pa.field("Town", pa.string()),
         pa.field("BlockType", pa.string()),
         pa.field("ColumnIndex", pa.int32(), nullable=True),
         pa.field("ColumnSpan", pa.int32(), nullable=True),
@@ -92,7 +98,6 @@ def import_town(town, isMap=False):
     Returns: pandas dataframe of cleaned/combined JSONs for a given document with all Textract information
     """
 
-    root_path = "../../data/local-land-use-ct/"
     local_folder = (
         os.path.join(root_path, f"processed-data/{town}-map")
         if isMap
@@ -144,6 +149,7 @@ def import_town(town, isMap=False):
     clean_df = pd.concat([df, bbox, poly, children, values], axis=1).drop(
         "Geometry", axis=1
     ).drop(columns=["Relationships"])
+    clean_df["Town"] = town
 
     clean_df.to_parquet(f"dataset/{town}.parquet", schema=SCHEMA)
 
