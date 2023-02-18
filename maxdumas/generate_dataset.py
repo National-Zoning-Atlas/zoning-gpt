@@ -6,11 +6,21 @@ import pyarrow as pa
 import pandas as pd
 from tqdm import tqdm
 from tqdm.contrib.concurrent import process_map
+from datasets import load_dataset
+from sklearn.model_selection import train_test_split
+
+
+# Whether or not to publish the resulting dataset to HuggingFace Hub. If False,
+# the dataset will be saved locally to disk instead.
+PUBLISH_DATASET = False
 
 # Path to the directory where Textract results from CT Zoning codes live. A
 # folder named "processed-data" should exist at this path that contains the
 # Textract results.
 root_path = "../../data/local-land-use-ct/"
+
+# JSON file listing the full set of towns for which we expect to have data.
+town_list_path = "names_all_towns.json"
 
 SCHEMA = pa.schema(
     [
@@ -151,13 +161,23 @@ def import_town(town, isMap=False):
     ).drop(columns=["Relationships"])
     clean_df["Town"] = town
 
-    clean_df.to_parquet(f"dataset/{town}.parquet", schema=SCHEMA)
+    output_path = f"dataset/{town}.parquet"
+    clean_df.to_parquet(output_path, schema=SCHEMA)
 
-    return clean_df
+    return output_path
 
 
 if __name__ == "__main__":
     with open("names_all_towns.json") as f:
         all_towns = json.load(f)
 
-    process_map(import_town, all_towns)
+    datafiles = [path for path in process_map(import_town, all_towns) if path is not None]
+    train, test = train_test_split(datafiles, test_size=0.3, random_state=42)
+
+    dataset = load_dataset("parquet", data_files={"train": train, "test": test})
+
+    if PUBLISH_DATASET:
+        dataset.push_to_hub("xyzNLP/nza-ct-zoning-codes", private=True)
+    else:
+        dataset.save_to_disk("./hf_dataset")
+
