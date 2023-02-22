@@ -1,7 +1,9 @@
 import glob
 import json
-import os
+from os.path import join, splitext, dirname, realpath
+from os import makedirs
 
+import yaml
 import pyarrow as pa
 import pandas as pd
 from tqdm import tqdm
@@ -9,18 +11,37 @@ from tqdm.contrib.concurrent import process_map
 from datasets import load_dataset
 from sklearn.model_selection import train_test_split
 
+DIR = dirname(realpath(__file__))
+
+with open(join(DIR, "..", "params.yaml")) as f:
+    config = yaml.safe_load(f)["generate_dataset"]
 
 # Whether or not to publish the resulting dataset to HuggingFace Hub. If False,
 # the dataset will be saved locally to disk instead.
 PUBLISH_DATASET = False
 
+RANDOM_STATE = config["seed"]
+TEST_SPLIT_FRAC = config["test_split_frac"]
+
+DATA_ROOT = realpath(join(DIR, "..", "data"))
+
 # Path to the directory where Textract results from CT Zoning codes live. A
 # folder named "processed-data" should exist at this path that contains the
 # Textract results.
-root_path = "../../data/local-land-use-ct/"
+input_textract_dataset_path = join(DATA_ROOT, "urban_institute", "processed-data")
 
 # JSON file listing the full set of towns for which we expect to have data.
-town_list_path = "names_all_towns.json"
+input_town_list_path = join(DATA_ROOT, "names_all_towns.json")
+
+output_parquet_dataset_path = join(DATA_ROOT, "parquet_dataset")
+
+output_hf_dataset_name = "xyzNLP/nza-ct-zoning-codes"
+
+output_hf_dataset_path = join(DATA_ROOT, "hf_dataset")
+
+# Create output directories if they don't already exist
+makedirs(output_parquet_dataset_path, exist_ok=True)
+makedirs(output_hf_dataset_path, exist_ok=True)
 
 SCHEMA = pa.schema(
     [
@@ -109,9 +130,9 @@ def import_town(town, isMap=False):
     """
 
     local_folder = (
-        os.path.join(root_path, f"processed-data/{town}-map")
+        join(input_textract_dataset_path, f"{town}-map")
         if isMap
-        else os.path.join(root_path, f"processed-data/{town}")
+        else join(input_textract_dataset_path, town)
     )
 
     dict_list = []
@@ -123,16 +144,16 @@ def import_town(town, isMap=False):
     for file in tqdm(
         sorted(
             glob.glob("*", root_dir=local_folder),
-            key=lambda f: int(os.path.splitext(f)[0]),
+            key=lambda f: int(splitext(f)[0]),
         ),
         desc=town,
     ):
         try:
-            with open(f"{local_folder}/{file}", encoding="utf-8") as f:
+            with open(join(local_folder, file), encoding="utf-8") as f:
                 data = json.load(f)["Blocks"]
         except:
             tqdm.write(
-                f"Error encountered while loading JSON file {os.path.join(local_folder, file)}."
+                f"Error encountered while loading JSON file {join(local_folder, file)}."
             )
             continue
         dict_list.extend(data)
@@ -161,23 +182,22 @@ def import_town(town, isMap=False):
     ).drop(columns=["Relationships"])
     clean_df["Town"] = town
 
-    output_path = f"dataset/{town}.parquet"
+    output_path = join(output_parquet_dataset_path, f"{town}.parquet")
     clean_df.to_parquet(output_path, schema=SCHEMA)
 
     return output_path
 
 
 if __name__ == "__main__":
-    with open("names_all_towns.json") as f:
+    with open(input_town_list_path) as f:
         all_towns = json.load(f)
 
     datafiles = [path for path in process_map(import_town, all_towns) if path is not None]
-    train, test = train_test_split(datafiles, test_size=0.3, random_state=42)
+    train, test = train_test_split(datafiles, test_size=TEST_SPLIT_FRAC, random_state=RANDOM_STATE)
 
     dataset = load_dataset("parquet", data_files={"train": train, "test": test})
 
-    if PUBLISH_DATASET:
-        dataset.push_to_hub("xyzNLP/nza-ct-zoning-codes", private=True)
-    else:
-        dataset.save_to_disk("./hf_dataset")
+    dataset.save_to_disk(output_hf_dataset_path)
 
+    if PUBLISH_DATASET:
+        dataset.push_to_hub(output_hf_dataset_name, private=True)

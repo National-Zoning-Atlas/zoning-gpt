@@ -1,0 +1,12 @@
+stages:
+  generate_dataset:
+    cmd: python maxdumas/generate_dataset.py
+    deps:
+    - data/names_all_towns.json
+    - data/urban_institute
+    params:
+    - generate_dataset.seed
+    - generate_dataset.test_split_frac
+    outs:
+    - data/hf_dataset
+    - data/parquet_dataset

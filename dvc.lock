@@ -1,0 +1,25 @@
+schema: '2.0'
+stages:
+  generate_dataset:
+    cmd: python maxdumas/generate_dataset.py
+    deps:
+    - path: data/names_all_towns.json
+      md5: 0013040cfeb0f4f23a35a94cae9f2950
+      size: 2665
+    - path: data/urban_institute
+      md5: cab2101418a23f48d5cd0be7ce2c34ba.dir
+      size: 5360176358
+      nfiles: 13759
+    params:
+      params.yaml:
+        generate_dataset.seed: 42
+        generate_dataset.test_split_frac: 0.3
+    outs:
+    - path: data/hf_dataset
+      md5: 86e5ccd30156f651fb455f08883e3879.dir
+      size: 1999411785
+      nfiles: 10
+    - path: data/parquet_dataset
+      md5: c31747fce170ce30e117a99ee529d33c.dir
+      size: 1177255619
+      nfiles: 100
