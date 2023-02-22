@@ -1,0 +1,4 @@
+[core]
+    remote = cornell-ut-aws
+['remote "cornell-ut-aws"']
+    url = s3://cornell-mfd64/dvc/zoning
