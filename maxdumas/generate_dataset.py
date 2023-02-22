@@ -1,20 +1,20 @@
 import glob
 import json
-from os.path import join, splitext, dirname, realpath
 from os import makedirs
+from os.path import basename, dirname, join, realpath, splitext
 
-import yaml
-import pyarrow as pa
 import pandas as pd
-from tqdm import tqdm
-from tqdm.contrib.concurrent import process_map
+import pyarrow as pa
+import yaml
 from datasets import load_dataset
 from sklearn.model_selection import train_test_split
+from tqdm import tqdm
+from tqdm.contrib.concurrent import process_map
 
 DIR = dirname(realpath(__file__))
 
 with open(join(DIR, "..", "params.yaml")) as f:
-    config = yaml.safe_load(f)["generate_dataset"]
+    config = yaml.safe_load(f)[splitext(basename(__file__))[0]]
 
 # Whether or not to publish the resulting dataset to HuggingFace Hub. If False,
 # the dataset will be saved locally to disk instead.
@@ -28,7 +28,7 @@ DATA_ROOT = realpath(join(DIR, "..", "data"))
 # Path to the directory where Textract results from CT Zoning codes live. A
 # folder named "processed-data" should exist at this path that contains the
 # Textract results.
-input_textract_dataset_path = join(DATA_ROOT, "urban_institute", "processed-data")
+input_textract_dataset_path = join(DATA_ROOT, "textract_dataset")
 
 # JSON file listing the full set of towns for which we expect to have data.
 input_town_list_path = join(DATA_ROOT, "names_all_towns.json")

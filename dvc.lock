@@ -23,3 +23,17 @@ stages:
       md5: c31747fce170ce30e117a99ee529d33c.dir
       size: 1177255619
       nfiles: 100
+  upload_zoning_docs:
+    cmd: bash maxdumas/upload_zoning_docs.sh
+    deps:
+    - path: data/orig-documents
+      md5: b208d6a5c83a0ee2ea6866545fddf26b.dir
+      size: 1004547167
+      nfiles: 181
+    - path: maxdumas/upload_zoning_docs.sh
+      md5: 4bc9fb2d649525a0c3928fe4f7bc2307
+      size: 316
+    outs:
+    - path: data/orig_documents_s3_manifest.json
+      md5: 897ea14dfed07ed31455e60dc08c51c4
+      size: 9670

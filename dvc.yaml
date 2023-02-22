@@ -1,9 +1,25 @@
 stages:
+  upload_zoning_docs:
+    cmd: bash maxdumas/upload_zoning_docs.sh
+    deps:
+    - data/orig-documents
+    - maxdumas/upload_zoning_docs.sh
+    outs:
+    - data/orig_documents_s3_manifest.json
+  extract_text:
+    cmd: python maxdumas/extract_text.py
+    deps:
+    - data/orig_documents_s3_manifest.json
+    - maxdumas/extract_text.py
+    params:
+    - extract_text.orig_document_s3_bucket
+    outs:
+    - data/textract_dataset
   generate_dataset:
     cmd: python maxdumas/generate_dataset.py
     deps:
     - data/names_all_towns.json
-    - data/urban_institute
+    - data/textract_dataset
     params:
     - generate_dataset.seed
     - generate_dataset.test_split_frac

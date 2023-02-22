@@ -1,3 +1,5 @@
+extract_text:
+  orig_document_s3_bucket: cornell-mfd64
 generate_dataset:
   seed: 42
   # The fraction of the dataset that will be used for the test split. The
