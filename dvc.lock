@@ -6,23 +6,26 @@ stages:
     - path: data/names_all_towns.json
       md5: 0013040cfeb0f4f23a35a94cae9f2950
       size: 2665
-    - path: data/urban_institute
-      md5: cab2101418a23f48d5cd0be7ce2c34ba.dir
-      size: 5360176358
-      nfiles: 13759
+    - path: data/textract_dataset
+      md5: 8d59315d9f3f21ddaab194db92db4d9e.dir
+      size: 8120123951
+      nfiles: 181
+    - path: maxdumas/generate_dataset.py
+      md5: 822d58780b8128d427872c5ac4bf6459
+      size: 4673
     params:
       params.yaml:
         generate_dataset.seed: 42
         generate_dataset.test_split_frac: 0.3
     outs:
     - path: data/hf_dataset
-      md5: 86e5ccd30156f651fb455f08883e3879.dir
-      size: 1999411785
-      nfiles: 10
+      md5: 0057d2cb5fa96c6398ac1321ee8c4d99.dir
+      size: 3618776812
+      nfiles: 13
     - path: data/parquet_dataset
-      md5: c31747fce170ce30e117a99ee529d33c.dir
-      size: 1177255619
-      nfiles: 100
+      md5: f709624dca0e132c4d0d54fe8834d9f7.dir
+      size: 2207759780
+      nfiles: 176
   upload_zoning_docs:
     cmd: bash maxdumas/upload_zoning_docs.sh
     deps:
