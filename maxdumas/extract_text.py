@@ -75,7 +75,7 @@ def run_textract(town_pdf_path: str):
             print(f"Job {jobId} on file {town_pdf_path} FAILED. Reason: {status_message}")
         elif status == "SUCCEEDED":
             result = list(get_job_results(jobId))
-            with open(join(output_textract_dataset_path, town_pdf_path.replace(".pdf", ".json")), 'w') as f:
+            with open(join(output_textract_dataset_path, basename(town_pdf_path.replace(".pdf", ".json"))), 'w') as f:
                 json.dump(result, f)
             print(f"Job {jobId} on file {town_pdf_path} SUCCEEDED.")
 

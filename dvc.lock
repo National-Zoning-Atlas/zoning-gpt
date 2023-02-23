@@ -37,3 +37,20 @@ stages:
     - path: data/orig_documents_s3_manifest.json
       md5: 897ea14dfed07ed31455e60dc08c51c4
       size: 9670
+  extract_text:
+    cmd: python maxdumas/extract_text.py
+    deps:
+    - path: data/orig_documents_s3_manifest.json
+      md5: 897ea14dfed07ed31455e60dc08c51c4
+      size: 9670
+    - path: maxdumas/extract_text.py
+      md5: d955fa346713902c168c62b455b460a7
+      size: 2866
+    params:
+      params.yaml:
+        extract_text.orig_document_s3_bucket: cornell-mfd64
+    outs:
+    - path: data/textract_dataset
+      md5: 8d59315d9f3f21ddaab194db92db4d9e.dir
+      size: 8120123951
+      nfiles: 181

@@ -1,3 +1,6 @@
 /urban_institute
 /parquet_dataset
 /hf_dataset
+/textract_dataset
+/orig-documents
+orig_documents_s3_manifest.json
