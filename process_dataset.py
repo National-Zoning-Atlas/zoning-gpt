@@ -1,17 +1,18 @@
 import sys
 import pandas as pd
 import huggingface_hub
-from datasets import load_dataset
-from datasets import Dataset
+from datasets import load_dataset, DatasetDict, load_from_disk, Dataset
 
 # login to huggingface using API key
-HF_API_KEY = sys.argv[1]
+HF_API_KEY_READ = sys.argv[2]
+HF_API_KEY_WRITE = sys.argv[3]
 
+# whether to write to HF or not
+WRITE = sys.argv[1]
 
-def load_dataset():
-    dataset = load_dataset("xyzNLP/nza-ct-zoning-codes")
+def load_dataset(url="xyzNLP/nza-ct-zoning-codes"):
+    dataset = load_dataset(url)
     return dataset
-
 
 def process_dataset(dataset):
     # create dfs from dataset
@@ -31,19 +32,21 @@ def process_dataset(dataset):
     return train_chunked_df, test_chunked_df
 
 
-def get_district_names(groundtruth_file, train_chunked_df, test_chunked_df):
-    df_sheet = pd.read_excel("zoning_nlp/Zoning Atlas Data 2022.xlsx")
+def get_district_names(train_chunked_df, test_chunked_df, metadata_url="xyzNLP/nza-ct-zoning-atlas-metadata"):
+    dataset_metadata = load_dataset(metadata_url)
+    dataset_metadata.set_format("pandas")
+    df_metadata = dataset_metadata['train'][:]
 
     train_towns = train_chunked_df['Town'].unique()
     test_towns = test_chunked_df['Town'].unique()
 
-    df_sheet['Jurisdiction'] = df_sheet['Jurisdiction'].apply(lambda x: str(x).lower().rstrip())
-    df_sheet['Jurisdiction'] = df_sheet['Jurisdiction'].apply(lambda x: str(x).replace(' - ', '-'))
-    df_sheet['Jurisdiction'] = df_sheet['Jurisdiction'].apply(lambda x: str(x).replace('/', '-'))
-    df_sheet['Jurisdiction'] = df_sheet['Jurisdiction'].apply(lambda x: str(x).replace(' ', '-'))
+    df_metadata['Jurisdiction'] = df_metadata['Jurisdiction'].apply(lambda x: str(x).lower().rstrip())
+    df_metadata['Jurisdiction'] = df_metadata['Jurisdiction'].apply(lambda x: str(x).replace(' - ', '-'))
+    df_metadata['Jurisdiction'] = df_metadata['Jurisdiction'].apply(lambda x: str(x).replace('/', '-'))
+    df_metadata['Jurisdiction'] = df_metadata['Jurisdiction'].apply(lambda x: str(x).replace(' ', '-'))
 
-    train_districts_df = df_sheet[df_sheet['Jurisdiction'].isin(train_towns)][['Jurisdiction', 'AbbreviatedDistrict', 'Full District Name']]
-    test_districts_df = df_sheet[df_sheet['Jurisdiction'].isin(test_towns)][['Jurisdiction', 'AbbreviatedDistrict', 'Full District Name']]
+    train_districts_df = df_metadata[df_metadata['Jurisdiction'].isin(train_towns)][['Jurisdiction', 'AbbreviatedDistrict', 'Full District Name']]
+    test_districts_df = df_metadata[df_metadata['Jurisdiction'].isin(test_towns)][['Jurisdiction', 'AbbreviatedDistrict', 'Full District Name']]
 
     train_districts_dict = (train_districts_df.groupby(by='Jurisdiction')['Full District Name'].apply(list)).to_dict()
     test_districts_dict = (test_districts_df.groupby(by='Jurisdiction')['Full District Name'].apply(list)).to_dict()
@@ -86,6 +89,19 @@ def create_queries(districts_dict, queries_template):
     return all_queries
 
 
-# create queries
-# train_queries_bm25 = create_queries(train_districts_dict, bm25_queries_template)
-# test_queries_bm25 = create_queries(test_districts_dict, bm25_queries_template)
+if __name__ == "__main__":
+    huggingface_hub.login(token=HF_API_KEY_READ)
+    huggingface_hub.login(token=HF_API_KEY_WRITE)
+
+    dataset_raw = load_dataset(url="xyzNLP/nza-ct-zoning-codes")
+
+    train_chunked_df, test_chunked_df = process_dataset(dataset_raw)
+
+    train_districts_dict, test_districts_dict = get_district_names(train_chunked_df, test_chunked_df, metadata_url="xyzNLP/nza-ct-zoning-atlas-metadata")
+
+    train_districts_dataset = Dataset.from_pandas(pd.DataFrame(data=train_districts_dict))
+    test_districts_dataset =  Dataset.from_pandas(pd.DataFrame(data=test_districts_dict))
+
+    dataset = DatasetDict({"train": train_districts_dataset, "test": test_districts_dataset})
+
+    dataset.push_to_hub("xyzNLP/nza-ct-zoning-codes-text-processed", private=True)
