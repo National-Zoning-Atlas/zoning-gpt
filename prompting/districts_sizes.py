@@ -5,7 +5,7 @@ import json
 
 data = datasets.load_dataset("xyzNLP/nza-ct-zoning-codes-text")
 
-d = data["train"].filter(lambda x: x["Town"] == "norfolk")
+d = data["train"].filter(lambda x: x["Town"] == "madison")
 d.add_faiss_index("embeddings")
 
 class KNNPrompt(EmbeddingPrompt):
@@ -40,5 +40,6 @@ def get_multifamily(d, districts):
             result = prompt({"docs": out["docs"], "zone_name": x['T'], "zone_abbreviation": x['Z']})
             print("District", x['T'], result)
 
-districts = get_districts(d)
+# districts = get_districts(d)
+districts = [{"Z": "Affordable Housing Distrct", "T": "AHD"}]
 get_multifamily(d, districts)
