@@ -108,26 +108,28 @@ def render_page_results(page_image: Image.Image, page_results: dict) -> Image.Im
 
 
 def main():
-    st.title("Warpspeed Document QA")
+    with st.sidebar:
+        st.title("Warpspeed Document QA")
+        st.header("Inputs")
+        town = cast(str, st.selectbox(label="Town", options=get_towns(), index=0))
+        results = generate_sample_query_results(town, 25, 42)
+        document_path = join(DIR, "../data/orig-documents", f"{town}-zoning-code.pdf")
 
-    st.header("Inputs")
+        query = st.text_area(
+            label="Query",
+            value="Are accessory dwelling units allowed in R-1 residential districts?",
+            help="What do you want to ask about your document?",
+        )
+        page = st.select_slider("Page", options=set(r["Page"] for r in results))
+        page_image = get_pdf_page_image(document_path, page - 1)
+        page_result = next(r for r in results if r["Page"] == page)
 
-    town = cast(str, st.selectbox(label="Town", options=get_towns(), index=0))
+        st.header("Results")
+        st.table(({"Extracted Text": t["Text"]} for t in page_result["References"]))
 
-    query = st.text_input(
-        label="Query",
-        value="Are accessory dwelling units allowed in R-1 residential districts?",
-        help="What do you want to ask about your document?",
-    )
-    document_path = join(DIR, "../data/orig-documents", f"{town}-zoning-code.pdf")
+    st.header("Image")
 
-    st.header("Results")
-    results = generate_sample_query_results(town, 25, 42)
-    page = st.select_slider("Page", options=set(r["Page"] for r in results))
-    page_image = get_pdf_page_image(document_path, page - 1)
-    page_result = next(r for r in results if r["Page"] == page)
     st.image(render_page_results(page_image, page_result), caption=f"Page {page}")
-    st.table(page_result["References"])
 
 
 if __name__ == "__main__":
