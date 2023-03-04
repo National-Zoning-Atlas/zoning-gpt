@@ -4,7 +4,7 @@ from typing import cast
 
 import fitz
 import pandas as pd
-from PIL import Image
+from PIL import Image, ImageDraw
 import streamlit as st
 
 DIR = dirname(realpath(__file__))
@@ -14,9 +14,39 @@ def generate_sample_query_results(town: str, n: int, random_state: int):
     """
     Given a town, loads n random rows from our parquet dataset, groups the
     results by page, and generates example results using the sampled rows.
+
+    Example:
+    [{
+        'Page': 20,
+        'References': [{
+            'Text': 'be',
+            'Geometry': {
+                'BoundingBox': {
+                    'Width': 0.018624797463417053,
+                    'Height': 0.011233381927013397,
+                    'Left': 0.7655000686645508,
+                    'Top': 0.4534885883331299},
+                'Polygon': array([{'X': 0.7655000686645508, 'Y': 0.4534885883331299},
+                        {'X': 0.7841235995292664, 'Y': 0.45349404215812683},
+                        {'X': 0.7841248512268066, 'Y': 0.4647219777107239},
+                        {'X': 0.7655012607574463, 'Y': 0.46471652388572693}], dtype=object)}}]},
+        {'Page': 28,
+        'References': [{'Text': 'the',
+            'Geometry': {'BoundingBox': {'Width': 0.026048874482512474,
+            'Height': 0.011076398193836212,
+            'Left': 0.4396061599254608,
+            'Top': 0.2604541480541229},
+            'Polygon': array([{'X': 0.43961140513420105, 'Y': 0.2604541480541229},
+                    {'X': 0.46565502882003784, 'Y': 0.26048582792282104},
+                    {'X': 0.46564990282058716, 'Y': 0.27153053879737854},
+                    {'X': 0.4396061599254608, 'Y': 0.27149882912635803}], dtype=object)}}]},
+        ...
+    }]
     """
     df = pd.read_parquet(join(DIR, "../data/parquet_dataset", f"{town}.parquet"))
-    gb = df.sample(n, random_state=random_state)[["Page", "Text", "Geometry"]].groupby("Page")
+    gb = df.sample(n, random_state=random_state)[["Page", "Text", "Geometry"]].groupby(
+        "Page"
+    )
 
     return [
         {"Page": p, "References": [dict(zip(v, t)) for t in zip(*v.values())]}
@@ -41,6 +71,42 @@ def get_pdf_page_image(pdf_path: str, page_num: int) -> Image.Image:
         pix = page.get_pixmap(matrix=magnify)
         return Image.frombytes("RGB", (pix.w, pix.h), pix.samples)
 
+
+@st.cache_data
+def draw_rect_onto_image(
+    base_image: Image.Image, left: float, top: float, width: float, height: float, color
+) -> Image.Image:
+    """Given a base image, draw a rectangle at the desired location on the
+    image."""
+    draw = ImageDraw.Draw(base_image)
+    draw.rectangle((left, top, left + width, top + height), fill=color)
+
+    return base_image
+
+
+def render_page_results(page_image: Image.Image, page_results: dict) -> Image.Image:
+    """For a given page image, renders the bounding boxes for all results onto
+    the page."""
+    draw = ImageDraw.Draw(page_image, "RGBA")
+    for ref in page_results["References"]:
+        bbox = ref["Geometry"]["BoundingBox"]
+        left = bbox["Left"]
+        top = bbox["Top"]
+        width = bbox["Width"]
+        height = bbox["Height"]
+        draw.rectangle(
+            (
+                left * page_image.width,
+                top * page_image.height,
+                (left + width) * page_image.width,
+                (top + height) * page_image.height,
+            ),
+            fill=(255, 0, 255, 128),
+        )
+
+    return page_image
+
+
 def main():
     st.title("Warpspeed Document QA")
 
@@ -50,16 +116,18 @@ def main():
 
     query = st.text_input(
         label="Query",
-        value="The quick brown fox jumps over the lazy dog",
+        value="Are accessory dwelling units allowed in R-1 residential districts?",
         help="What do you want to ask about your document?",
     )
     document_path = join(DIR, "../data/orig-documents", f"{town}-zoning-code.pdf")
 
     st.header("Results")
     results = generate_sample_query_results(town, 25, 42)
-    result = results[0]
-    page = result["Page"]
-    st.image(get_pdf_page_image(document_path, page), caption=f"Page {page}")
+    page = st.select_slider("Page", options=set(r["Page"] for r in results))
+    page_image = get_pdf_page_image(document_path, page - 1)
+    page_result = next(r for r in results if r["Page"] == page)
+    st.image(render_page_results(page_image, page_result), caption=f"Page {page}")
+    st.table(page_result["References"])
 
 
 if __name__ == "__main__":

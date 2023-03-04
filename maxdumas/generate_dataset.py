@@ -1,4 +1,3 @@
-import glob
 import json
 from os import makedirs
 from os.path import basename, dirname, join, realpath, splitext
