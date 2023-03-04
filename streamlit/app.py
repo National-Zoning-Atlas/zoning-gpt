@@ -120,14 +120,20 @@ def main():
             value="Are accessory dwelling units allowed in R-1 residential districts?",
             help="What do you want to ask about your document?",
         )
-        page = st.select_slider("Page", options=set(r["Page"] for r in results))
+        generated_answer = "Yes, accessory dwelling units are allowed in R-1 residential districts."
+        st.header("Answer")
+        st.write(f":blue[{generated_answer}]")
+
+        st.header("Diagnosis")
+        st.caption("The following pages and extracted text were used to generate this answer:")
+        page = st.select_slider(f"Page ({len(results)} total)", options=set(r["Page"] for r in results))
         page_image = get_pdf_page_image(document_path, page - 1)
         page_result = next(r for r in results if r["Page"] == page)
 
-        st.header("Results")
-        st.table(({"Extracted Text": t["Text"]} for t in page_result["References"]))
 
-    st.header("Image")
+        st.table(({f"Text Extracted from Page {page}": t["Text"]} for t in page_result["References"]))
+
+    st.header("Document")
 
     st.image(render_page_results(page_image, page_result), caption=f"Page {page}")
 
