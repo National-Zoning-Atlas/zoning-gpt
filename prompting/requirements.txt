@@ -1,3 +1,4 @@
 datasets
 openai
 faiss-cpu
+elasticsearch-dsl
