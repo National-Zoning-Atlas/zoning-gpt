@@ -1,0 +1,6 @@
+{
+
+    "lot size": ["min lot size", "min lot coverage", "min parcel size", "min parcel size", "min lot and building", "area and buik", "min dimensional", "min lot area"],
+    "unit size": ["min unit size", "minimum unit size", "min floor area", "minimum floor area"],
+    "dimensions": ["acre", "square feet", "sq ft"]
+}
