@@ -19,6 +19,7 @@ def lookup_term(town, district, term="lot size"):
     print([o[1] for o in out])
     print(highlight)
     print(page_number)
+    print(page_text)
     with start_chain("lookup") as backend:
         extract = DistrictMinPrompt(backend.Manifest(manifest))
 
@@ -47,6 +48,7 @@ if __name__ == "__main__":
         for l in open("districts.jsonl"):
             d = json.loads(l)
             town = d["Town"]
+            # if town != "bethany": continue
             if town in town_sizes:
                 continue
 
@@ -56,7 +58,7 @@ if __name__ == "__main__":
                 sizes = {}                
                 print(town)
                 print(district)
-                
+
                 for term in ["min lot size", "min unit size"]:
                     print(term)
                     lt = lookup_term(town, district, term)
