@@ -48,9 +48,9 @@ if __name__ == "__main__":
         for l in open("districts.jsonl"):
             d = json.loads(l)
             town = d["Town"]
-            if town != "bethany": continue
-            # if town in town_sizes:
-            #     continue
+            # if town != "bethany": continue
+            if town in town_sizes:
+                continue
 
             out = {"Town": town, "Districts": []}
 
