@@ -4,7 +4,8 @@ abbreviations. Your Job is to list the zoning districts and these
 abbreviations.  Only output districts that have abbreviations.  Please
 output the answer only with JSON (no text) in the format:
 
-[{"T": "district type", "Z": "district abbreviation"}].
+
+[{"T": "district type", "Z": "district abbreviation with number"}].
 
 Passage:
 
@@ -16,15 +17,23 @@ Output:
 
 Passage:
 
-* Residential (R)
+* Residential (R) districts
+
+CELL
+Residential
+CELL
+R-10
+CELL
+R-20
+CELL
 
 Output:
 
-[{"T": "Residential",  "Z": "R"}]
+[{"T": "Residential",  "Z": "R-10"}, {"T": "Residential",  "Z": "R-20"}]
 
 Passage:
 
-* Business districts:
+* Business (C) districts:
 
 (C19) Commercial 19
 (C29) Commercial 29
@@ -40,6 +49,6 @@ Passage:
 * {{doc}}
 {% endfor %}
 {% endmacro %}
-{{showdocs(docs) | truncate(2000*4)}}
+{{showdocs(docs) | truncate(1200*4)}}
 
 Output:
