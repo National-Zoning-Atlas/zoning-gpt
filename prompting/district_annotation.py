@@ -40,7 +40,7 @@ def get_districts(dataset):
         # print(doc_list)
         # extract district table
         dp = DistrictsPrompt(backend.Manifest(Manifest(client_name = "openai",
-                                                     cache_name = "sqlite",
+                                                       cache_name = "sqlite",
                                                        cache_connection = "mycache.sqlite", max_tokens=1024)))
                            # (prefix_dataset, 3))#backend.OpenAI(max_tokens=1024))
         

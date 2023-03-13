@@ -49,6 +49,6 @@ Passage:
 * {{doc}}
 {% endfor %}
 {% endmacro %}
-{{showdocs(docs) | truncate(1500*4)}}
+{{showdocs(docs) | truncate(1200*4)}}
 
 Output:
