@@ -43,8 +43,6 @@ def draw_rect_onto_image(
 def render_page_results(page_image: Image.Image, page_results: dict) -> Image.Image:
     """For a given page image, renders the bounding boxes for all results onto
     the page."""
-    if page_results is None:
-        return page_image
 
     draw = ImageDraw.Draw(page_image, "RGBA")
     for ref in page_results["References"]:
@@ -134,7 +132,10 @@ def main():
     st.dataframe(answers, use_container_width=True)
 
     st.header("Document")
-    st.image(render_page_results(page_image, page_result), caption=f"Page {page}")
+    if page_result is not None:
+        st.image(render_page_results(page_image, page_result), caption=f"Page {page}")
+    else:
+        st.image(page_image, caption=f"Page {page}")
 
 
 if __name__ == "__main__":
