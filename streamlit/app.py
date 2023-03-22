@@ -1,6 +1,5 @@
 import json
 from os.path import dirname, realpath, join
-from typing import cast
 
 import fitz
 import pandas as pd
@@ -10,54 +9,11 @@ import streamlit as st
 DIR = dirname(realpath(__file__))
 
 
-def generate_sample_query_results(town: str, n: int, random_state: int):
-    """
-    Given a town, loads n random rows from our parquet dataset, groups the
-    results by page, and generates example results using the sampled rows.
-
-    Example:
-    [{
-        'Page': 20,
-        'References': [{
-            'Text': 'be',
-            'Geometry': {
-                'BoundingBox': {
-                    'Width': 0.018624797463417053,
-                    'Height': 0.011233381927013397,
-                    'Left': 0.7655000686645508,
-                    'Top': 0.4534885883331299},
-                'Polygon': array([{'X': 0.7655000686645508, 'Y': 0.4534885883331299},
-                        {'X': 0.7841235995292664, 'Y': 0.45349404215812683},
-                        {'X': 0.7841248512268066, 'Y': 0.4647219777107239},
-                        {'X': 0.7655012607574463, 'Y': 0.46471652388572693}], dtype=object)}}]},
-        {'Page': 28,
-        'References': [{'Text': 'the',
-            'Geometry': {'BoundingBox': {'Width': 0.026048874482512474,
-            'Height': 0.011076398193836212,
-            'Left': 0.4396061599254608,
-            'Top': 0.2604541480541229},
-            'Polygon': array([{'X': 0.43961140513420105, 'Y': 0.2604541480541229},
-                    {'X': 0.46565502882003784, 'Y': 0.26048582792282104},
-                    {'X': 0.46564990282058716, 'Y': 0.27153053879737854},
-                    {'X': 0.4396061599254608, 'Y': 0.27149882912635803}], dtype=object)}}]},
-        ...
-    }]
-    """
-    df = pd.read_parquet(join(DIR, "../data/parquet_dataset", f"{town}.parquet"))
-    gb = df.sample(n, random_state=random_state)[["Page", "Text", "Geometry"]].groupby(
-        "Page"
-    )
-
-    return [
-        {"Page": p, "References": [dict(zip(v, t)) for t in zip(*v.values())]}
-        for p, v in gb.agg(list).T.to_dict().items()
-    ]
-
-
 @st.cache_data
 def get_towns():
-    with open(join(DIR, "../data/names_all_towns.json")) as f:
-        return json.load(f)
+    with open(join(DIR, "../prompting/sizes.jsonl"), encoding="utf-8") as f:
+        json_lines = (json.loads(l) for l in f.readlines())
+        return sorted(json_lines, key=lambda l: l["Town"])
 
 
 @st.cache_data
@@ -87,6 +43,7 @@ def draw_rect_onto_image(
 def render_page_results(page_image: Image.Image, page_results: dict) -> Image.Image:
     """For a given page image, renders the bounding boxes for all results onto
     the page."""
+
     draw = ImageDraw.Draw(page_image, "RGBA")
     for ref in page_results["References"]:
         bbox = ref["Geometry"]["BoundingBox"]
@@ -111,31 +68,74 @@ def main():
     with st.sidebar:
         st.title("Warpspeed Document QA")
         st.header("Inputs")
-        town = cast(str, st.selectbox(label="Town", options=get_towns(), index=0))
-        results = generate_sample_query_results(town, 25, 42)
-        document_path = join(DIR, "../data/orig-documents", f"{town}-zoning-code.pdf")
-
-        query = st.text_area(
-            label="Query",
-            value="Are accessory dwelling units allowed in R-1 residential districts?",
-            help="What do you want to ask about your document?",
+        town_district_data = get_towns()
+        town = st.selectbox(
+            label="Town",
+            options=town_district_data,
+            format_func=lambda t: t["Town"],
+            index=0,
         )
-        generated_answer = "Yes, accessory dwelling units are allowed in R-1 residential districts."
-        st.header("Answer")
-        st.write(f":blue[{generated_answer}]")
+        district = st.selectbox(
+            label="District",
+            options=town["Districts"],
+            format_func=lambda d: f"{d['Name']['Z']} ({d['Name']['T']})",
+            index=0,
+        )
+        document_path = join(
+            DIR, "../data/orig-documents", f"{town['Town']}-zoning-code.pdf"
+        )
 
-        st.header("Diagnosis")
-        st.caption("The following pages and extracted text were used to generate this answer:")
-        page = st.select_slider(f"Page ({len(results)} total)", options=set(r["Page"] for r in results))
-        page_image = get_pdf_page_image(document_path, page - 1)
-        page_result = next(r for r in results if r["Page"] == page)
+        if district is None:
+            st.write("No districts with answers generated.")
+            return
 
+        sizes = district["Sizes"]
 
-        st.table(({f"Text Extracted from Page {page}": t["Text"]} for t in page_result["References"]))
+        def parse_size_answer(x):
+            k, s = x
+            a = s[0]
+            page = s[1]
+            if page == -1:
+                # No answer was found to this question
+                return {"type": k, "page": None, "reason": None, "answer": None}
+
+            answer_lines = [l.strip() for l in a.split("*")]
+            reasons = [l.replace("Reason:", "").strip() for l in answer_lines if l.startswith("Reason")]
+            answers = [l for l in answer_lines if not l.startswith("Reason") and len(l) > 0]
+
+            return {
+                "type": k,
+                "page": page,
+                "answer": answers,
+                "reason": reasons,
+            }
+
+        answers = pd.DataFrame(map(parse_size_answer, sizes.items()))
+
+        st.caption(
+            "The following pages were used to generate this answer:"
+        )
+        pages = answers["page"].dropna().unique().astype(int)
+        pages.sort()
+        if pages is None or len(pages) == 0:
+            return
+        elif len(pages) == 1:
+            page = pages[0]
+        else:
+            page = st.select_slider(
+                f"Page ({len(answers)} total)", options=pages
+            )
+        page_image = get_pdf_page_image(document_path, int(page))
+        page_result = None
+
+    st.header("Answer")
+    st.dataframe(answers, use_container_width=True)
 
     st.header("Document")
-
-    st.image(render_page_results(page_image, page_result), caption=f"Page {page}")
+    if page_result is not None:
+        st.image(render_page_results(page_image, page_result), caption=f"Page {page}")
+    else:
+        st.image(page_image, caption=f"Page {page}")
 
 
 if __name__ == "__main__":
