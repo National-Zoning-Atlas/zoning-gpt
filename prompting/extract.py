@@ -1,34 +1,33 @@
-from manifest import Manifest
-from minichain import EmbeddingPrompt, TemplatePrompt, show_log, start_chain, Prompt
 import json
-from search import nearest_pages
+from pathlib import Path
+
+from manifest import Manifest
+from minichain import (EmbeddingPrompt, Prompt, TemplatePrompt, show_log,
+                       start_chain)
+
+from .search import nearest_pages
 
 manifest = Manifest(client_name = "openai",
                     cache_name = "sqlite",
                     cache_connection = "mycache.sqlite",
                     max_tokens=128)
-thesaurus = json.load(open("thesaurus.json"))
+
+with Path(__file__).parent.joinpath("thesaurus.json").open() as f:
+    thesaurus = json.load(f)
 
 class DistrictMinPrompt(TemplatePrompt):
-    template_file = "extraction.pmpt.tpl"
+    template_file = str(Path(__file__).parent.joinpath("extraction.pmpt.tpl").relative_to(Path.cwd()))
 
-def lookup_term(town, district, term="lot size"):
-    out = nearest_pages(town, district, term)
-    if len(out) == 0: return "n/a", -1
-    page_text, page_number, highlight = out[0]
-    print([o[1] for o in out])
-    print(highlight)
-    print(page_number)
-    print(page_text)
+def lookup_term(page_text, district, term="lot size"):
     with start_chain("lookup") as backend:
         extract = DistrictMinPrompt(backend.Manifest(manifest))
 
         return extract({"passage": page_text,
                         "term": term,
-                        "synonyms": " ,".join(thesaurus[term]),
+                        "synonyms": " ,".join(thesaurus.get(term, [])),
                         "zone_name" : district["T"],
                         "zone_abbreviation" : district["Z"],
-        }), page_number
+        })
 
 
     
@@ -59,8 +58,10 @@ if __name__ == "__main__":
                 print(district)
 
                 for term in ["min lot size", "min unit size"]:
+                    pages = nearest_pages(town, district, term)
+                    page_text = next(r[0] for r in pages)
                     print(term)
-                    lt = lookup_term(town, district, term)
+                    lt = lookup_term(page_text, district, term)
                     print(lt)
                     sizes[term] = lt
                 out["Districts"].append({"Name": district, "Sizes": sizes})

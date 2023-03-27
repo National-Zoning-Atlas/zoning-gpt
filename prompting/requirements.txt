@@ -3,5 +3,7 @@ openai
 faiss-cpu
 elasticsearch-dsl
 manifest-ml
+minichain
 tiktoken
 fuzzywuzzy
+git+https://github.com/srush/MiniChain/@v0.1

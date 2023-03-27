@@ -8,10 +8,12 @@ import streamlit as st
 
 DIR = dirname(realpath(__file__))
 
+from prompting.search import nearest_pages
+from prompting.extract import lookup_term
 
 @st.cache_data
 def get_towns():
-    with open(join(DIR, "../prompting/sizes.jsonl"), encoding="utf-8") as f:
+    with open(join(DIR, "../prompting/districts_matched.jsonl"), encoding="utf-8") as f:
         json_lines = (json.loads(l) for l in f.readlines())
         return sorted(json_lines, key=lambda l: l["Town"])
 
@@ -63,6 +65,17 @@ def render_page_results(page_image: Image.Image, page_results: dict) -> Image.Im
 
     return page_image
 
+# TODO: Use guardrails for this
+def parse_size_answer(a):
+    answer_lines = [l.strip() for l in a.split("*")]
+    reasons = [l.replace("Reason:", "").strip() for l in answer_lines if l.startswith("Reason")]
+    answers = [l for l in answer_lines if not l.startswith("Reason") and len(l) > 0]
+
+    return {
+        "answer": answers,
+        "reason": reasons,
+    }
+
 
 def main():
     with st.sidebar:
@@ -78,7 +91,7 @@ def main():
         district = st.selectbox(
             label="District",
             options=town["Districts"],
-            format_func=lambda d: f"{d['Name']['Z']} ({d['Name']['T']})",
+            format_func=lambda d: f"{d['Z']} ({d['T']})",
             index=0,
         )
         document_path = join(
@@ -89,53 +102,35 @@ def main():
             st.write("No districts with answers generated.")
             return
 
-        sizes = district["Sizes"]
+        term = st.text_input("Search Term", "min lot size")
+        
+        pages = nearest_pages(town["Town"], district, term)
 
-        def parse_size_answer(x):
-            k, s = x
-            a = s[0]
-            page = s[1]
-            if page == -1:
-                # No answer was found to this question
-                return {"type": k, "page": None, "reason": None, "answer": None}
-
-            answer_lines = [l.strip() for l in a.split("*")]
-            reasons = [l.replace("Reason:", "").strip() for l in answer_lines if l.startswith("Reason")]
-            answers = [l for l in answer_lines if not l.startswith("Reason") and len(l) > 0]
-
-            return {
-                "type": k,
-                "page": page,
-                "answer": answers,
-                "reason": reasons,
-            }
-
-        answers = pd.DataFrame(map(parse_size_answer, sizes.items()))
-
-        st.caption(
-            "The following pages were used to generate this answer:"
+        page_num = st.select_slider(
+            f"Page ({len(pages)} total)", options=[page_num for _, page_num, _ in pages]
         )
-        pages = answers["page"].dropna().unique().astype(int)
-        pages.sort()
-        if pages is None or len(pages) == 0:
-            return
-        elif len(pages) == 1:
-            page = pages[0]
-        else:
-            page = st.select_slider(
-                f"Page ({len(answers)} total)", options=pages
-            )
-        page_image = get_pdf_page_image(document_path, int(page))
-        page_result = None
+        page_text = next(r[0] for r in pages if r[1] == page_num)
 
-    st.header("Answer")
-    st.dataframe(answers, use_container_width=True)
+        result = lookup_term(page_text, district, term)
+        result = parse_size_answer(result)
+
+        st.header("Answer")
+        st.table(result["answer"])
+
+        st.header("Reason")
+        st.caption(
+            "The following content was used to generate this answer:"
+        )
+        st.table(result["reason"])
+
+    page_image = get_pdf_page_image(document_path, page_num)
+    page_result = None
 
     st.header("Document")
     if page_result is not None:
-        st.image(render_page_results(page_image, page_result), caption=f"Page {page}")
+        st.image(render_page_results(page_image, page_result), caption=f"Page {page_num}")
     else:
-        st.image(page_image, caption=f"Page {page}")
+        st.image(page_image, caption=f"Page {page_num}")
 
 
 if __name__ == "__main__":

@@ -1,11 +1,14 @@
+from pathlib import Path
 import json
+
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Q
 
 es = Elasticsearch("http://localhost:9200")  # default client
 
 # Global thesaurus
-thesaurus = json.load(open("thesaurus.json"))
+with Path(__file__).parent.joinpath("thesaurus.json").open() as f:
+    thesaurus = json.load(f)
 
 def nearest_pages(town, district, term="min lot size"):
     # Search in town
@@ -20,7 +23,7 @@ def nearest_pages(town, district, term="min lot size"):
 
     # Search for term
     term_expansion = [Q("match_phrase", Text=query.replace("min", r)) for query
-                      in thesaurus[term]
+                      in thesaurus.get(term, [])
                       for r in ["min", "minimum", "min."]]
 
     term_query = Q('bool',
@@ -35,8 +38,6 @@ def nearest_pages(town, district, term="min lot size"):
     s.query = district_query & term_query & dim_query
     s = s.highlight("Text")
     res = s.execute()
-    print(s)
-    print(res)
     return [(r.Text, r.Page, r.meta.highlight.Text) for r in res]
 
 
