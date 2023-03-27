@@ -7,9 +7,9 @@ stages:
       md5: 0013040cfeb0f4f23a35a94cae9f2950
       size: 2665
     - path: data/textract_dataset
-      md5: 931850bce8b9b7200ae3a34cf41e0a7c.dir
-      size: 8703091
-      nfiles: 1
+      md5: 8d59315d9f3f21ddaab194db92db4d9e.dir
+      size: 8441946344
+      nfiles: 181
     - path: zoning/data_processing/generate_dataset.py
       md5: 92542d5df214792d9fe34ee680d98ee0
       size: 4673
@@ -19,11 +19,11 @@ stages:
         generate_dataset.test_split_frac: 0.3
     outs:
     - path: data/hf_dataset
-      md5: 302e323289b3182818324f7ac09702e9.dir
+      md5: 0057d2cb5fa96c6398ac1321ee8c4d99.dir
       size: 5363614993
       nfiles: 13
     - path: data/parquet_dataset
-      md5: ce3b5231d58d404fcf15d265e11ccab8.dir
+      md5: f709624dca0e132c4d0d54fe8834d9f7.dir
       size: 2219366007
       nfiles: 176
   upload_zoning_docs:
@@ -54,6 +54,6 @@ stages:
         extract_text.orig_document_s3_bucket: cornell-mfd64
     outs:
     - path: data/textract_dataset
-      md5: 931850bce8b9b7200ae3a34cf41e0a7c.dir
-      size: 8703091
-      nfiles: 1
+      md5: 8d59315d9f3f21ddaab194db92db4d9e.dir
+      size: 8441946344
+      nfiles: 181
