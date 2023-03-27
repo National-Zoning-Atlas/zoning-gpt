@@ -1,4 +1,5 @@
 datasets
+dvc[azure]
 elasticsearch-dsl
 faiss-cpu
 fuzzywuzzy
