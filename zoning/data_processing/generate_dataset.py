@@ -11,7 +11,7 @@ from tqdm.contrib.concurrent import process_map
 
 DIR = dirname(realpath(__file__))
 
-with open(join(DIR, "..", "params.yaml")) as f:
+with open(join(DIR, "..", "..", "params.yaml")) as f:
     config = yaml.safe_load(f)[splitext(basename(__file__))[0]]
 
 # Whether or not to publish the resulting dataset to HuggingFace Hub. If False,
@@ -21,7 +21,7 @@ PUBLISH_DATASET = True
 RANDOM_STATE = config["seed"]
 TEST_SPLIT_FRAC = config["test_split_frac"]
 
-DATA_ROOT = realpath(join(DIR, "..", "data"))
+DATA_ROOT = realpath(join(DIR, "..", "..", "data"))
 
 # Path to the directory where Textract results from CT Zoning codes live. A
 # folder named "processed-data" should exist at this path that contains the

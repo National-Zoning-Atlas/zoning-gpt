@@ -2,14 +2,13 @@ import json
 from os.path import dirname, realpath, join
 
 import fitz
-import pandas as pd
 from PIL import Image, ImageDraw
 import streamlit as st
 
-DIR = dirname(realpath(__file__))
+from zoning.prompting.search import nearest_pages
+from zoning.prompting.extract import lookup_term
 
-from prompting.search import nearest_pages
-from prompting.extract import lookup_term
+DIR = dirname(realpath(__file__))
 
 @st.cache_data
 def get_towns():
@@ -95,7 +94,7 @@ def main():
             index=0,
         )
         document_path = join(
-            DIR, "../data/orig-documents", f"{town['Town']}-zoning-code.pdf"
+            DIR, "../../data/orig-documents", f"{town['Town']}-zoning-code.pdf"
         )
 
         if district is None:

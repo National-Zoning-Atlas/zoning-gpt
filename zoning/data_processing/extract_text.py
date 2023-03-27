@@ -9,7 +9,7 @@ from tqdm.contrib.concurrent import thread_map
 
 DIR = dirname(realpath(__file__))
 
-DATA_ROOT = realpath(join(DIR, "..", "data"))
+DATA_ROOT = realpath(join(DIR, "..", "..", "data"))
 
 # JSON file listing the full set of towns for which we expect to have data.
 input_orig_document_s3_manifest = join(DATA_ROOT, "orig_documents_s3_manifest.json")
@@ -18,7 +18,7 @@ output_textract_dataset_path = join(DATA_ROOT, "textract_dataset")
 
 makedirs(output_textract_dataset_path, exist_ok=True)
 
-with open(join(DIR, "..", "params.yaml")) as f:
+with open(join(DIR, "..", "..", "params.yaml")) as f:
     config = yaml.safe_load(f)[splitext(basename(__file__))[0]]
 
 PARAM_INPUT_ORIGN_DOCUMENT_S3_BUCKET = config["orig_document_s3_bucket"]
