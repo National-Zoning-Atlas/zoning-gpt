@@ -53,7 +53,7 @@ if __name__ == "__main__":
         town_districts[d["Town"]] = d["Districts"]
     towns = set(data["Town"])
 
-    with open("districts.jsonl", "a") as out:
+    with open("districts.jsonl", "w") as out:
         print(towns)
         for town in towns:
             if town in town_districts:

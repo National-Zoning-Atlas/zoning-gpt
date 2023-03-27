@@ -7,7 +7,7 @@ es = Elasticsearch("http://localhost:9200")  # default client
 # Global thesaurus
 thesaurus = json.load(open("thesaurus.json"))
 
-def nearest_pages(town, district, term="lot size"):
+def nearest_pages(town, district, term="min lot size"):
     # Search in town
     s = Search(using=es, index=town)
     
@@ -31,22 +31,24 @@ def nearest_pages(town, district, term="lot size"):
                    should=[Q("match_phrase", Text=d) for d in thesaurus["dimensions"]],
                    minimum_should_match=1,
     )
-
     # s.query = cell_query
     s.query = district_query & term_query & dim_query
     s = s.highlight("Text")
     res = s.execute()
+    print(s)
+    print(res)
     return [(r.Text, r.Page, r.meta.highlight.Text) for r in res]
 
 
 if __name__ == "__main__":
+    districts_file = "districts_matched.jsonl"
     town_districts = {}
-    for l in open("districts.jsonl"):
+    for l in open(districts_file):
         d = json.loads(l)
         town = d["Town"]
         for district in d["Districts"]:
             print(town)
             print(district)
-            print(district)
             print(nearest_pages(town, district))
-            break 
+            #nearest_pages(town, district)
+            #break - to only perform search for first district, remove to do search for each district in the town

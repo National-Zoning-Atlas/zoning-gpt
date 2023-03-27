@@ -38,19 +38,18 @@ if __name__ == "__main__":
     #     d = json.loads(l)
     #     town_districts[d["Town"]] = d["Districts"]
     # towns = set(data["Town"])
+    districts_file = "districts_matched.jsonl"
+    results_file = "sizes_test.jsonl"
 
-    town_sizes = {}
-    for l in open("sizes.jsonl"):
-        d = json.loads(l)
-        town_sizes[d["Town"]] = d["Districts"]
+    # town_sizes = {}
+    # for l in open(results_file):
+    #     d = json.loads(l)
+    #     town_sizes[d["Town"]] = d["Districts"]
 
-    with open("sizes.jsonl", "a") as out_f:
-        for l in open("districts.jsonl"):
+    with open(results_file, "a") as out_f:
+        for l in open(districts_file):
             d = json.loads(l)
             town = d["Town"]
-            # if town != "bethany": continue
-            if town in town_sizes:
-                continue
 
             out = {"Town": town, "Districts": []}
 
