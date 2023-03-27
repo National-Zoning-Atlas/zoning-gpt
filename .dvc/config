@@ -1,7 +1,5 @@
 [core]
     remote = cornell-aap-azure
     autostage = true
-['remote "cornell-ut-aws"']
-    url = s3://cornell-mfd64/dvc/zoning
 ['remote "cornell-aap-azure"']
     url = azure://zoning/dvc
