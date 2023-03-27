@@ -1,0 +1,14 @@
+datasets
+elasticsearch-dsl
+faiss-cpu
+fuzzywuzzy
+git+https://github.com/srush/MiniChain/@v0.1
+manifest-ml
+minichain
+numpy
+openai
+pandas
+Pillow
+pymupdf
+streamlit
+tiktoken

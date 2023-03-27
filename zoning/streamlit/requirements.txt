@@ -1,6 +1,0 @@
-numpy
-pandas
-Pillow
-pymupdf
-streamlit
--r "../prompting/requirements.txt"
