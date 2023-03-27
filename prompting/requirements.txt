@@ -4,3 +4,4 @@ faiss-cpu
 elasticsearch-dsl
 manifest-ml
 tiktoken
+fuzzywuzzy
