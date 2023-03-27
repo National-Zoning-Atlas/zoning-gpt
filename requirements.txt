@@ -3,6 +3,7 @@ elasticsearch-dsl
 faiss-cpu
 fuzzywuzzy
 git+https://github.com/srush/MiniChain/@v0.1
+GitPython
 manifest-ml
 minichain
 numpy

@@ -1,5 +1,5 @@
+from pathlib import Path
 import json
-from os.path import dirname, realpath, join
 
 import fitz
 from PIL import Image, ImageDraw
@@ -7,18 +7,17 @@ import streamlit as st
 
 from zoning.prompting.search import nearest_pages
 from zoning.prompting.extract import lookup_term
-
-DIR = dirname(realpath(__file__))
+from zoning.utils import get_project_root
 
 @st.cache_data
 def get_towns():
-    with open(join(DIR, "../prompting/districts_matched.jsonl"), encoding="utf-8") as f:
+    with (get_project_root() / "data" / "results" / "districts_matched.jsonl").open(encoding="utf-8") as f:
         json_lines = (json.loads(l) for l in f.readlines())
         return sorted(json_lines, key=lambda l: l["Town"])
 
 
 @st.cache_data
-def get_pdf_page_image(pdf_path: str, page_num: int) -> Image.Image:
+def get_pdf_page_image(pdf_path: Path, page_num: int) -> Image.Image:
     """Given a PDF at `pdf_path`, load only the specified `page_num` as an Image."""
     dpi = 160
     zoom = dpi / 72
@@ -93,9 +92,7 @@ def main():
             format_func=lambda d: f"{d['Z']} ({d['T']})",
             index=0,
         )
-        document_path = join(
-            DIR, "../../data/orig-documents", f"{town['Town']}-zoning-code.pdf"
-        )
+        document_path = get_project_root() / "data" / "orig-documents" / f"{town['Town']}-zoning-code.pdf"
 
         if district is None:
             st.write("No districts with answers generated.")

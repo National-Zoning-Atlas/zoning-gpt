@@ -2,10 +2,10 @@ import json
 from pathlib import Path
 
 from manifest import Manifest
-from minichain import (EmbeddingPrompt, Prompt, TemplatePrompt, show_log,
-                       start_chain)
+from minichain import TemplatePrompt, start_chain
 
-from .search import nearest_pages
+from zoning.prompting.search import nearest_pages
+from zoning.utils import get_project_root
 
 manifest = Manifest(client_name = "openai",
                     cache_name = "sqlite",
@@ -16,7 +16,7 @@ with Path(__file__).parent.joinpath("thesaurus.json").open() as f:
     thesaurus = json.load(f)
 
 class DistrictMinPrompt(TemplatePrompt):
-    template_file = str(Path(__file__).parent.joinpath("extraction.pmpt.tpl").relative_to(Path.cwd()))
+    template_file = str((get_project_root() / "templates" / "extraction.pmpt.tpl").relative_to(Path.cwd()))
 
 def lookup_term(page_text, district, term="lot size"):
     with start_chain("lookup") as backend:
