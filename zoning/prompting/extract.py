@@ -59,6 +59,8 @@ if __name__ == "__main__":
 
                 for term in ["min lot size", "min unit size"]:
                     pages = nearest_pages(town, district, term)
+                    if (len(pages) == 0):
+                        continue
                     page_text = next(r[0] for r in pages)
                     print(term)
                     lt = lookup_term(page_text, district, term)
