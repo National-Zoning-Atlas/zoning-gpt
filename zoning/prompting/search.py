@@ -3,6 +3,7 @@ import json
 
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Q
+from zoning.utils import get_project_root
 
 es = Elasticsearch("http://localhost:9200")  # default client
 
@@ -42,7 +43,7 @@ def nearest_pages(town, district, term="min lot size"):
 
 
 if __name__ == "__main__":
-    districts_file = "districts_matched.jsonl"
+    districts_file =  str(get_project_root() / "data" / "results" / "districts_matched.jsonl")
     town_districts = {}
     for l in open(districts_file):
         d = json.loads(l)

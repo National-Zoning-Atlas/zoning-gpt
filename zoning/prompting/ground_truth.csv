@@ -1,11 +1,11 @@
-Town,District Abbrev.,District,min_lot_size_page_gt,min_unit_size_page_gt,min_lot_size_gt,min_unit_size_gt
-vernon,R-10,R-10 Single Family Residential,33,33,10000,1000
-milford,CDD-1,Community Design,121,121,10000,"300, 400, 800, 1200"
-westbrook,RR,Rural Residential,19,-,87120,-
-franklin,R-80,R-80 Residential,15,-,80000,-
-westport,AAA,Residence AAA-2 Acre,78,-,87120,-
-madison,R-1,R-1 Residential,38,-,40000,-
-bethany,R-130,Residential R-130,22,-,130000,-
-avon,R-30,Residential R-30,32,33,30000,1000
-union,SD,Special Development,-,57,-,1000
-marlborough,R,Residential,86,-,"50000, 80000, 120000",-
+town,district_page,district_abb,district,min_lot_size_page_gt,min_unit_size_page_gt,min_lot_size_gt,min_unit_size_gt
+bristol,31,R-40,Residential R-40,48,-,40000,-
+southington,8,CB,Central Business,71,-,30000,-
+hebron,10,PRD,Planned Residential Development,38,39,348480,750
+newington,"7, 8",R-12,Residential R-12,48,-,12000,-
+south-windsor,"14, 15",AA-30,AA-30 Limited Residential,26,-,30000,-
+warren,14,North,North,16,-,87120,-
+morris,9,CB,Commercial CB,44,44,40000,"1000, 700, 600"
+east-haddam,24,C/B/IG,Commercial/Business/Light Industrial,51/56,51/56,21780,1000
+ellington,10,DMF,Designed Multifamily,24,26,"217800, 435600","700, 1000, 1200"
+cheshire,19,R-20A,Residential R-20A,91,-,20000,-

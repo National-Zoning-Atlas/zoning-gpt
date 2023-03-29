@@ -1,10 +1,10 @@
-{"Town": "vernon", "Districts": [{"T": "Single Family Residential", "Z": "R-10"}]}
-{"Town": "milford", "Districts": [{"T": "Community Design", "Z": "CDD-1"}]}
-{"Town": "westbrook", "Districts": [{"T": "Rural Residential", "Z": "RR"}]}
-{"Town": "franklin", "Districts": [{"T": "Residential", "Z": "R-80"}]}
-{"Town": "westport", "Districts": [{"T": "Residence AAA  - 2 acre", "Z": "11"}]}
-{"Town": "madison", "Districts": [{"T": "Single family detached dwellings.", "Z": "R-1"}]}
-{"Town": "bethany", "Districts": [{"T": "Residential", "Z": "R-130"}]}
-{"Town": "avon", "Districts": []}
-{"Town": "union", "Districts": [{"T": "Public utility building", "Z": "Public utility lines, substations and buildings"}]}
-{"Town": "marlborough", "Districts": [{"T": "Residential", "Z": "R"}]}
+{"Town": "bristol", "Districts": [{"T": "Single-Family Residential", "Z": "R-40"}]}
+{"Town": "southington", "Districts": [{"T": "Central Business", "Z": "CB"}]}
+{"Town": "hebron", "Districts": [{"T": "R-2", "Z": "R-2"}]}
+{"Town": "newington", "Districts": [{"T": "Business, Berlin Turnpike", "Z": "B-BT"}]}
+{"Town": "south-windsor", "Districts": [{"T": "Limited Residential", "Z": "AA-30"}]}
+{"Town": "warren", "Districts": []}
+{"Town": "morris", "Districts": [{"T": "Commercial  B", "Z": "C.B."}]}
+{"Town": "east-haddam", "Districts": [{"T": "R-1/2", "Z": "R-1/2"}]}
+{"Town": "ellington", "Districts": [{"T": "Residential", "Z": "R"}]}
+{"Town": "cheshire", "Districts": [{"T": "Residential", "Z": "R-20A"}]}

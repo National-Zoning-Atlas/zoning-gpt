@@ -2,4 +2,6 @@
 __pycache__/
 .ipynb_checkpoints/
 *.log
-
+prompting/districts.hf/
+prompting/mycache.sqlite
+prompting/nza-ct-zoning-codes-text.hf/
