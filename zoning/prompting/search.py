@@ -8,7 +8,7 @@ from zoning.utils import get_project_root
 es = Elasticsearch("http://localhost:9200")  # default client
 
 # Global thesaurus
-with Path(__file__).parent.joinpath("thesaurus.json").open() as f:
+with Path(__file__).parent.joinpath("thesaurus.json").open(encoding="utf-8") as f:
     thesaurus = json.load(f)
 
 def nearest_pages(town, district, term="min lot size"):
@@ -43,9 +43,9 @@ def nearest_pages(town, district, term="min lot size"):
 
 
 if __name__ == "__main__":
-    districts_file =  str(get_project_root() / "data" / "results" / "districts_matched.jsonl")
+    districts_file =  get_project_root() / "data" / "results" / "districts_matched.jsonl"
     town_districts = {}
-    for l in open(districts_file):
+    for l in districts_file.open(encoding="utf-8").readlines():
         d = json.loads(l)
         town = d["Town"]
         for district in d["Districts"]:
