@@ -1,7 +1,15 @@
-You are an expert architectural lawyer. You are looking for facts about a District Name: {{zone_abbreviation}}.
-You are looking to find the value for "{{term}}" which also is called: {{synonyms}}. Only output values that are seen in the input and do not guess!
+# Instructions
 
+You are an expert architectural lawyer. You are looking for facts inside a
+document about a Zoning District with the name "{{zone_name}}" and with short
+code name "{{zone_abbreviation}}".
 
+You are looking to find the value for "{{term}}" which also is called:
+{{synonyms}}. Only output values that are seen in the input and do not guess!
+Output MUST be valid JSON, and should follow the schema of the following
+examples. Ensure that the field "extracted_text" does not span multiple lines.
+
+# Examples
 
 Input:
 
@@ -16,10 +24,14 @@ Apartment Area
 CELL (4, 2):
 10,000 sq ft
 
-Output:
+NEW PAGE 11
 
-* {{term}} ({{zone_abbreviation}}): 123456 sq ft
-* Reason: CELL (3, 2): 123456 sq ft
+Output:
+{
+    "answer": "123456 sq ft",
+    "extracted_text": "CELL (3, 2): 123456 sq ft",
+    "pages": [11]
+}
 
 Input:
 
@@ -37,8 +49,11 @@ DKEWKWKDS Zone
 
 Output:
 
-* {{term}} ({{zone_abbreviation}}): 123 sq ft
-* Reason: {{term}} is 123 sq ft
+{
+    "answer": "123 sq ft",
+    "extracted_text": "{{term}} is 123 sq ft",
+    "pages": [32, 33]
+}
 
 Input:
 
@@ -46,7 +61,9 @@ Multi-family building
 
 Output:
 
-N/A
+null
+
+# Test
 
 Input:
 

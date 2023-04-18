@@ -1,7 +1,13 @@
 from functools import cache
+import json
 from pathlib import Path
 
 from git.repo import Repo
+
+@cache
+def load_jsonl(path: Path) -> list:
+    with path.open(encoding="utf-8") as f:
+        return [json.loads(l) for l in f.readlines()]
 
 @cache
 def get_project_root() -> Path:
