@@ -1,234 +1,230 @@
-town,district_abb,district,min_lot_size_acres_gt_raw,min_unit_size_sf_gt_raw,min_lot_size_gt,district_page,min_lot_size_page_gt,min_unit_size_gt,min_unit_size_page_gt
-colchester,SZD,Suburban Use,0.688705234159779,1000 (one-story); 1200 (1.5 story); 1400 (two-story),29999.999999999975,,,,
-stamford,R-D,Designed Residence ,"25 in RA-3, 15 in RA-2, 10 in RA-1, 8 in R-20 or R-10",,,,,,
-haddam,R-1,Residential R-1,1,"500/studio, 700/1BR, 900/2BR",43560.0,,,,
-suffield,R-90,R-90 Single Family Residential ,2.06611570247933,1000 (one-bed); 1250 (two-bed),89999.99999999962,,,,
-canton,R-3,R-3 Residential,2 (front); 3 (rear),,,,,,
-clinton,B-2,Business-2,0.23,"900 for 1 story, 500 ground floor area for 2 story",10018.800000000001,,,,
-haddam,R-2,Residential R-2,2,"500/studio, 700/1BR, 900/2BR",87120.0,,,,
-lebanon,RA,Rural Agricultural Residence,2,"750 for 1 floor, 1000 for 2 floors",87120.0,,,,
-griswold-jewett-city,Residential Multifamily,Residential Multifamily,,"500 for 1 story, 600 on 1st floor for 2 story",,,,,
-andover,AL,Andover Lake,1.38 (year-round); 0.69 (seasonal),500,,,,500.0,
-east-hartford,B-1,Business 1,0.0872,"1,000 (for a 1 floor dwelling); 1,200 (for a 2 floor dwelling)",3798.432,,,,
-lebanon,VBD,Village Business,2,"960 for 1 floor, 1280 for 2 floors",87120.0,,,,
-clinton,V-Z,Village,0.23,1000 for 1 story; 800 ground floor for 2 story,10018.800000000001,,,,
-north-canaan,Central Business,Central Business ,0.5 (if served by water & sewer); 1.38 (if not),,,,,,
-columbia,MU,Mixed-Use,0.459136822773186,1000 (one-floor); 750 on first floor & 1250 on second (two-floor),19999.99999999998,,,,
-morris,R-80,Residence 80,1.83,"1,000 for one story, 700 for 1.5 stories, 600 for 2 or more stories",79714.8,,,,
-thompson,BDD,Commercial ,".92, or .10 if served by water/sewer",,,,,,
-east-hartford,B-2,Business 2,0.0872,"1,000 (for a 1 floor dwelling); 1,200 (for a 2 floor dwelling)",3798.432,,,,
-new-britain,S-1,S-1 Single Family ,0.31,400-1400 (depending on number of rooms in the dwelling and whether dwelling is attached or dettached),13503.6,,,,
-colchester,WVD,Westchester Village,0.918273645546372,1000 (one-story); 1200 (1.5 story); 1400 (two-story),39999.99999999996,,,,
-north-canaan,Commercial,Commercial,0.5 (if served by water & sewer); 1.38 (if not),,,,,,
-suffield,PDA,Planned Development Apartment ,10,1000 (one-bed); 1250 (two-bed),435600.0,,,,
-columbia,LBR,Columbia Lake-Overlay B on Residential Agricultural,,1000 (one-floor); 750 on first floor & 1250 on second (two-floor),,,,,
-marlborough,R,Residential,1.8-2.75 (depending on the type and location of the lot's sewage and water systems),,,,,,
-east-hartford,DDD-2,Design Development II ,,"950 (2br attached); 1,000 (2br detached); 1,150 (3br attached); 1,250 (3br detached)",,,,,
-hamden,R5,Residential R-5,0.137741046831955,"600/1BR, 900/2BR, 1200/3BR",5999.99999999996,,,,
-westbrook,HDR-2,High Density Residential 2,"0.34 (front lot), 0.52 (back lot)",,,,,,
-lebanon,B,Business,2,"750 for 1 floor, 1000 for 2 floors",87120.0,,,,
-durham,FR,Farm Residential,2,"960 for one floor, 1,150 for two floors",87120.0,,,,
-north-haven,RA-12,Residence-Apartment RA-12,0.28,600 SF for 2 rooms; 700 for 3 rooms; each additional room 100,12196.800000000001,,,,
-sprague,BV,Baltic Village ,0.17 if served by public sewer system; 0.92 if not,,,,,,
-east-hartford,R-1,Residential 1,0.6887,"1,000 (for a 1 floor dwelling); 1,200 (for a 2 floor dwelling)",29999.772,,,,
-clinton,EMVD,East Main Street Village,0.23,1000 for 1 story; 800 ground floor for 2 story,10018.800000000001,,,,
-wallingford,CA-40,Commercial CA-40,,,,,,,
-windsor-locks,BUS 1,Business 1,,,,,,,
-plainville,QI,Quarry Industrial,,,,,,,
-deep-river,Village Commercial,Village Commercial,,,,,,,
-ashford,TD,Technology Development,,900,,,,900.0,
-roxbury,A,Residence A,3,1000,130680.0,,,1000.0,
-goshen,RR,Rural Recreation,,,,,,,
-griswold,C-1,C-1 Village Commercial,10,,435600.0,,,,
-enfield,KSEDOD,King St./Enfield St. Design,,,,,,,
-woodstock,Community,Community,2.5,,108900.0,,,,
-cromwell,DC,Downtown Cromwell,0.11,,4791.6,,,,
-easton,RB,Residential B,3,,130680.0,,,,
-union,SD,Special Development,,1000,,,,1000.0,
-montville,GOV,Government,,,,,,,
-torrington,RRC,Restricted Residential Community,,,,,,,
-derby,I-1,Industrial-1,,,,,,,
-windsor,PUD,Planned Urban Development,,,,,,,
-killingworth,Commercial,Commercial,,,,,,,
-wethersfield,SRD,Special Residential Development,2,,87120.0,,,,
-washington,B-4,Woodville Business,"1 for Class A Soil, 1.5 Class B Soil, 2 for Class C Soil",600,,,,600.0,
-newtown,BPO,Business & Professional Office,1,,43560.0,,,,
-bolton,GB,General Buiness,,,,,,,
-weston,NSC,Neighborhood Shopping Center,,,,,,,
-canterbury,VC,Village Commercial,,,,,,,
-north-branford,I-3,Industrial I-3,,,,,,,
-fairfield,BD,Beach,0.215,750,9365.4,,,750.0,
-hampton,B Business,B Business,1.15,,50093.99999999999,,,,
-oxford,OPD,Route 67 Office Professional,1.5,,65340.0,,,,
-sherman,D,Historic D,,600,,,,600.0,
-darien,DC,Designed Commercial,1,,43560.0,,,,
-kent,RU-2,Birch Hill,1,,43560.0,,,,
-monroe,B-1,Business 1,,,,,,,
-norwich,CC,Chelsea Central,,,,,,,
-stafford,AAA,Rural & Single Family Residence AAA,2,"1300, or 860 for 1st floor of 2-story",87120.0,,,,
-hartland,R1,Rural Residential,,,,,,,
-bridgewater,C,Commercial,,,,,,,
-burlington,I,Industrial,1,1000,43560.0,,,1000.0,
-shelton,CA-2,Commercial CA-2,0.34435262,550,15000.000127199999,,,550.0,
-lyme,C-40,Commercial,,,,,,,
-thomaston,RA-80,RA-80 Residential,1.84,,80150.40000000001,,,,
-guilford-sachems-head,C,Residence C,0.23,,10018.800000000001,,,,
-stonington-borough,R-1,Residential One,0.14,,6098.400000000001,,,,
-canaan-falls-village,Rural Business,Rural Business,0.92,,40075.200000000004,,,,
-farmington,R12,Residential 12,0.28,900,12196.800000000001,,,900.0,
-groton-city,R8,R-8 Residence,0.18,,7840.799999999999,,,,
-east-windsor,A-1,Agriculture/Residential 1,1,,43560.0,,,,
-old-lyme,MFR-40,Multifamily Residence MFR-40,0.23,"800 if one floor, 1200 if two floors",10018.800000000001,,,,
-plymouth,I-1,I-1 Industrial,,,,,,,
-beacon-falls,PARD-3,Planned Adaptive Reuse Development 3,143,1200,6229080.0,,,1200.0,
-middlebury,LI-200,Light Industrial 200,,,,,,,
-newtown-borough,P,Professional,1,,43560.0,,,,
-middlefield,IPD-1,Industrial Park I,,,,,,,
-prospect,IND-2,Industrial - Manufacturing 2,,,,,,,
-madison,R-2,R-2 Residential ,0.92,,40075.200000000004,,,,
-stratford,HOD,Housing Opportunity ,,,,,,,
-branford-pine-orchard,A-1,A-1,0.46,,20037.600000000002,,,,
-bloomfield,IND-1,I-1 General Industry,,,,,,,
-putnam,Industrial,Industrial,,,,,,,
-chester,TW2,Tidal Wetlands,2,,87120.0,,,,
-waterbury,CBD,Central Business,,,,,,,
-cornwall,CP,Cornwall Plains,,,,,,,
-windham,C-1,C-1 General Commercial,0.92,750,40075.200000000004,,,750.0,
-sterling,Primary Zoning,Primary Zoning,2,,87120.0,,,,
-watertown,B-G,General Business 1,,,,,,,
-sharon,GR-1,G R-1 General Residence,3,500 SF/1 bedroom + 150 SF/additional bedroom ,130680.0,,,,
-mansfield,PB-2,Planned Business 2,,,,,,,
-east-haven,LI-3,Light Industrial 3,,,,,,,
-woodbury,OS-80,OS-80 Open Space Residence,1.84,,80150.40000000001,,,,
-chaplin,AZ,Aquifer Protection,,,,,,,
-stonington,LS 5,Local Shopping,0.23,,10018.800000000001,,,,
-ridgefield,RA,Residential RA,1,,43560.0,,,,
-manchester,RR,Rural Residence,0.69,1100,30056.399999999998,,,1100.0,
-groton-town,GR,Green Recreation,,,,,,,
-brookfield,TCD-P,Town Center Perimeter Overlay,0.23,,10018.800000000001,,,,
-brooklyn,IND,Industrial,,,,,,,
-west-hartford,RM-3R,RM-3R Multifamily Restricted Residential,0.14,,6098.400000000001,,,,
-bethel,C,Commercial,0.23,,10018.800000000001,,,,
-orange,LI-2,Light Industrial 2,,,,,,,
-middletown,I-1,Service Industrial,,,,,,,
-avon,IP,Industrial Park,,,,,,,
-litchfield,GR,Gateway Residences,0.918273645546372,,39999.99999999996,,,,
-preston,R-60,R-60 Residential,1.38,,60112.799999999996,,,,
-new-hartford,PS/UD,Public Service/Utility,,,,,,,
-pomfret,RR,Rural Residential,2,,87120.0,,,,
-groton-noank,R-20,Low Density Residential ,0.46,850,20037.600000000002,,,850.0,
-southbury,B-3C,Designed Business 3C,0.9183,900,40001.148,,,900.0,
-tolland,NCZ-T,Neighborhood Commercial-T,1,,43560.0,,,,
-glastonbury,VCZONE,South Glastonbury Village Commercial,0.46,,20037.600000000002,,,,
-ansonia,AA,AA Residence,0.69,,30056.399999999998,,,,
-ledyard,CM,Commercial Marine,,,,,,,
-milford,R-7.5,One Family Residential R-7.5,0.17,,7405.200000000001,,,,
-simsbury,I-1,Restricted Industrial,,,,,,,
-branford-short-beach,SB-C,Business C,0.1,600,4356.0,,,600.0,
-harwinton,RS-A,Retail Service A,,,,,,,
-westport,BCD/H,Business Center/Historic,,,,,,,
-somers,VB,Village Business,0.46 (sewer); 0.92 (septic),,,,,,
-berlin,GI,General Industrial,,,,,,,
-granby,R2A,Rural Residential R2A,2,1000,87120.0,,,1000.0,
-norwalk,AA,AA Residence,0.5,,21780.0,,,,
-portland,RI,Restricted Industrial,0.92 (if public water or sewer); 1.38 (if none),,,,,,
-naugatuck,NHRDDS,New Haven Road Design South,0.18,,7840.799999999999,,,,
-wolcott,R-40,Residence R-40,0.92,,40075.200000000004,,,,
-old-saybrook,B-4,Gateway Business B-4,,,,,,,
-new-london,WCI-1,Waterfront Commercial /Industrial 1,,,,,,,
-guilford,R-4,Residential R-4,0.69,,30056.399999999998,,,,
-new-milford,CCSD1,Cluster Conservation Subdivision 1,0.5,,21780.0,,,,
-wilton,SFAAHD,Single Family All Affordable Housing,6,,261360.0,,,,
-salem,RuA,Rural A,1.84,,80150.40000000001,,,,
-winchester,TC,Town Center,0.92,,40075.200000000004,,,,
-lisbon,R-40,Moderate Density Residential,0.91,1000,39639.6,,,1000.0,
-new-canaan,Business B,Business B,,,,,,,
-killingly,MUDD,Mill Mixed Use Development,,,,,,,
-bozrah,I-30,Industrial-30,,,,,,,
-bethany,HOD,Housing Opportunity Development,30,,1306800.0,,,,
-danbury,RH-3,RH-3 High-Rise Residential,0.11,,4791.6,,,,
-east-hampton,R-3,R-3 Resource Residential,1.03 (w/ sewer); 1.49 (w/o sewer),,,,,,
-colebrook,AP,Aquifer Protection Overlay,,,,,,,
-voluntown,Village Commercial Overlay,Village Commercial Overlay ,,,,,,,
-plainfield,RA-40,Residence A-30,0.92,"650/1BR, 770/2BR, 950/3BR, plus 120/add'l unit",40075.200000000004,,,,
-essex,WF,Waterfront Business,,,,,,,
-east-lyme,CM,CM Commercial,0.23,500,10018.800000000001,,,500.0,
-new-haven,BA,General Business,,,,,,,
-new-fairfield,MFDE,Multifamily Elderly,5,,217800.0,,,,
-salisbury,C-20,Commercial,0.459136822773186,,19999.99999999998,,,,
-franklin,R-80,R-80 Residential,1.84,,80150.40000000001,,,,
-meriden,R-R,Rural Residential,0.92,,40075.200000000004,,,,
-rocky-hill,RC,Regional Commercial,,,,,,,
-branford,R-3,Residence R-3,0.34,,14810.400000000001,,,,
-bridgeport,MXN,Mixed Use Neighborhood Corners,,,,,,,
-groton-long-point,R,Single Family Residence,0.14,,6098.400000000001,,,,
-woodbridge,P,Park,,,,,,,
-norfolk,Village Business,Village Business,0.11,,4791.6,,,,
-killingly-borough-of-danielson,MMUDD,Mill Mixed Use Development,,,,,,,
-scotland,RA,Residential Agricultural,2,,87120.0,,,,
-trumbull,Assisted Living Facility,Assisted Living Facility,,,,,,,
-coventry,LR,Lake Residential,0.91827,,39999.8412,,,,
-greenwich,R-C12,R-C12 Residential Conservation,0.275,,11979.000000000002,,,,
-waterford,IG,General Industrial,,,,,,,
-seymour,R-40,R-40 Residence,0.918,,39988.08,,,,
-barkhamsted,B-1,Restricted Business,,,,,,,
-guilford-old-quarry,Old Quarry,Old Quarry ,0.92,,40075.200000000004,,,,
-west-haven,PVD,Planned Village,,,,,,,
-willington,DC,Designed Commercial,,,,,,,
-east-granby,PRD,Planned Residential,0.688705234159779,1400,29999.999999999975,,,1400.0,
-redding,SB,Service Business,1,,43560.0,,,,
-vernon,HD-RC,HIstoric-Residential Commercial ,0.46,1000,20037.600000000002,,,1000.0,
-middletown,MX,Mixed Use,0.23,,10018.800000000001,,,,
-naugatuck,B-4,Business 4,,,,,,,
-new-milford,B-4,Business,0.918273645546372,,39999.99999999996,,,,
-glastonbury,AAZONE,Residence AA,0.573921028466483,1250 (if 1 floor); 1500 (if more),24999.999999999996,,,,
-waterford,R-20,Medium Density Residential,0.46,850,20037.600000000002,,,850.0,
-hebron,AV,Amston Village ,0.5,,21780.0,,,,
-lisbon,BV-IV,Business Village IV,,,,,,,
-wallingford,RU-120,Rural Residential-120,2.75,,119790.0,,,,
-branford,MF,Multifamily Residence,3,,130680.0,,,,
-north-canaan,Residential,Residential,0.5 (if served by water & sewer); 1.38 (if not),,,,,,
-preston,PCVD,Poquetanuck Village,1.38,,60112.799999999996,,,,
-trumbull,AREHZ,Age-Restricted Housing,,,,,,,
-east-windsor,TZ5,Transition 5,,,,,,,
-bridgeport,MX2,Mixed Use Corridor,,,,,,,
-branford-pine-orchard,A-1,A-1,0.46,,20037.600000000002,,,,
-derby,I-C,Industrial Campus,,,,,,,
-west-haven,LM,Light Manufacturing,,,,,,,
-waterford,WD,Waterfront Development,,,,,,,
-watertown,R-20,Residential R-20,0.46,,20037.600000000002,,,,
-groton-city,R51,R-51 Residence,0.11,,4791.6,,,,
-brooklyn,RB,Restricted Business,0.459,,19994.04,,,,
-preston,R-40,R-40 Residential,0.92,,40075.200000000004,,,,
-lebanon,RSR,Rural Senior Residence,0.25,"600 for studio, 800 for 1 bedroom, 1000 for 2 bedroom",10890.0,,,,
-enfield,B-P,Business Professional,,600,,,,600.0,
-ledyard,LCDD,Ledyard Center Design,,,,,,,
-stamford,IP-D,Designed Industrial Park ,,,,,,,
-canton,R-3,R-3 Residential,2 (front); 3 (rear),,,,,,
-glastonbury,PLNINDZONE,Planned Industrial,0.918273645546372,,39999.99999999996,,,,
-preston,RC,Resort Commercial,,,,,,,
-barkhamsted,B-2,General Business,,,,,,,
-sprague,R-80,R-80 Rural ,1.84,,80150.40000000001,,,,
-newtown,R-2,Farming & Residential-R-2,1,1500,43560.0,,,1500.0,
-new-hartford,R-15,R-15 Residence,0.344352617079889,,14999.999999999965,,,,
-chester,TW2,Tidal Wetlands,2,,87120.0,,,,
-tolland,NCZ-T,Neighborhood Commercial-T,1,,43560.0,,,,
-torrington,R-25,R-25 Residence,0.574,,25003.44,,,,
-farmington,BR,Business Restricted,,,,,,,
-meriden,C-2,General Commercial,,,,,,,
-southbury,B-4,Marine Business 4,0.9183,900,40001.148,,,900.0,
-redding,R-1/2,Suburban Residential,0.5,,21780.0,,,,
-berlin,VDO,Village Overlay,,,,,,,
-wallingford,RU-40,Rural Residential-40,1.84,,80150.40000000001,,,,
-stafford,B,General Residence B,0.92,1000,40075.200000000004,,,1000.0,
-new-hartford,Aquifer Protection Overlay,Aquifer Protection Overlay,,,,,,,
-bristol,R-40,Residential R-40,,,40000,31,48,,
-cheshire,R-20A,Residential R-20A,,,20000,19,91,,
-east-haddam,C/B/IG,Commercial/Business/Light Industrial,,,21780,24,"51, 56",1000,"51,56"
-ellington,DMF,Designed Multifamily,,,"217800, 435600",10,24,"700, 1000, 1200",26
-hebron,PRD,Planned Residential Development,,,348480,10,38,750,39
-morris,CB,Commercial CB,,,40000,9,44,"1000, 700, 600",44
-newington,R-12,Residential R-12,,,12000,"7, 8",48,,
-south-windsor,AA-30,AA-30 Limited Residential,,,30000,"14, 15",26,,
-southington,CB,Central Business,,,30000,8,71,,
-warren,North,North,,,87120,14,16,,
+town,district_abb,district,district_page,min_lot_size_acres_gt_orig,min_lot_size_gt,min_lot_size_page_gt,min_unit_size_sf_gt_orig,min_unit_size_gt,min_unit_size_page_gt,review,notes
+andover,AL,Andover Lake,14,1.38 (year-round); 0.69 (seasonal),,,500,500,41,,
+ansonia,AA,AA Residence,17,0.69,30056.4,52,,,,,
+ashford,TD,Technology Development,21,,,,900,900,29,,
+avon,IP,Industrial Park,"1,2",,,,,,,,
+barkhamsted,B-1,Restricted Business,11,,,,,,,,
+barkhamsted,B-2,General Business,11,,,,,,,,
+beacon-falls,PARD-3,Planned Adaptive Reuse Development 3,8,143,6229080,121,1200,1200,121,,
+berlin,GI,General Industrial,33,,,,,,,,
+berlin,VDO,Village Overlay,33,,,,,,,,
+bethany,HOD,Housing Opportunity Development,70,30,1306800,70,,,,,district not mentioned in the main list of districts
+bethel,C,Commercial,,0.23,10018.8,72,,,,,no single list of zones
+bloomfield,IND-1,I-1 General Industry,,,,,,,,,no single list of zones
+bolton,GB,General Buiness,59,,,,,,,,
+bozrah,I-30,Industrial-30,"9,10",,,,,,,,
+branford,R-3,Residence R-3,9,0.34,15000,40,,,,,districts are defined in a somewhat complex table
+branford,MF,Multifamily Residence,9,3,130680,40,,,,,
+branford-pine-orchard,A-1,A-1,8,0.46,20000,20,,,,,
+branford-short-beach,SB-C,Business C,12,0.1,4500,23,600,600,25,,
+bridgeport,MXN,Mixed Use Neighborhood Corners,10,,,,,,,,
+bridgeport,MX2,Mixed Use Corridor,10,,,,,,,,
+bridgewater,C,Commercial,26,,,,,,,,
+bristol,R-40,Residential R-40,30,,40000,48,,,,,
+brookfield,TCD-P,Town Center Perimeter Overlay,,0.23,10000,85,,,,,no single list of zones
+brooklyn,IND,Industrial,,,,,,,,,no single list of zones
+brooklyn,RB,Restricted Business,,0.459,20000,74,,,,,no single list of zones
+burlington,I,Industrial,5,1,43560,58,1000,1000,,Y,No min unit size for I zone?
+canaan-falls-village,Rural Business,Rural Business,,0.92,40000,21,,,,,no single list of zones
+canterbury,VC,Village Commercial,,,,,,,,,no single list of zones
+canton,R-3,R-3 Residential,,2 (front); 3 (rear),,70,,,,,no single list of zones
+chaplin,AZ,Aquifer Protection,15,,,,,,,,
+cheshire,R-20A,Residential R-20A,18,,20000,90,,,,,
+chester,TW2,Tidal Wetlands,13,2,87120,34,,,,,
+clinton,B-2,Business-2,,0.23,10000,334,"900 for 1 story, 500 ground floor area for 2 story",,,Y,no single list of zones
+clinton,V-Z,Village,,0.23,10000,334,1000 for 1 story; 800 ground floor for 2 story,,,Y,no single list of zones
+clinton,EMVD,East Main Street Village,,0.23,10000,334,1000 for 1 story; 800 ground floor for 2 story,,,Y,
+colchester,SU,Suburban Use,3,30000 sq ft (w/ sewer); 40000 sq ft (w/o sewer),,15,1000 (one-story); 1200 (1.5 story); 1400 (two-story),,65,Y,district abbreviations not listed with districts
+colchester,WV,Westchester Village,3,0.9182736455,40000,25,1000 (one-story); 1200 (1.5 story); 1400 (two-story),,65,Y,district abbreviations not listed with districts
+colebrook,AP,Aquifer Protection Overlay,17,,,,,,,,
+columbia,MU,Mixed-Use,8,0.4591368228,20000,13,1000 (one-floor); 750 on first floor & 1250 on total (two-floor),,13,Y,
+columbia,LBR,Columbia Lake-Overlay B on Residential Agricultural,8,,50000,13,1000 (one-floor); 750 on first floor & 1250 total (two-floor),,13,Y,
+cornwall,CP,Cornwall Plains,9,,,,,,,,
+coventry,LR,Lake Residential,20,0.91827,40000,28,,,,,
+cromwell,DC,Downtown Cromwell,,0.11,5000,43,,,,,no single list of zones
+danbury,RH-3,RH-3 High-Rise Residential,"35,36",0.11,5000,87,,,,,
+darien,DC,Designed Commercial,53,1,43560,169,,,,,
+deep-river,VC,Village Commercial,16,,20000,33,,,,Y,
+derby,I-1,Industrial-1,44,,,,,,,,
+derby,I-C,Industrial Campus,44,,,,,,,,
+durham,FR,Farm Residential,17,2,87120,19,"960 for one floor, 1,150 for two floors",,23,Y,
+east-granby,PRD,Planned Residential,6,0.6887052342,30000,35,1400,1400,35,,
+east-haddam,C/B/IG,Commercial/Business/Light Industrial,23,,21780,"50, 55",,1000,"50,55",,
+east-hampton,R-3,R-3 Resource Residential,,1.03 (w/ sewer); 1.49 (w/o sewer),,62,,,,Y,no single list of zones
+east-hartford,B-1,Business 1,6,0.0872,5000,112,"1,000 (for a 1 floor dwelling); 1,200 (for a 2 floor dwelling)",,,Y,orig answers incorrect
+east-hartford,B-2,Business 2,6,0.0872,7500,125,"1,000 (for a 1 floor dwelling); 1,200 (for a 2 floor dwelling)",,,Y,orig answers incorrect
+east-hartford,DDD-2,Design Development II,6,,,,"950 (2br attached); 1,000 (2br detached); 1,150 (3br attached); 1,250 (3br detached)",,224,Y,
+east-hartford,R-1,Residential 1,6,0.6887,30000,73,"1,000 (for a 1 floor dwelling); 1,200 (for a 2 floor dwelling)",,74,,
+east-haven,LI-3,Light Industrial 3,27,,40000,67,,900,67,Y,missing answers but present in doc
+east-lyme,CM,CM Commercial,17,0.23,10000,31,500,500,,Y,could not find min unit size
+east-windsor,A-1,Agriculture/Residential 1,14,1,43560,35,,1248,39,Y,missing answers but present in doc
+east-windsor,TZ5,Transition 5,14,,20000,43,,,,Y,missing answers but present in doc
+easton,RB,Residential B,,3,130680,35,,,,,no single list of zones
+ellington,DMF,Designed Multifamily,9,,"217800, 435600",23,,"700, 1000, 1200",25,,
+enfield,KSESDOD,King St./Enfield St. Design,10,,,,,,,Y,orig abbreviation incorrect
+enfield,B-P,Business Professional,10,,130680,59,600,,59,Y,"missing lot size, orig unit size incorrect"
+essex,WF,Waterfront Business,29,,30000,68,,,,Y,missing answers but present in doc
+fairfield,BD,Beach,10,0.215,9375,47,750,750,48,,
+farmington,R12,Residential 12,7,0.28,12000,140,900,900,140,,
+farmington,BR,Business Restricted,,,80000,140,,,,Y,"missing answers, but present in doc"
+franklin,R-80,R-80 Residential,,1.84,80000,15,,,,,no single list of zones
+glastonbury,VC,Village Commercial,11,0.46,20000,24,,950,24,Y,"orig abbreviation incorrect, missing answers but present in doc"
+glastonbury,AA,Residence AA,11,0.5739210285,25000,24,1250 (if 1 floor); 1500 (if more),,,Y,orig abbreviation incorrect
+glastonbury,PI,Planned Industrial,11,0.9182736455,40000,24,,,,Y,orig abbreviation incorrect
+goshen,RR,Rural Recreational,10,,8712000,39,,,,Y,"orig name incorrect, missing answers but present in doc"
+granby,R2A,Rural Residential,4,2,87120,77,1000,1000,82,,
+greenwich,R-C12,R-C12 Residential Conservation,"13,45",0.275,12000,45,,,,Y,Districts sub-classed on further pages; answers require cross-referencing R-7 zone
+griswold,C-1,C-1 Village Commercial,,,,,,,,Y,"no single list of zones; orig referenced district name ""Village Commercial"" no longer exists"
+griswold-jewett-city,RM,Residential Multifamily,"7,8",,,,"500 for 1 story, 600 on 1st floor for 2 story",,14,Y,
+groton-city,R8,R-8 Residence,,0.18,8000,44,,,,,no single list of zones
+groton-city,R5.1,R-5.1 Residence,,0.11,5000,45,,,,,no single list of zones
+groton-long-point,R,Single Family Residence,7,0.14,6000,15,,,,,
+groton-noank,R-20,Low Density Residential,3,0.46,20000,3,850,850,4,,
+groton-town,GR,Green Recreation,50,,,,,,,,
+guilford,R-4,Residential R-4,14,0.69,30000,,,,,Y,Answer is in linked table that is inaccessible
+guilford-old-quarry,Old Quarry,Old Quarry,,0.92,40000,14,,,,Y,Document is a for a single district
+guilford-sachems-head,C,Residence C,12,0.23,10000,12,,,,,
+haddam,R-1,Residential R-1,28,1,43560,235,"500/studio, 700/1BR, 900/2BR",,,Y,could not verify min unit size
+haddam,R-2,Residential R-2,28,2,87120,235,"500/studio, 700/1BR, 900/2BR",,,Y,could not verify min unit size
+hamden,R5,Residential R-5,,0.1377410468,6000,12,"600/1BR, 900/2BR, 1200/3BR",,,Y,"no single list of zones, could not verify min unit size"
+hampton,B,B Business,15,1.15,50000,17,,,,,
+hartland,R1,Rural Residential,,,87120,28,,"868 (no basement), 988 (basement)",29,Y,missing answers but present in doc
+harwinton,RS-A,Retail Service A,16,,43560,32,,,32,Y,missing answers but present in doc
+hebron,AV,Amston Village,,0.5,21780,91,,,,,no single list of zones
+hebron,PRD,Planned Residential Development,10,,348480,37,,750,38,,
+kent,RU-2,Birch Hill,,1,43560,56,,,,,no single list of zones
+killingly,MUDD,Mill Mixed Use Development,26,,,,,,,,
+killingly-borough-of-danielson,RM,"Residential, Medium Density",11,,11000,40,,600,41,,
+killingworth,Commercial,Commercial,"56,57",,,,,,,Y,Is this actually a zoning document? It reads very differently than the other docs here
+lebanon,RA,Rural Agricultural Residence,9,2,87120,"13,42","750 for 1 floor, 1000 for 2 floors",,42,Y,
+lebanon,VBD,Village Business,,2,87120,42,"960 for 1 floor, 1280 for 2 floors",,42,Y,
+lebanon,B,Business,,2,43560,42,"750 for 1 floor, 1000 for 2 floors",,42,Y,This requires cross-referencing the RA info.
+lebanon,RSR,Rural Senior Residence,,0.25,130680,,"600 for studio, 800 for 1 bedroom, 1000 for 2 bedroom",,42,Y,orig lot size is incorrect
+ledyard,CM,Commercial Marine,15,,40000,16,,,,Y,missing answers but present in doc
+ledyard,LCDD,Ledyard Center Design,15,,,,,,,,
+lisbon,R-40,Moderate Density Residential,14,0.91,40000,39,1000,,,Y,orig unit size is incorrect
+lisbon,BV-IV,Business Village IV,14,,40000,39,,,,Y,"zoning disitrict list does not include this district, though the district does exist"
+litchfield,GR,Gateway Residences,,0.9182736455,40000,11,,,,,no single list of zones
+lyme,C-40,Commercial,13,,40000,22,,,,Y,missing answers but present in doc
+madison,R-2,R-2 Residential,6,0.92,40000,19,,,,,
+manchester,RR,Rural Residence,23,0.69,30000,57,1100,1100,57,,district abbreviations not listed with districts
+mansfield,PB-2,Planned Business 2,9,,,,,,,,
+marlborough,R,Residential,5,"80,000 sq ft (individual septic), 120,000 sq ft (yard septic), 50,000 (sewer)",,86,,,,Y,
+meriden,R-R,Rural Residential,19,0.92,40000,,,,,Y,Answer found in appendix that is not included in this document.
+meriden,C-2,General Commercial,19,,,,,,,Y,
+middlebury,LI-200,Light Industrial 200,8,,217800,149,,,,Y,missing answers but present in doc
+middlefield,IPD-1,Industrial Park I,25,,87120,69,,500,70,Y,missing answers but present in doc
+middletown,I-1,Service Industrial,8,,,,,,,,
+middletown,MX,Mixed Use,,0.23,10000,,,,,,
+milford,R-7.5,One Family Residential R-7.5,17,0.17,7500,38,,,,,
+monroe,B-1,Business 1,3,,43560,84,,1400,84,Y,missing answers but present in doc
+montville,G,Government,22,,,,,,,,orig abbreviation incorrect
+morris,R-80,Residence 80,8,1.83,80000,34,"1,000 for one story, 700 for 1.5 stories, 600 for 2 or more stories",,34,Y,
+morris,CB,Commercial B,8,,40000,45,"1,000 for one story, 700 for 1.5 stories, 600 for 2 or more stories","1000, 700, 600",45,Y,
+naugatuck,NHRDDS,New Haven Road Design South,38,0.18,8000,67,,,,,
+naugatuck,B-4,Business 4,38,,30000,67,,,,Y,missing answers but present in doc
+new-britain,S-1,S-1 Single Family,"20,21",0.31,13500,24,400-1400 (depending on number of rooms in the dwelling and whether dwelling is attached or dettached),,,Y,could not verify min unit size
+new-canaan,Business B,Business B,,,5000,95,,,,Y,"no single list of zones, missing answers but present in doc"
+new-fairfield,MFDE,Multifamily Elderly,"5,6",5,217800,27,,,,,
+new-hartford,PS/UD,Public Service/Utility,,,,95,,,,Y,"no single list of zones, missing answers but present in doc"
+new-hartford,R-15,R-15 Residence,,0.3443526171,15000,40,,,,Y,"no single list of zones, missing answers but present in doc"
+new-hartford,Aquifer Protection Overlay,Aquifer Protection Overlay,,,,,,,,,"no single list of zones, missing answers but present in doc"
+new-haven,BA,General Business,"21,22",,,55,,,55,,no single list of zones
+new-london,WCI-1,Waterfront Commercial /Industrial 1,43,,10000,46,,,,Y,missing answers but present in doc
+new-milford,CCSD#1,Cluster Conservation Subdivision 1,"9,10",0.5,21780,218,,,,,
+new-milford,B-4,Business,,0.9182736455,40000,27,,,,,
+newington,R-12,Residential R-12,"6,7",,12000,47,,,,,
+newtown,BPO,Business & Professional Office,24,1,43560,123,,,,,
+newtown,R-2,Farming & Residential-R-2,24,1,87120,123,1500,1500,123,,orig lot size incorrect
+newtown-borough,P,Professional,19,1,43560,43,,1500,43,Y,missing answers but present in doc
+norfolk,Village Business,Village Business,,0.11,5000,45,,,,,no single list of zones
+north-branford,I-3,Industrial I-3,29,,,,,,,Y,Answer found in appendix that is not included in this document.
+north-canaan,C-B,Central Business,6,0.5 (if served by water & sewer); 1.38 (if not),60000,19,,,,Y,"orig abbreviation incorrect, orig lot size incorrect, document is rotated"
+north-canaan,C,Commercial,6,0.5 (if served by water & sewer); 1.38 (if not),60000,19,,,,Y,"orig abbreviation incorrect, orig lot size incorrect, document is rotated"
+north-canaan,R,Residential,6,0.5 (if served by water & sewer); 1.38 (if not),,19,,,,Y,"orig abbreviation incorrect, document is rotated"
+north-haven,RA-12,Residence-Apartment RA-12,15,0.28,12000,25,600 SF for 2 rooms; 700 for 3 rooms; each additional room 100,,,Y,could not verify min unit size
+norwalk,AA,AA Residence,"18,19",0.5,21780,,,,,Y,Answer found in appendix that is not included in this document.
+norwich,CC,Chelsea Central,,,5000,17,,,,Y,missing answers but present in doc
+old-lyme,MFR-40,Multifamily Residence MFR-40,7,0.23,40000,207,"800 if one floor, 1200 if two floors",,144,Y,orig lot size incorrect
+old-saybrook,B-4,Gateway Business B-4,17,"20,000 if served by sewer; 40,000 if not",,106,,,,Y,missing answers but present in doc
+orange,LI-2,Light Industrial 2,19,,87120,51,,,,Y,missing answers but present in doc
+oxford,OPD,Route 67 Office Professional,,1.5,65340,17,,,18,,
+plainfield,RA-40,Residence A-40,18,0.92,40000,27,"650/1BR, 770/2BR, 950/3BR, plus 120/add'l unit",,28,Y,
+plainville,QI,Quarry Industrial,,,,45,,,,,no single list of zones
+plymouth,I-1,I-1 Industrial,6,,20000,35,,,,,missing answers but present in doc
+pomfret,RR,Rural Residential,11,2,87120,27,,,,,
+portland,RI,Restricted Industrial,7,0.92 (if public water or sewer); 1.38 (if none),,55,,,,Y,
+preston,R-60,R-60 Residential,"22,23",1.38,60000,69,"900 if one floor, 1200 if two floors",,71,Y,missing answers but present in doc
+preston,PCVD,Poquetanuck Village,"22,23",1.38,60000,69,"900 if one floor, 1200 if two floors",,71,Y,missing answers but present in doc
+preston,R-40,R-40 Residential,"22,23",0.92,40000,69,"900 if one floor, 1200 if two floors",,71,Y,missing answers but present in doc
+preston,RC,Resort Commercial,"22,23",,200000,69,,,,,
+prospect,IND-2,Industrial - Manufacturing 2,34,,40000,54,,,,Y,missing answers but present in doc
+putnam,Industrial,Industrial,"41,42",,87120,77,,,,Y,missing answers but present in doc
+redding,SB,Service Business,"14,15",1,43560,37,,,,,
+redding,R-1/2,Suburban Residential,"14,15",0.5,21780,37,,,,,
+ridgefield,RA,Residential RA,,1,43560,66,,,,,no single list of zones
+rocky-hill,RC,Regional Commercial,,,43560,60,,,,,no single list of zones
+roxbury,A,Residence A,10,3,130680,124,1000,1000,124,,
+salem,RuA,Rural A,3,1.84,80000,"3,42",,,,,
+salisbury,C-20,Commercial,9,0.4591368228,20000,119,,,,,
+scotland,RA,Residential Agricultural,33,2,87120,36,,,,,
+seymour,R-40,R-40 Residence,"2,3",0.918,40000,19,,,,,
+sharon,GR-1,G R-1 General Residence,6,3,130680,25,500 SF/1 bedroom + 150 SF/additional bedroom,,,Y,could not verify min unit size
+shelton,CA-2,Commercial CA-2,21,0.34435262,15000,49,550,550,49,,
+sherman,D,Historic D,10,,,,600,600,89,Y,Meaning is a bit ambiguous for min unit size
+simsbury,I-1,Restricted Industrial,"7,8",,435600,81,,,81,,missing answers but present in doc
+somers,VB,Village Business,,0.46 (sewer); 0.92 (septic),,41,,,,Y,no single list of zones
+south-windsor,AA-30,AA-30 Limited Residential,"13,14",,30000,25,,,,,
+southbury,B-3C,Designed Business 3C,"17,18",0.9183,40000,53,900,900,53,,
+southbury,B-4,Marine Business 4,"17,18",0.9183,40000,53,900,900,53,,
+southington,CB,Central Business,7,,30000,71,,,,,
+sprague,BV,Baltic Village,"13,14,15",0.17 if served by public sewer system; 0.92 if not,,31,,960,34,Y,missing answers but present in doc
+sprague,R-80,R-80 Rural,"13,14,15",1.84,80000,31,,960,34,Y,missing answers but present in doc
+stafford,AAA,Rural & Single Family Residence AAA,7,2,88000,33,"1300, or 860 for 1st floor of 2-story",,,Y,could not verify min unit size
+stafford,B,General Residence B,,0.92,40000,33,1000,1000,,Y,could not verify min unit size
+stamford,R-D,Designed Residence,"45,46","25 in RA-3, 15 in RA-2, 10 in RA-1, 8 in R-20 or R-10",,197,,,,,
+stamford,IP-D,Designed Industrial Park,"45,46",,,,,,,,
+sterling,Primary Zoning,Primary Zoning,7,2,87120,8,,,,,
+stonington,LS 5,Local Shopping,"9,10",0.23,5000,120,,,,Y,orig min lot size incorrect
+stonington-borough,R-1,Residential One,16,0.14,6000,61,,,,,
+stratford,HOD,Housing Opportunity,9,,,,,,,Y,district not mentioned in the main list of districts
+suffield,R-90,R-90 Single Family Residential,"41,42",2.066115702,90000,"41,47",1000 (one-bed); 1250 (two-bed),,,Y,could not verify min unit size
+suffield,PDA,Planned Development Apartment,"41,42",10,435600,69,1000 (one-bed); 1250 (two-bed),,,Y,could not verify min unit size
+thomaston,RA-80,RA-80 Residential,12,1.84,80000,12,,,,,
+thompson,C,Commercial,25,".92, or .10 if served by water/sewer",15000,27,,,,,orig abbreviation incorrect; min lot size incorrect
+tolland,NCZ-T,Neighborhood Commercial-T,9,1,43560,73,,,,,
+torrington,RRC,Restricted Residential Community,6,,,,,,,,
+torrington,R-25,R-25 Residence,6,0.574,25000,33,,,,,
+trumbull,Assisted Living Facility,Assisted Living Facility,18,,,,,,,,
+trumbull,AREHZ,Age-Restricted Housing,18,,,,,,,,orig abbreviation made up
+union,SD,Special Development,18,,435600,57,1000,1000,57,Y,missing answers but present in doc
+vernon,HD-RC,HIstoric-Residential Commercial,"2,3",0.46,20000,56,1000,1000,56,Y,district not mentioned in the main list of districts
+voluntown,Village Commercial Overlay,Village Commercial Overlay,9,,40000,13,,,,Y,missing answers but present in doc
+wallingford,CA-40,Commercial CA-40,36,,40000,138,,,,Y,missing answers but present in doc
+wallingford,RU-120,Rural Residential-120,36,2.75,120000,137,,,,,
+wallingford,RU-40,Rural Residential-40,36,1.84,40000,137,,,,Y,org lot size incorrect
+warren,North,North,14,2,87120,16,,,,,
+washington,B-4,Woodville Business,11,"1 for Class A Soil, 1.5 Class B Soil, 2 for Class C Soil","43560 (Class A Soil), 65340 (Class B Soil), 87120 (Class C Soil)",37,600,600,44,,"600 is mentioned as ""Minimum Ground Floor Area"" - not sure if thats the same as Minimum Floor Area"
+waterbury,CBD,Central Business,30,,,,,,,,NA for minimum lot area
+waterford,IG,General Industrial,32,,40000,32,,,,Y,missing answers but present in doc
+waterford,R-20,Medium Density Residential,32,0.46,20000,32,850,850,34,Y,"the min unit size requirement is particularly challenging to find as it is mentioned as a general provision, not in the district section"
+waterford,WD,Waterfront Development,32,,20000,32,,,,Y,
+watertown,B-G,General Business 1,47,,"no minimum (all uses except multi-family), 15000 (multi-family dwellings)",94,,,,Y,
+watertown,R-20,Residential R-20,47,0.46,"40000 (no muni water), 20000 (muni water)",89,,,,Y,org lot size incorrect
+west-hartford,RM-3R,RM-3R Multifamily Restricted Residential,"19, 20",0.14,3000,20,,,,Y,no single list of districts - nonresidential districts not listed; org lot size incorrect
+west-haven,PVD,Planned Village,8,,3484800,72,,,,Y,missing answers but present in doc
+west-haven,LM,Light Manufacturing,8,,40000,63,,,,Y,missing answers but present in doc; the residence districts seem to be missing from the NZA spreadsheet
+westbrook,HDR-2,High Density Residential 2,"7,21","0.34 (front lot), 0.52 (back lot)","15000 (front lot), 225000 (rear lot)",19,,,,Y,no single list of districts - spread across multiple pages
+weston,NSC,Neighborhood Shopping Center,2,,217800,9,,,,Y,
+westport,BCD/H,Business Center/Historic,42,,,,,,,,no requirements specified
+wethersfield,SRD,Special Residential Development,"26,56",2,87120,30,,,,,no single list of districts - spread across multiple pages
+willington,DC,Designed Commercial,2,,,,,,,,
+wilton,SFAAHD,Single Family All Affordable Housing,31,6,261360,86,,,,,this district isn't mentioned in the main list (mentioned in a sub-list on page 79)
+winchester,TC,Town Center,,0.92,40000,80,,,,,no single list of districts
+windham,C-1,C-1 General Commercial,10,0.92,40075.2,70,750,750,71,,
+windsor,PUD,Planned Urban Development,19,,,,,,,,
+windsor-locks,BUS 1,Business 1,25,,,,,,,,
+wolcott,R-40,Residence R-40,23,0.92,40000,59,,,,,
+woodbridge,P,Park,5,,,,,,,,
+woodbury,OS-80,OS-80 Open Space Residence,5,1.84,80000,20,,,,,
+woodstock,Community,Community,41,2.5,108900,49,,,,,
