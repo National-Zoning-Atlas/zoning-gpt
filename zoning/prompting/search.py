@@ -53,6 +53,35 @@ def nearest_pages(town, district, term="min lot size") -> list[PageSearchOutput]
     res = s.execute()
     return [PageSearchOutput(text=r.Text, page_number=r.Page, highlight=list(r.meta.highlight.Text)) for r in res]
 
+def page_coverage(search_result):
+    pages_covered = []
+    for i in range(len(search_result)):
+        text = search_result[i][0]
+        chunks = text.split("NEW PAGE ")
+        pages = []
+        for j in range(1, len(chunks)):
+            page = chunks[j].split('\n')[0]
+            pages.append(int(page))
+        pages_covered.append(pages)
+    return pages_covered
+
+def get_non_overlapping_chunks(search_result):
+    indices = [r[1] for r in search_result]
+    pages_covered = page_coverage(search_result)
+    non_overlapping_indices = []
+    non_overlapping_chunks = []
+    for i, index in enumerate(indices):
+        has_overlap = False
+        current_pages = set(pages_covered[i])
+        for prev_index in non_overlapping_indices:
+            prev_pages = set(pages_covered[indices.index(prev_index)])
+            if current_pages.intersection(prev_pages):
+                has_overlap = True
+                break
+        if not has_overlap:
+            non_overlapping_indices.append(index)
+            non_overlapping_chunks.append(search_result[i])
+    return non_overlapping_chunks
 
 def main():
     districts_file = get_project_root() / "data" / "results" / "districts_matched.jsonl"
