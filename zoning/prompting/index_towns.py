@@ -1,49 +1,54 @@
-import datasets
+from typing import cast
+
+from datasets import load_from_disk, DatasetDict, Dataset
 from elasticsearch import Elasticsearch
 import tiktoken
+from tqdm.contrib.concurrent import thread_map
+
+from ..utils import get_project_root
+
+DATA_ROOT = get_project_root() / "data"
+
+input_hf_dataset_path = DATA_ROOT / "hf_text_dataset"
 
 enc = tiktoken.encoding_for_model("text-davinci-003")
 
 # Load data set
-train_data = datasets.load_dataset("xyzNLP/nza-ct-zoning-codes-text")["train"]
-test_data = datasets.load_dataset("xyzNLP/nza-ct-zoning-codes-text")["test"]
 es = Elasticsearch("http://localhost:9200")  # default client
 
-def get_town_data(data, town):
+
+def get_town_data(data: Dataset, town: str):
     "Return a dataset for a town zoning code with embedding lookups"
     d = data.filter(lambda x: x["Town"] == town)
     return d
 
 
-def index_dataset(d, town):
-    index_name = town
-    ls = d.to_dict()
+def index_dataset(d, index_name):
     es.indices.delete(index=index_name, ignore=[400, 404])
 
-
-    for i in range(len(ls["Text"])):
-        page = ls["Page"][i]
+    for page in d.index:
         text = ""
+        # Include 10 pages of forward context in the index
         for j in range(10):
-            if i + j >= len(ls["Text"]): break
-            text += f"\nNEW PAGE {i+j}\n" + ls["Text"][i + j]
-            
+            if page + j not in d.index:
+                continue
+            text += f"\nNEW PAGE {page+j}\n" + d.loc[page + j]["Text"]
+
         # Truncate to 2000 tokens
         text = enc.decode(enc.encode(text)[:2000])
-        es.index(index=index_name, id=page,
-                 document={"Page": page, "Text": text})
+        es.index(index=index_name, id=page, document={"Page": page, "Text": text})
 
-def index_towns(ds):
-    towns = set(ds["Town"])
-    for town in towns:
-        print(town)
-        if es.indices.exists(index=town):
-            print("Index already exists, skipping")
-            continue
-        d = get_town_data(ds, town)
-        index_dataset(d, town)
+
+def main():
+    ds = cast(DatasetDict, load_from_disk(input_hf_dataset_path))
+
+    for split in ds.keys():
+        print(f"Processing {split} split...")
+        df = ds[split].to_pandas().set_index(["Town", "Page"])
+        towns = set(df.index.get_level_values(0))
+        thread_map(lambda town: index_dataset(df.loc[town], town), towns)
+
 
 # Make index for every town.
-if __name__  == "__main__":
-    index_towns(train_data)
-    index_towns(test_data)
+if __name__ == "__main__":
+    main()
