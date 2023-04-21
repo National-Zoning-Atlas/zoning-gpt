@@ -3,6 +3,7 @@ from functools import reduce
 import json
 from pathlib import Path
 from typing import Generator
+from concurrent.futures import ThreadPoolExecutor
 
 from minichain import OpenAI, prompt
 from pydantic import BaseModel
@@ -88,13 +89,13 @@ def extract_size(town, district, term, top_k_pages, method: ExtractionMethod = E
                     )]
         case ExtractionMethod.MAP:
             outputs = []
-            for page in pages:
-                result: PromptOutput | None = lookup_term_prompt(page.text, district, term).run()  # type: ignore
-                if result is not None:
-                    outputs.append(LookupOutput(
-                        output=result,
-                        search_pages=[page],
-                    ))
+            with ThreadPoolExecutor(max_workers=20) as executor:
+                for page, result in executor.map(lambda page: (page, lookup_term_prompt(page.text, district, term).run()), pages):
+                    if result is not None:
+                        outputs.append(LookupOutput(
+                            output=result,
+                            search_pages=[page],
+                        ))
             return outputs
 
     return []
