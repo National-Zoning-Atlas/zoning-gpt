@@ -42,3 +42,14 @@ stages:
     deps:
     - zoning/data_processing/index_towns.py
     - data/hf_text_dataset
+  evaluate:
+    cmd: python -m zoning.data_processing.eval
+    deps:
+    - zoning/data_processing/index_towns.py
+    - zoning/data_processing/eval.py
+    - templates/extraction.pmpt.tpl
+    outs:
+    - data/results/eval.csv
+    metrics:
+    - data/results/eval.yaml:
+        cache: true
