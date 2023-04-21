@@ -1,8 +1,10 @@
 from functools import cache
 import json
 from pathlib import Path
+from typing import Any
 
 from git.repo import Repo
+import yaml
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
@@ -22,3 +24,8 @@ def get_project_root() -> Path:
     assert path is not None, "You are not currently in a Git repo!"
 
     return Path(path)
+
+@cache
+def load_pipeline_config() -> dict[str, Any]:
+    with (get_project_root() / "params.yaml").open(encoding="utf-8") as f:
+        return yaml.safe_load(f)

@@ -7,7 +7,7 @@ stages:
     outs:
     - data/orig_documents_s3_manifest.json
   extract_text:
-    cmd: python zoning/data_processing/extract_text.py
+    cmd: python -m zoning.data_processing.extract_text
     deps:
     - zoning/data_processing/extract_text.py
     - data/orig_documents_s3_manifest.json
@@ -16,7 +16,7 @@ stages:
     outs:
     - data/textract_dataset
   generate_dataset:
-    cmd: python zoning/data_processing/generate_dataset.py
+    cmd: python -m zoning.data_processing.generate_dataset
     deps:
     - zoning/data_processing/generate_dataset.py
     - data/names_all_towns.json
@@ -24,6 +24,14 @@ stages:
     params:
     - generate_dataset.seed
     - generate_dataset.test_split_frac
+    - publish_datasets
     outs:
     - data/hf_dataset
     - data/parquet_dataset
+  generate_text_dataset:
+    cmd: python -m zoning.data_processing.generate_text_dataset
+    deps:
+    - zoning/data_processing/generate_text_dataset.py
+    - data/hf_dataset
+    params:
+    - publish_datasets

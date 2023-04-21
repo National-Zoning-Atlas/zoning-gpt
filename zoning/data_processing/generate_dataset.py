@@ -1,41 +1,30 @@
 import json
 from os import makedirs
-from os.path import basename, dirname, join, realpath, splitext
 
 import pandas as pd
 import pyarrow as pa
-import yaml
 from datasets import load_dataset
 from sklearn.model_selection import train_test_split
 from tqdm.contrib.concurrent import process_map
 
-DIR = dirname(realpath(__file__))
+from ..utils import get_project_root, load_pipeline_config
 
-with open(join(DIR, "..", "..", "params.yaml")) as f:
-    config = yaml.safe_load(f)[splitext(basename(__file__))[0]]
+DATA_ROOT = get_project_root() / "data"
+config = load_pipeline_config()
 
-# Whether or not to publish the resulting dataset to HuggingFace Hub. If False,
-# the dataset will be saved locally to disk instead.
-PUBLISH_DATASET = True
-
-RANDOM_STATE = config["seed"]
-TEST_SPLIT_FRAC = config["test_split_frac"]
-
-DATA_ROOT = realpath(join(DIR, "..", "..", "data"))
+PUBLISH_DATASET = config["publish_datasets"]
+RANDOM_STATE = config["generate_dataset"]["seed"]
+TEST_SPLIT_FRAC = config["generate_dataset"]["test_split_frac"]
 
 # Path to the directory where Textract results from CT Zoning codes live. A
 # folder named "processed-data" should exist at this path that contains the
 # Textract results.
-input_textract_dataset_path = join(DATA_ROOT, "textract_dataset")
-
+input_textract_dataset_path = DATA_ROOT / "textract_dataset"
 # JSON file listing the full set of towns for which we expect to have data.
-input_town_list_path = join(DATA_ROOT, "names_all_towns.json")
-
-output_parquet_dataset_path = join(DATA_ROOT, "parquet_dataset")
-
+input_town_list_path = DATA_ROOT / "names_all_towns.json"
+output_parquet_dataset_path = DATA_ROOT / "parquet_dataset"
 output_hf_dataset_name = "xyzNLP/nza-ct-zoning-codes"
-
-output_hf_dataset_path = join(DATA_ROOT, "hf_dataset")
+output_hf_dataset_path = DATA_ROOT / "hf_dataset"
 
 # Create output directories if they don't already exist
 makedirs(output_parquet_dataset_path, exist_ok=True)
@@ -106,9 +95,9 @@ def import_town(town):
     Returns: pandas dataframe of cleaned/combined JSONs for a given document with all Textract information
     """
 
-    filename = join(input_textract_dataset_path, f"{town}-zoning-code.json")
+    filename = input_textract_dataset_path / f"{town}-zoning-code.json"
 
-    with open(filename, encoding="utf-8") as f:
+    with filename.open() as f:
         data = json.load(f)
 
     df = pd.DataFrame([b for d in data for b in d["Blocks"]], columns=SCHEMA.names).drop_duplicates(
@@ -116,14 +105,14 @@ def import_town(town):
     )
     df["Town"] = town
 
-    output_path = join(output_parquet_dataset_path, f"{town}.parquet")
+    output_path = output_parquet_dataset_path / f"{town}.parquet"
     df.to_parquet(output_path, schema=SCHEMA)
 
     return output_path
 
 
 if __name__ == "__main__":
-    with open(input_town_list_path) as f:
+    with input_town_list_path.open() as f:
         all_towns = json.load(f)
 
     datafiles = [

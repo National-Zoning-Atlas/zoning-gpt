@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from ..utils import get_project_root, load_jsonl, chunks
 from .search import nearest_pages, get_non_overlapping_chunks, PageSearchOutput
+from .eval_results import clean_string_units
 
 with Path(__file__).parent.joinpath("thesaurus.json").open(encoding="utf-8") as f:
     thesaurus = json.load(f)
@@ -43,8 +44,6 @@ class AllLookupOutput(BaseModel):
     sizes: dict[str, list[LookupOutput]]
 
 
-
-
 # TODO: minichain appears to currently ignore the model argument. We should fix
 # this and enable it to use GPT-4.
 @prompt(OpenAI(model="text-davcinci-003"), template=extraction_tmpl, parser="json")
@@ -64,8 +63,8 @@ class ExtractionMethod(str, Enum):
     MAP = "map"
 
 def extract_size(town, district, term, top_k_pages, method: ExtractionMethod = ExtractionMethod.STUFF) -> list[LookupOutput]:
-    pages = nearest_pages(town, district, term)[:top_k_pages]
-    pages = get_non_overlapping_chunks(pages)
+    pages = nearest_pages(town, district, term)
+    pages = get_non_overlapping_chunks(pages)[:top_k_pages]
 
     if len(pages) == 0:
         return []
@@ -121,8 +120,10 @@ def extract_all_sizes(
 
 def main():
     districts_file = (
-        get_project_root() / "data" / "results" / "districts_matched_2.jsonl"
+        get_project_root() / "data" / "results" / "districts_gt.jsonl"
     )
+    import pandas as pd
+    gt = pd.read_csv(get_project_root() / "data" / "ground_truth.csv", index_col=["town", "district_abb"])
 
     town_districts = load_jsonl(districts_file)
     for result in extract_all_sizes(
@@ -130,9 +131,13 @@ def main():
     ):
         for term, lookups in result.sizes.items():
             for l in lookups:
-                print(
-                    f"{result.town} - {result.district.T}: {term} is {l.output.answer if l.output is not None else 'not found'}"
-                )
+                expected = set(float(f) for f in gt.loc[result.town, result.district.Z].min_lot_size_gt.split(", "))
+                actual = set(clean_string_units(l.output.answer)) if l.output is not None else set()
+                is_correct = any(expected & actual)
+                if not is_correct:
+                    print(
+                        f"{result.town} - {result.district.T} ({l.output.pages}): {term} | Expected: {expected} | Actual: {actual} | Correct: {is_correct}"
+                    )
 
 
 if __name__ == "__main__":

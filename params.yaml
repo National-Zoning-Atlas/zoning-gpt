@@ -5,3 +5,7 @@ generate_dataset:
   # The fraction of the dataset that will be used for the test split. The
   # remainder will be used for the training split.
   test_split_frac: 0.3
+
+# Whether or not to publish the resulting datasets to HuggingFace Hub. If False,
+# the dataset will only be saved locally.
+publish_datasets: false

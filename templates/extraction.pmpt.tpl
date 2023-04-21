@@ -15,14 +15,18 @@ Input:
 
 {{zone_abbreviation}} Zone
 
+CELL (2, 1):
+Field
+CELL (2, 2):
+Value (square feet)
 CELL (3, 1):
 {{term}}
 CELL (3, 2):
-123456 sq ft
+123456
 CELL (4, 1):
 Apartment Area
 CELL (4, 2):
-10,000 sq ft
+10,000
 
 NEW PAGE 11
 

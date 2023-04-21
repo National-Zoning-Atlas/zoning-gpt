@@ -5,7 +5,8 @@ import tiktoken
 enc = tiktoken.encoding_for_model("text-davinci-003")
 
 # Load data set
-data = datasets.load_dataset("xyzNLP/nza-ct-zoning-codes-text")["train"]
+train_data = datasets.load_dataset("xyzNLP/nza-ct-zoning-codes-text")["train"]
+test_data = datasets.load_dataset("xyzNLP/nza-ct-zoning-codes-text")["test"]
 es = Elasticsearch("http://localhost:9200")  # default client
 
 def get_town_data(data, town):
@@ -32,11 +33,17 @@ def index_dataset(d, town):
         es.index(index=index_name, id=page,
                  document={"Page": page, "Text": text})
 
-# Make index for every town.
-in __name__  == "__main__":
-    towns = set(data["Town"])
-    print(towns)
+def index_towns(ds):
+    towns = set(ds["Town"])
     for town in towns:
         print(town)
-        d = get_town_data(data, town)
+        if es.indices.exists(index=town):
+            print("Index already exists, skipping")
+            continue
+        d = get_town_data(ds, town)
         index_dataset(d, town)
+
+# Make index for every town.
+if __name__  == "__main__":
+    index_towns(train_data)
+    index_towns(test_data)
