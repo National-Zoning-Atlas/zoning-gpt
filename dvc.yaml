@@ -37,3 +37,8 @@ stages:
     - publish_datasets
     outs:
     - data/hf_text_dataset
+  index_towns:
+    cmd: python -m zoning.data_processing.index_towns
+    deps:
+    - zoning/data_processing/index_towns.py
+    - data/hf_text_dataset

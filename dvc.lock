@@ -76,3 +76,13 @@ stages:
       md5: e832d3471ef79f057d9845b1c45015ee.dir
       size: 472917787
       nfiles: 7
+  index_towns:
+    cmd: python -m zoning.data_processing.index_towns
+    deps:
+    - path: data/hf_text_dataset
+      md5: e832d3471ef79f057d9845b1c45015ee.dir
+      size: 472917787
+      nfiles: 7
+    - path: zoning/data_processing/index_towns.py
+      md5: 1de20cf7c54e7d04b71c61328d41e260
+      size: 1574
