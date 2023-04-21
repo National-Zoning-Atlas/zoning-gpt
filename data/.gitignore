@@ -3,3 +3,4 @@
 /textract_dataset
 /orig-documents
 orig_documents_s3_manifest.json
+/hf_text_dataset

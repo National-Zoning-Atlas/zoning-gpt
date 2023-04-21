@@ -3,7 +3,7 @@ from typing import Dict, List, Set, Tuple, cast
 
 import numpy as np
 import openai
-from datasets import Dataset, DatasetDict, load_dataset
+from datasets import Dataset, DatasetDict, load_from_disk
 from tqdm.auto import tqdm
 
 from ..utils import get_project_root, load_pipeline_config
@@ -18,7 +18,6 @@ PUBLISH_DATASET = config["publish_datasets"]
 EMBEDDING_MODEL = "text-embedding-ada-002"
 
 input_hf_dataset_path = DATA_ROOT / "hf_dataset"
-input_hf_dataset_name = "xyzNLP/nza-ct-zoning-codes"
 output_hf_dataset_name = "xyzNLP/nza-ct-zoning-codes-text"
 output_hf_dataset_path = DATA_ROOT / "hf_text_dataset"
 
@@ -128,7 +127,7 @@ def embed(x):
 
 
 def main():
-    ds = cast(DatasetDict, load_dataset(input_hf_dataset_name))
+    ds = cast(DatasetDict, load_from_disk(input_hf_dataset_path))
 
     new_ds = DatasetDict()
     for split in ds.keys():

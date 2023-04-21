@@ -8,4 +8,4 @@ generate_dataset:
 
 # Whether or not to publish the resulting datasets to HuggingFace Hub. If False,
 # the dataset will only be saved locally.
-publish_datasets: false
+publish_datasets: true
