@@ -1,6 +1,6 @@
 town,district_abb,district,district_page,min_lot_size_acres_gt_orig,min_lot_size_gt,min_lot_size_page_gt,min_unit_size_sf_gt_orig,min_unit_size_gt,min_unit_size_page_gt,review,notes
 andover,AL,Andover Lake,14,1.38 (year-round); 0.69 (seasonal),,,500,500,41,,
-ansonia,AA,AA Residence,17,0.69,30056.4,52,,,,,
+ansonia,AA,AA Residence,17,0.69,30000,52,,,,,
 ashford,TD,Technology Development,21,,,,900,900,29,,
 avon,IP,Industrial Park,"1,2",,,,,,,,
 barkhamsted,B-1,Restricted Business,11,,,,,,,,
@@ -9,7 +9,7 @@ beacon-falls,PARD-3,Planned Adaptive Reuse Development 3,8,143,6229080,121,1200,
 berlin,GI,General Industrial,33,,,,,,,,
 berlin,VDO,Village Overlay,33,,,,,,,,
 bethany,HOD,Housing Opportunity Development,70,30,1306800,70,,,,,district not mentioned in the main list of districts
-bethel,C,Commercial,,0.23,10018.8,72,,,,,no single list of zones
+bethel,C,Commercial,,0.23,10000,72,,,,,no single list of zones
 bloomfield,IND-1,I-1 General Industry,,,,,,,,,no single list of zones
 bolton,GB,General Buiness,59,,,,,,,,
 bozrah,I-30,Industrial-30,"9,10",,,,,,,,
@@ -204,24 +204,24 @@ wallingford,CA-40,Commercial CA-40,36,,40000,138,,,,Y,missing answers but presen
 wallingford,RU-120,Rural Residential-120,36,2.75,120000,137,,,,,
 wallingford,RU-40,Rural Residential-40,36,1.84,40000,137,,,,Y,org lot size incorrect
 warren,North,North,14,2,87120,16,,,,,
-washington,B-4,Woodville Business,11,"1 for Class A Soil, 1.5 Class B Soil, 2 for Class C Soil","43560 (Class A Soil), 65340 (Class B Soil), 87120 (Class C Soil)",37,600,600,44,,"600 is mentioned as ""Minimum Ground Floor Area"" - not sure if thats the same as Minimum Floor Area"
+washington,B-4,Woodville Business,11,"1 for Class A Soil, 1.5 Class B Soil, 2 for Class C Soil","43560,65340,87120",37,600,600,44,,"600 is mentioned as ""Minimum Ground Floor Area"" - not sure if thats the same as Minimum Floor Area"
 waterbury,CBD,Central Business,30,,,,,,,,NA for minimum lot area
 waterford,IG,General Industrial,32,,40000,32,,,,Y,missing answers but present in doc
 waterford,R-20,Medium Density Residential,32,0.46,20000,32,850,850,34,Y,"the min unit size requirement is particularly challenging to find as it is mentioned as a general provision, not in the district section"
 waterford,WD,Waterfront Development,32,,20000,32,,,,Y,
-watertown,B-G,General Business 1,47,,"no minimum (all uses except multi-family), 15000 (multi-family dwellings)",94,,,,Y,
-watertown,R-20,Residential R-20,47,0.46,"40000 (no muni water), 20000 (muni water)",89,,,,Y,org lot size incorrect
+watertown,B-G,General Business 1,47,"no minimum (all uses except multi-family), 15000 (multi-family dwellings)",15000,94,,,,Y,
+watertown,R-20,Residential R-20,47,"40000 (no muni water), 20000 (muni water)","20000,40000",89,,,,Y,org lot size incorrect
 west-hartford,RM-3R,RM-3R Multifamily Restricted Residential,"19, 20",0.14,3000,20,,,,Y,no single list of districts - nonresidential districts not listed; org lot size incorrect
 west-haven,PVD,Planned Village,8,,3484800,72,,,,Y,missing answers but present in doc
 west-haven,LM,Light Manufacturing,8,,40000,63,,,,Y,missing answers but present in doc; the residence districts seem to be missing from the NZA spreadsheet
-westbrook,HDR-2,High Density Residential 2,"7,21","0.34 (front lot), 0.52 (back lot)","15000 (front lot), 225000 (rear lot)",19,,,,Y,no single list of districts - spread across multiple pages
+westbrook,HDR-2,High Density Residential 2,"7,21","15000 (front lot), 225000 (rear lot)","15000, 225000",19,,,,Y,no single list of districts - spread across multiple pages
 weston,NSC,Neighborhood Shopping Center,2,,217800,9,,,,Y,
 westport,BCD/H,Business Center/Historic,42,,,,,,,,no requirements specified
 wethersfield,SRD,Special Residential Development,"26,56",2,87120,30,,,,,no single list of districts - spread across multiple pages
 willington,DC,Designed Commercial,2,,,,,,,,
 wilton,SFAAHD,Single Family All Affordable Housing,31,6,261360,86,,,,,this district isn't mentioned in the main list (mentioned in a sub-list on page 79)
 winchester,TC,Town Center,,0.92,40000,80,,,,,no single list of districts
-windham,C-1,C-1 General Commercial,10,0.92,40075.2,70,750,750,71,,
+windham,C-1,C-1 General Commercial,10,0.92,40000,70,750,750,71,,
 windsor,PUD,Planned Urban Development,19,,,,,,,,
 windsor-locks,BUS 1,Business 1,25,,,,,,,,
 wolcott,R-40,Residence R-40,23,0.92,40000,59,,,,,
