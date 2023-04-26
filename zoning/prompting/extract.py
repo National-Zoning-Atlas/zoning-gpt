@@ -2,14 +2,14 @@ from enum import Enum
 from functools import reduce
 import json
 from pathlib import Path
-from typing import Generator
+from typing import Generator, Optional
 from concurrent.futures import ThreadPoolExecutor
 
 from minichain import OpenAI, prompt
 from pydantic import BaseModel
 
 from ..utils import get_project_root, load_jsonl, chunks
-from .search import nearest_pages, get_non_overlapping_chunks, PageSearchOutput
+from .search import nearest_pages, get_non_overlapping_chunks, page_coverage, PageSearchOutput
 from .eval_results import clean_string_units
 
 with Path(__file__).parent.joinpath("thesaurus.json").open(encoding="utf-8") as f:
@@ -31,8 +31,9 @@ class PromptOutput(BaseModel):
 
 
 class LookupOutput(BaseModel):
-    output: PromptOutput
+    output: Optional[PromptOutput]
     search_pages: list[PageSearchOutput]
+    search_pages_expanded: list[int]
     """
     The set of pages, in descending order or relevance, used to produce the
     result.
@@ -60,23 +61,38 @@ def lookup_term_prompt(model, page_text, district, term) -> PromptOutput | None:
     )
 
 class ExtractionMethod(str, Enum):
+    NONE = "search_only"
     STUFF = "stuff"
     MAP = "map"
 
 def extract_size(town, district, term, top_k_pages, method: ExtractionMethod = ExtractionMethod.STUFF) -> list[LookupOutput]:
     pages = nearest_pages(town, district, term)
     pages = get_non_overlapping_chunks(pages)[:top_k_pages]
+    # if town == 'torrington':
+    #     print("with overlap", [page.page_number for page in pages], [page.highlight for page in pages])
+    # pages = get_non_overlapping_chunks(pages)[:top_k_pages]
+    # if town == 'torrington':
+    #     print("without overlap", [page.page_number for page in pages], [page.highlight for page in pages])
 
     if len(pages) == 0:
         return []
 
     match method:
+        case ExtractionMethod.NONE:
+            outputs = [] # if only running search
+            for page in pages:
+                #print(town, "page", page.page_number)
+                #print(town, "pages_covered", page_coverage([page])[0])
+                outputs.append(LookupOutput(
+                    search_pages=[page], 
+                    search_pages_expanded=page_coverage([page])[0],
+                    ))
+            return outputs
         case ExtractionMethod.STUFF:
             # Stuff all pages into prompt, in order of page number
             all_page = reduce(
                 lambda a, b: a + b.text, sorted(pages, key=lambda p: p.page_number), ""
             )
-
             # This is the length of the prompt before any template interpolation
             # TODO: Determine this automatically
             prompt_base_token_length = 256
@@ -86,7 +102,13 @@ def extract_size(town, district, term, top_k_pages, method: ExtractionMethod = E
                     return [LookupOutput(
                         output=result,
                         search_pages=pages,
+                        search_pages_expanded=page_coverage([page])[0],
                     )]
+                    # outputs.append(LookupOutput(
+                    #     output=result,
+                    #     search_pages=[page],
+                    #     search_pages_expanded=page_coverage([page]),
+                    # ))
         case ExtractionMethod.MAP:
             outputs = []
             with ThreadPoolExecutor(max_workers=20) as executor:
@@ -95,7 +117,13 @@ def extract_size(town, district, term, top_k_pages, method: ExtractionMethod = E
                         outputs.append(LookupOutput(
                             output=result,
                             search_pages=[page],
+                            search_pages_expanded=page_coverage([page])[0],
                         ))
+                    # outputs.append(LookupOutput(
+                    #     output=result,
+                    #     search_pages=[page],
+                    #     search_pages_expanded=page_coverage([page]),
+                    # ))
             return outputs
 
     return []
@@ -104,6 +132,7 @@ def extract_size(town, district, term, top_k_pages, method: ExtractionMethod = E
 def extract_all_sizes(
     town_districts: list[dict], terms: list[str], top_k_pages: int
 ) -> Generator[AllLookupOutput, None, None]:
+    
     for d in town_districts:
         town = d["Town"]
         districts = d["Districts"]
@@ -127,6 +156,7 @@ def main():
     gt = pd.read_csv(get_project_root() / "data" / "ground_truth.csv", index_col=["town", "district_abb"])
 
     town_districts = load_jsonl(districts_file)
+    
     for result in extract_all_sizes(
         town_districts, ["min lot size", "min unit size"], 6
     ):

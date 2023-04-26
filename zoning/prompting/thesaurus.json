@@ -1,6 +1,6 @@
 {
 
-    "min lot size": ["min lot size", "minimum lot size", "min lot coverage", "minimum lot coverage", "min parcel size", "minimum parcel size", "min lot and building", "area and bulk", "min dimensional", "min lot area", "lot area", "min area", "minimum area", "minimum lot area", "minimum lot and area", "minimum lot", "minimum lot requirements", "minimum parcel area", "min parcel area"],
+    "min lot size": ["min lot size", "minimum lot size", "min lot coverage", "minimum lot coverage", "min parcel size", "minimum parcel size", "min lot and building", "area and bulk", "min dimensional", "min lot area", "lot area", "min area", "minimum area", "minimum lot area", "minimum lot and area", "minimum lot", "minimum lot requirements", "minimum parcel area", "min parcel area", "lot size"],
     "min unit size": ["min unit size", "minimum unit size", "min floor area", "min livable floor area", "minimum building size", "minimum floor area"],
     "dimensions": ["acre", "acres", "square feet", "sq ft"]
 }

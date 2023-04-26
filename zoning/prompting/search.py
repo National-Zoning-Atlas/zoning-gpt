@@ -17,6 +17,7 @@ class PageSearchOutput(BaseModel):
     text: str
     page_number: int
     highlight: list[str]
+    score: float
 
 def nearest_pages(town, district, term="min lot size") -> list[PageSearchOutput]:
     # Search in town
@@ -34,7 +35,7 @@ def nearest_pages(town, district, term="min lot size") -> list[PageSearchOutput]
     term_expansion = [
         Q("match_phrase", Text=query.replace("min", r))
         for query in thesaurus.get(term, [])
-        for r in ["min", "minimum", "min."]
+        for r in ["min", "minimum", "min.", "Min", "Minimum", "Min."]
     ]
 
     term_query = Q(
@@ -49,9 +50,11 @@ def nearest_pages(town, district, term="min lot size") -> list[PageSearchOutput]
     )
     # s.query = cell_query
     s.query = district_query & term_query & dim_query
+    
     s = s.highlight("Text")
     res = s.execute()
-    return [PageSearchOutput(text=r.Text, page_number=r.Page, highlight=list(r.meta.highlight.Text)) for r in res]
+    #import pdb; pdb.set_trace()
+    return [PageSearchOutput(text=r.Text, page_number=r.Page, highlight=list(r.meta.highlight.Text), score=r.meta.score) for r in res]
 
 def page_coverage(search_result: list[PageSearchOutput]) -> list[list[int]]:
     pages_covered = []
@@ -72,11 +75,13 @@ def get_non_overlapping_chunks(search_result: list[PageSearchOutput]) -> list[Pa
     non_overlapping_chunks: list[PageSearchOutput] = []
     for i, index in enumerate(indices):
         has_overlap = False
+        score_delta = 0
         current_pages = set(pages_covered[i])
         for prev_index in non_overlapping_indices:
             prev_pages = set(pages_covered[indices.index(prev_index)])
             if current_pages.intersection(prev_pages):
                 has_overlap = True
+                score_delta = search_result[i-1].score - search_result[i].score
                 break
         if not has_overlap:
             non_overlapping_indices.append(index)
@@ -84,7 +89,7 @@ def get_non_overlapping_chunks(search_result: list[PageSearchOutput]) -> list[Pa
     return non_overlapping_chunks
 
 def main():
-    districts_file = get_project_root() / "data" / "results" / "districts_matched.jsonl"
+    districts_file = get_project_root() / "data" / "results" / "districts_gt.jsonl"
     for l in districts_file.open(encoding="utf-8").readlines():
         d = json.loads(l)
         town = d["Town"]
