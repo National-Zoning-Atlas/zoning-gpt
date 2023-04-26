@@ -19,7 +19,7 @@ def compute_eval_result(town: str, district_name: str, term: str, row):
             dict(T=district_name, Z=row.district_abb),
             term,
             6,
-            method=ExtractionMethod.MAP,
+            method=ExtractionMethod.NONE,
         )
     except Exception as e:
         #print(f"Error: {town} {district_name} | {e}")
@@ -28,10 +28,11 @@ def compute_eval_result(town: str, district_name: str, term: str, row):
     for result in outputs:
         searched_pages = {r.page_number for r in result.search_pages}
         searched_pages_expanded = set(result.search_pages_expanded)
-        
+
         extracted_pages = (
             set(result.output.pages) if result.output is not None else set()
         )
+
         yield {
             "town": town,
             "district": district_name,
@@ -46,7 +47,7 @@ def compute_eval_result(town: str, district_name: str, term: str, row):
             "searched_pages_expanded": searched_pages_expanded,
             "extracted_pages": extracted_pages,
         }
-        
+
 def main():
     gt = pd.read_csv(DATA_ROOT / "ground_truth.csv", index_col=["town", "district"])
 
@@ -59,8 +60,6 @@ def main():
         results.extend(result)
 
     results_df = pd.DataFrame(results)
-
-    print(results_df)
 
     # Attempt to normalize LLM responses
     results_df = results_df.assign(
