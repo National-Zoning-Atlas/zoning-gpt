@@ -74,6 +74,7 @@ def extract_size(town, district, term, top_k_pages, method: ExtractionMethod = E
     # if town == 'torrington':
     #     print("without overlap", [page.page_number for page in pages], [page.highlight for page in pages])
 
+
     if len(pages) == 0:
         return []
 
