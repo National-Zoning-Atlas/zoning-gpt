@@ -7,7 +7,7 @@ stages:
       md5: 0013040cfeb0f4f23a35a94cae9f2950
       size: 2665
     - path: data/textract_dataset
-      md5: 8d59315d9f3f21ddaab194db92db4d9e.dir
+      md5: 11062398489b76650f2d8335fe86775a.dir
       size: 8441946344
       nfiles: 181
     - path: zoning/data_processing/generate_dataset.py
@@ -20,11 +20,11 @@ stages:
         publish_datasets: true
     outs:
     - path: data/hf_dataset
-      md5: 0057d2cb5fa96c6398ac1321ee8c4d99.dir
+      md5: 302e323289b3182818324f7ac09702e9.dir
       size: 5363614993
       nfiles: 13
     - path: data/parquet_dataset
-      md5: f709624dca0e132c4d0d54fe8834d9f7.dir
+      md5: ce3b5231d58d404fcf15d265e11ccab8.dir
       size: 2219366007
       nfiles: 176
   upload_zoning_docs:
@@ -55,14 +55,14 @@ stages:
         extract_text.orig_document_s3_bucket: cornell-mfd64
     outs:
     - path: data/textract_dataset
-      md5: 8d59315d9f3f21ddaab194db92db4d9e.dir
+      md5: 11062398489b76650f2d8335fe86775a.dir
       size: 8441946344
       nfiles: 181
   generate_text_dataset:
     cmd: python -m zoning.data_processing.generate_text_dataset
     deps:
     - path: data/hf_dataset
-      md5: 0057d2cb5fa96c6398ac1321ee8c4d99.dir
+      md5: 302e323289b3182818324f7ac09702e9.dir
       size: 5363614993
       nfiles: 13
     - path: zoning/data_processing/generate_text_dataset.py
@@ -84,8 +84,8 @@ stages:
       size: 472917787
       nfiles: 7
     - path: zoning/data_processing/index_towns.py
-      md5: 1de20cf7c54e7d04b71c61328d41e260
-      size: 1574
+      md5: cd3c4af8c8e19c9927e28912aaf7ced5
+      size: 1580
   evaluate:
     cmd: python -m zoning.data_processing.eval
     deps:
@@ -93,15 +93,15 @@ stages:
       md5: b72763886abe424370da753058ef87f9
       size: 1167
     - path: zoning/data_processing/eval.py
-      md5: 4d53ca018b3e4c834c9fb9485e6a3258
-      size: 3546
+      md5: 09fc5f04724b489b7ad9975e689b78c8
+      size: 4029
     - path: zoning/data_processing/index_towns.py
-      md5: 1de20cf7c54e7d04b71c61328d41e260
-      size: 1574
+      md5: cd3c4af8c8e19c9927e28912aaf7ced5
+      size: 1580
     outs:
     - path: data/results/eval.csv
-      md5: 5bddde7de85fadf47f67760c24797026
-      size: 35325
+      md5: a60aeb697d6133a67d7b68d5bc0671bb
+      size: 46815
     - path: data/results/eval.yaml
-      md5: 96626fb6f7fd1881ee16e276b16e704a
-      size: 218
+      md5: 5641bb874c3db60561a12d83784438a0
+      size: 187

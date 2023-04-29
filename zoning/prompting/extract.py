@@ -137,11 +137,6 @@ def extract_size(town, district, term, top_k_pages, method: ExtractionMethod = E
                         search_pages=pages,
                         search_pages_expanded=page_coverage(pages)[0],
                     )]
-                    # outputs.append(LookupOutput(
-                    #     output=result,
-                    #     search_pages=[page],
-                    #     search_pages_expanded=page_coverage([page]),
-                    # ))
         case ExtractionMethod.MAP:
             outputs = []
             with ThreadPoolExecutor(max_workers=20) as executor:
@@ -152,11 +147,6 @@ def extract_size(town, district, term, top_k_pages, method: ExtractionMethod = E
                             search_pages=[page],
                             search_pages_expanded=page_coverage([page])[0],
                         ))
-                    # outputs.append(LookupOutput(
-                    #     output=result,
-                    #     search_pages=[page],
-                    #     search_pages_expanded=page_coverage([page]),
-                    # ))
             return sorted(outputs, key=lambda o: o.output.mean_token_logprob() if o.output is not None else 0, reverse=True)
 
     return []

@@ -53,7 +53,6 @@ def nearest_pages(town, district, term="min lot size") -> list[PageSearchOutput]
     
     s = s.highlight("Text")
     res = s.execute()
-    #import pdb; pdb.set_trace()
     return [PageSearchOutput(text=r.Text, page_number=r.Page, highlight=list(r.meta.highlight.Text), score=r.meta.score) for r in res]
 
 def page_coverage(search_result: list[PageSearchOutput]) -> list[list[int]]:

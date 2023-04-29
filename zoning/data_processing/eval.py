@@ -10,7 +10,7 @@ from ..utils import get_project_root
 DATA_ROOT = get_project_root() / "data"
 
 EVAL_METRICS_PATH = DATA_ROOT / "results" / "eval.yaml"
-EVAL_OUTPUT_PATH = DATA_ROOT / "results" / "eval_ek.csv"
+EVAL_OUTPUT_PATH = DATA_ROOT / "results" / "eval.csv"
 
 def compute_eval_result(town: str, district_name: str, term: str, row):
     try:
@@ -22,7 +22,7 @@ def compute_eval_result(town: str, district_name: str, term: str, row):
             method=ExtractionMethod.NONE,
         )
     except Exception as e:
-        #print(f"Error: {town} {district_name} | {e}")
+        print(f"Error: {town} {district_name} | {e}")
         return
     gt_page = set(map(int, str(row.min_lot_size_page_gt).split(",")))
     for result in outputs:
@@ -80,7 +80,7 @@ def main():
     search_results_df["correct"] = search_results_df["correct_page_searched"].apply(lambda x: 1 if x > 0 else 0)
 
     num_results = len(results_df)
-    num_correct_page_searched = search_results_df["correct"].sum() #len(results_df.query("correct_page_searched"))
+    num_correct_page_searched = float(search_results_df["correct"].sum()) #len(results_df.query("correct_page_searched"))
     num_correct_page_extracted = len(results_df.query("correct_page_extracted"))
     num_correct_answer = len(results_df.query("correct_answer"))
 

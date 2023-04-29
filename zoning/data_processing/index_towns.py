@@ -32,7 +32,7 @@ def index_dataset(d, index_name):
         for j in range(10):
             if page + j not in d.index:
                 continue
-            text += f"\nNEW PAGE {page+j}\n" + d.loc[page + j]["Text"]
+            text += f"\nNEW PAGE {page + j - 1}\n" + d.loc[page + j]["Text"]
 
         # Truncate to 2000 tokens
         text = enc.decode(enc.encode(text)[:2000])
