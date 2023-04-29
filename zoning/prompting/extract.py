@@ -1,16 +1,20 @@
+import json
+from concurrent.futures import ThreadPoolExecutor
 from enum import Enum
 from functools import reduce
-import json
 from pathlib import Path
 from typing import Generator, Optional
-from concurrent.futures import ThreadPoolExecutor
 
+import openai
+from joblib import Memory
+from jinja2 import Template
 from minichain import OpenAI, prompt
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
-from ..utils import get_project_root, load_jsonl, chunks
-from .search import nearest_pages, get_non_overlapping_chunks, page_coverage, PageSearchOutput
+from ..utils import chunks, get_project_root, load_jsonl
 from .eval_results import clean_string_units
+from .search import (PageSearchOutput, get_non_overlapping_chunks,
+                     nearest_pages, page_coverage)
 
 with Path(__file__).parent.joinpath("thesaurus.json").open(encoding="utf-8") as f:
     thesaurus = json.load(f)
@@ -18,6 +22,7 @@ with Path(__file__).parent.joinpath("thesaurus.json").open(encoding="utf-8") as 
 with (get_project_root() / "templates" / "extraction.pmpt.tpl").open(encoding="utf-8") as f:
     extraction_tmpl = f.read()
 
+memory = Memory(get_project_root() / ".joblib_cache", verbose=0)
 
 class District(BaseModel):
     T: str
@@ -46,19 +51,26 @@ class AllLookupOutput(BaseModel):
     sizes: dict[str, list[LookupOutput]]
 
 
-# TODO: minichain appears to currently ignore the model argument. We should fix
-# this and enable it to use GPT-4.
-@prompt(OpenAI(model="text-davcinci-003"), template=extraction_tmpl, parser="json")
-def lookup_term_prompt(model, page_text, district, term) -> PromptOutput | None:
-    return model(
-        dict(
+@memory.cache
+def lookup_term_prompt(page_text, district, term) -> PromptOutput | None:
+    resp = openai.Completion.create(
+        model="text-davinci-003",
+        max_tokens=256,
+        prompt=Template(extraction_tmpl).render(
             passage=page_text,
             term=term,
             synonyms=" ,".join(thesaurus.get(term, [])),
             zone_name=district["T"],
             zone_abbreviation=district["Z"],
-        )
+        ),
     )
+    top_choice = resp.choices[0]
+    try:
+        return PromptOutput(
+            **json.loads(top_choice.text),
+        )
+    except (ValidationError, TypeError):
+        return None
 
 class ExtractionMethod(str, Enum):
     NONE = "search_only"
@@ -85,6 +97,7 @@ def extract_size(town, district, term, top_k_pages, method: ExtractionMethod = E
                 #print(town, "page", page.page_number)
                 #print(town, "pages_covered", page_coverage([page])[0])
                 outputs.append(LookupOutput(
+                    output=None,
                     search_pages=[page], 
                     search_pages_expanded=page_coverage([page])[0],
                     ))
@@ -103,12 +116,12 @@ def extract_size(town, district, term, top_k_pages, method: ExtractionMethod = E
                     return [LookupOutput(
                         output=result,
                         search_pages=pages,
-                        search_pages_expanded=page_coverage([page])[0],
+                        search_pages_expanded=page_coverage(pages)[0],
                     )]
         case ExtractionMethod.MAP:
             outputs = []
             with ThreadPoolExecutor(max_workers=20) as executor:
-                for page, result in executor.map(lambda page: (page, lookup_term_prompt(page.text, district, term).run()), pages):
+                for page, result in executor.map(lambda page: (page, lookup_term_prompt(page.text, district, term)), pages):
                     if result is not None:
                         outputs.append(LookupOutput(
                             output=result,
