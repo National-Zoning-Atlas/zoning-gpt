@@ -92,6 +92,8 @@ def main():
             "num_correct_answer": num_correct_answer,
             "page_search_recall": num_correct_page_searched / search_results_df.shape[0],
             "page_extract_recall": num_correct_page_extracted / num_results,
+            # This is the answer accuracy conditional on the correct page having been looked up by ES
+            "conditional_answer_accuracy": len(results_df.query("correct_page_searched & correct_answer")) / num_correct_page_searched,
             "answer_accuracy": num_correct_answer / num_results,
         }, f)
 
