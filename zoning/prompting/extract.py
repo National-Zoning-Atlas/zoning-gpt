@@ -147,11 +147,6 @@ def extract_size(town, district, term, top_k_pages, method: ExtractionMethod = E
                             search_pages=[page],
                             search_pages_expanded=page_coverage([page])[0],
                         ))
-                    # outputs.append(LookupOutput(
-                    #     output=result,
-                    #     search_pages=[page],
-                    #     search_pages_expanded=page_coverage([page]),
-                    # ))
             return sorted(outputs, key=lambda o: o.output.mean_token_logprob() if o.output is not None else 0, reverse=True)
 
     return []
