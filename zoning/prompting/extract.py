@@ -4,13 +4,9 @@ import json
 from pathlib import Path
 from typing import Generator, Optional
 from concurrent.futures import ThreadPoolExecutor
-import numpy as np
 
 from minichain import OpenAI, prompt
-from jinja2 import Template
-from pydantic import BaseModel, ValidationError
-import openai
-from joblib import Memory
+from pydantic import BaseModel
 
 from ..utils import get_project_root, load_jsonl, chunks
 from .search import nearest_pages, get_non_overlapping_chunks, page_coverage, PageSearchOutput
@@ -32,14 +28,10 @@ class PromptOutput(BaseModel):
     answer: str
     extracted_text: str
     pages: list[int]
-    answer_token_logprobs: dict[str, float]
-
-    def mean_token_logprob(self) -> float:
-        return np.max(list(p for t, p in self.answer_token_logprobs.items() if t in self.answer))
 
 
 class LookupOutput(BaseModel):
-    output: Optional[PromptOutput] = None
+    output: Optional[PromptOutput]
     search_pages: list[PageSearchOutput]
     search_pages_expanded: list[int]
     """
@@ -53,44 +45,20 @@ class AllLookupOutput(BaseModel):
     district: District
     sizes: dict[str, list[LookupOutput]]
 
-memory = Memory(get_project_root() / ".joblib_cache", verbose=0)
-
 
 # TODO: minichain appears to currently ignore the model argument. We should fix
 # this and enable it to use GPT-4.
-# @prompt(OpenAI(model="text-davcinci-003"), template=extraction_tmpl, parser="json")
-# @memory.cache
-def lookup_term_prompt(page_text, district, term) -> PromptOutput | None:
-    resp = openai.Completion.create(
-        model="text-davinci-003",
-        max_tokens=256,
-        prompt=Template(extraction_tmpl).render(
+@prompt(OpenAI(model="text-davcinci-003"), template=extraction_tmpl, parser="json")
+def lookup_term_prompt(model, page_text, district, term) -> PromptOutput | None:
+    return model(
+        dict(
             passage=page_text,
             term=term,
             synonyms=" ,".join(thesaurus.get(term, [])),
             zone_name=district["T"],
             zone_abbreviation=district["Z"],
-        ),
-        # Return the probability of each generated token
-        logprobs=1
-    )
-    top_choice = resp.choices[0]
-    try:
-        return PromptOutput(
-            **json.loads(top_choice.text),
-            answer_token_logprobs={ k: v for d in top_choice.logprobs.top_logprobs for k, v in d.items()}
         )
-    except (ValidationError, TypeError) as ex:
-        return None
-    # return model(
-    #     dict(
-    #         passage=page_text,
-    #         term=term,
-    #         synonyms=" ,".join(thesaurus.get(term, [])),
-    #         zone_name=district["T"],
-    #         zone_abbreviation=district["Z"],
-    #     )
-    # )
+    )
 
 class ExtractionMethod(str, Enum):
     NONE = "search_only"
@@ -135,19 +103,19 @@ def extract_size(town, district, term, top_k_pages, method: ExtractionMethod = E
                     return [LookupOutput(
                         output=result,
                         search_pages=pages,
-                        search_pages_expanded=page_coverage(pages)[0],
+                        search_pages_expanded=page_coverage([page])[0],
                     )]
         case ExtractionMethod.MAP:
             outputs = []
             with ThreadPoolExecutor(max_workers=20) as executor:
-                for page, result in executor.map(lambda page: (page, lookup_term_prompt(page.text, district, term)), pages):
+                for page, result in executor.map(lambda page: (page, lookup_term_prompt(page.text, district, term).run()), pages):
                     if result is not None:
                         outputs.append(LookupOutput(
                             output=result,
                             search_pages=[page],
                             search_pages_expanded=page_coverage([page])[0],
                         ))
-            return sorted(outputs, key=lambda o: o.output.mean_token_logprob() if o.output is not None else 0, reverse=True)
+            return outputs
 
     return []
 
@@ -188,9 +156,10 @@ def main():
                 expected = set(float(f) for f in gt.loc[result.town, result.district.Z].min_lot_size_gt.split(", "))
                 actual = set(clean_string_units(l.output.answer)) if l.output is not None else set()
                 is_correct = any(expected & actual)
-                print(
-                    f"{result.town} - {result.district.T} ({l.output.pages}): {term} | Expected: {expected} | Actual: {actual} ({l.output.mean_token_logprob() if l.output is not None else 0.0})| Correct: {is_correct}"
-                )
+                if not is_correct:
+                    print(
+                        f"{result.town} - {result.district.T} ({l.output.pages}): {term} | Expected: {expected} | Actual: {actual} | Correct: {is_correct}"
+                    )
 
 
 if __name__ == "__main__":
