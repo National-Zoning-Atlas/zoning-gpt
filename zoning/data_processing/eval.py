@@ -19,7 +19,7 @@ def compute_eval_result(town: str, district_name: str, term: str, row):
             dict(T=district_name, Z=row.district_abb),
             term,
             6,
-            method=ExtractionMethod.NONE,
+            method=ExtractionMethod.MAP,
         )
     except Exception as e:
         print(f"Error: {town} {district_name} | {e}")
