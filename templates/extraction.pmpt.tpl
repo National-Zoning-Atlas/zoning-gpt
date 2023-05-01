@@ -66,12 +66,3 @@ Multi-family building
 Output:
 
 null
-
-# Test
-
-Input:
-
-{{passage}}
-
-Output: 
-
