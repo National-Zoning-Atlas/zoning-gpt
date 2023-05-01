@@ -32,28 +32,36 @@ def nearest_pages(town, district, term="min lot size") -> list[PageSearchOutput]
     )
 
     # Search for term
-    term_expansion = [
-        Q("match_phrase", Text=query.replace("min", r))
-        for query in thesaurus.get(term, [])
-        for r in ["min", "minimum", "min."]
-    ]
+    # term_expansion = [
+    #     Q("match_phrase", Text=query.replace("min", r))
+    #     for query in thesaurus.get(term, [])
+    #     for r in ["min", "minimum", "min."]
+    # ]
+    min_variations = thesaurus.get("min", [])
+    term_expansion = []
+    for query in thesaurus.get(term, []):
+        if "min" in query or "minimum" in query:
+            for r in min_variations:
+                term_expansion.append(Q("match_phrase", Text=query.replace("min", r)))
+        else:
+            term_expansion.append(Q("match_phrase", Text=query))
 
     term_query = Q(
         "bool",
         should=term_expansion,
         minimum_should_match=1,
     )
+
     dim_query = Q(
         "bool",
-        should=[Q("match_phrase", Text=d) for d in thesaurus["dimensions"]],
+        should=[Q("match_phrase", Text=d) for d in thesaurus[term + " dimensions"]],
         minimum_should_match=1,
     )
-    # s.query = cell_query
+
     s.query = district_query & term_query & dim_query
     
     s = s.highlight("Text")
     res = s.execute()
-    #import pdb; pdb.set_trace()
     return [PageSearchOutput(text=r.Text, page_number=r.Page, highlight=list(r.meta.highlight.Text), score=r.meta.score) for r in res]
 
 def page_coverage(search_result: list[PageSearchOutput]) -> list[list[int]]:

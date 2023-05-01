@@ -67,12 +67,12 @@ class ExtractionMethod(str, Enum):
 
 def extract_size(town, district, term, top_k_pages, method: ExtractionMethod = ExtractionMethod.STUFF) -> list[LookupOutput]:
     pages = nearest_pages(town, district, term)
+    #pages = get_non_overlapping_chunks(pages)[:top_k_pages]
+    if town == 'ansonia':
+        print("with overlap", [page.page_number for page in pages])
     pages = get_non_overlapping_chunks(pages)[:top_k_pages]
-    # if town == 'torrington':
-    #     print("with overlap", [page.page_number for page in pages], [page.highlight for page in pages])
-    # pages = get_non_overlapping_chunks(pages)[:top_k_pages]
-    # if town == 'torrington':
-    #     print("without overlap", [page.page_number for page in pages], [page.highlight for page in pages])
+    if town == 'ansonia':
+        print("without overlap", [page.page_number for page in pages])
 
 
     if len(pages) == 0:
@@ -105,11 +105,6 @@ def extract_size(town, district, term, top_k_pages, method: ExtractionMethod = E
                         search_pages=pages,
                         search_pages_expanded=page_coverage([page])[0],
                     )]
-                    # outputs.append(LookupOutput(
-                    #     output=result,
-                    #     search_pages=[page],
-                    #     search_pages_expanded=page_coverage([page]),
-                    # ))
         case ExtractionMethod.MAP:
             outputs = []
             with ThreadPoolExecutor(max_workers=20) as executor:
@@ -120,11 +115,6 @@ def extract_size(town, district, term, top_k_pages, method: ExtractionMethod = E
                             search_pages=[page],
                             search_pages_expanded=page_coverage([page])[0],
                         ))
-                    # outputs.append(LookupOutput(
-                    #     output=result,
-                    #     search_pages=[page],
-                    #     search_pages_expanded=page_coverage([page]),
-                    # ))
             return outputs
 
     return []

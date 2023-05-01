@@ -1,0 +1,508 @@
+town,district,expected,actual,correct_page_searched,correct_page_extracted,gt_page,searched_pages,searched_pages_expanded,extracted_pages,actual_normalized,expected_normalized,correct_answer
+ansonia,AA Residence,30000,,False,False,{52},{151},"{150, 151}",set(),,30000.0,False
+ansonia,AA Residence,30000,,False,False,{52},{167},"{168, 166, 167}",set(),,30000.0,False
+ansonia,AA Residence,30000,,False,False,{52},{103},"{104, 105, 102, 103}",set(),,30000.0,False
+ansonia,AA Residence,30000,,True,False,{52},{52},"{51, 52, 53, 54}",set(),,30000.0,False
+ansonia,AA Residence,30000,,False,False,{52},{132},"{131, 132, 133, 134, 135}",set(),,30000.0,False
+beacon-falls,Planned Adaptive Reuse Development 3,6229080,,True,False,{121},{121},"{120, 121, 122, 123}",set(),,6229080.0,False
+bethany,Housing Opportunity Development,1306800,,True,False,{70},{71},"{70, 71, 72, 73, 74}",set(),,1306800.0,False
+bethel,Commercial,10000,,False,False,{72},{110},"{112, 109, 110, 111}",set(),,10000.0,False
+bethel,Commercial,10000,,True,False,{72},{73},"{72, 73}",set(),,10000.0,False
+bethel,Commercial,10000,,False,False,{72},{131},"{130, 131, 132}",set(),,10000.0,False
+bethel,Commercial,10000,,False,False,{72},{46},"{45, 46, 47}",set(),,10000.0,False
+branford,Residence R-3,15000,,False,False,{40},{97},"{96, 97, 98, 99}",set(),,15000.0,False
+branford,Residence R-3,15000,,False,False,{40},{152},"{152, 153, 151}",set(),,15000.0,False
+branford,Residence R-3,15000,,True,False,{40},{41},"{40, 41}",set(),,15000.0,False
+branford,Residence R-3,15000,,False,False,{40},{75},"{74, 75, 76}",set(),,15000.0,False
+branford,Multifamily Residence,130680,,True,False,{40},{41},"{40, 41}",set(),,130680.0,False
+branford,Multifamily Residence,130680,,False,False,{40},{90},"{89, 90}",set(),,130680.0,False
+branford-pine-orchard,A-1,20000,,True,False,{20},{21},"{20, 21, 22, 23, 24}",set(),,20000.0,False
+branford-pine-orchard,A-1,20000,,False,False,{20},{9},"{8, 9, 10, 11}",set(),,20000.0,False
+bristol,Residential R-40,40000,,False,False,{48},{46},"{45, 46, 47}",set(),,40000.0,False
+bristol,Residential R-40,40000,,True,False,{48},{49},"{48, 49, 50}",set(),,40000.0,False
+bristol,Residential R-40,40000,,False,False,{48},{39},"{40, 41, 38, 39}",set(),,40000.0,False
+bristol,Residential R-40,40000,,False,False,{48},{91},"{90, 91, 92, 93}",set(),,40000.0,False
+brooklyn,Restricted Business,20000,,False,False,{74},{229},"{228, 229, 230}",set(),,20000.0,False
+brooklyn,Restricted Business,20000,,False,False,{74},{69},"{68, 69, 70, 71}",set(),,20000.0,False
+brooklyn,Restricted Business,20000,,True,False,{74},{73},"{72, 73, 74, 75}",set(),,20000.0,False
+burlington,Industrial,43560,,False,False,{58},{49},"{48, 49, 50}",set(),,43560.0,False
+burlington,Industrial,43560,,True,False,{58},{57},"{56, 57, 58}",set(),,43560.0,False
+burlington,Industrial,43560,,False,False,{58},{86},"{85, 86, 87}",set(),,43560.0,False
+canaan-falls-village,Rural Business,40000,,True,False,{21},{19},"{18, 19, 20, 21, 22}",set(),,40000.0,False
+canaan-falls-village,Rural Business,40000,,False,False,{21},{24},"{24, 25, 23}",set(),,40000.0,False
+canaan-falls-village,Rural Business,40000,,False,False,{21},{62},"{64, 61, 62, 63}",set(),,40000.0,False
+cheshire,Residential R-20A,20000,,False,False,{90},{159},"{160, 161, 162, 158, 159}",set(),,20000.0,False
+cheshire,Residential R-20A,20000,,False,False,{90},{205},"{204, 205, 206, 207}",set(),,20000.0,False
+cheshire,Residential R-20A,20000,,True,False,{90},{90},"{89, 90, 91, 92}",set(),,20000.0,False
+cheshire,Residential R-20A,20000,,False,False,{90},{133},"{132, 133, 134}",set(),,20000.0,False
+cheshire,Residential R-20A,20000,,False,False,{90},{154},"{153, 154, 155, 156}",set(),,20000.0,False
+chester,Tidal Wetlands,87120,,False,False,{34},{13},"{12, 13, 14, 15, 16}",set(),,87120.0,False
+chester,Tidal Wetlands,87120,,False,False,{34},{7},"{8, 9, 6, 7}",set(),,87120.0,False
+clinton,Business-2,10000,,False,False,{334},{303},"{304, 305, 302, 303}",set(),,10000.0,False
+clinton,Business-2,10000,,True,False,{334},{334},"{333, 334}",set(),,10000.0,False
+clinton,Business-2,10000,,False,False,{334},{348},"{347, 348}",set(),,10000.0,False
+clinton,Business-2,10000,,False,False,{334},{18},"{17, 18}",set(),,10000.0,False
+clinton,Business-2,10000,,False,False,{334},{456},"{456, 457, 455}",set(),,10000.0,False
+clinton,Business-2,10000,,False,False,{334},{447},"{448, 446, 447}",set(),,10000.0,False
+clinton,Village,10000,,False,False,{334},{325},"{324, 325, 326, 327, 328, 329}",set(),,10000.0,False
+clinton,Village,10000,,False,False,{334},{127},"{128, 126, 127}",set(),,10000.0,False
+clinton,Village,10000,,True,False,{334},{335},{334},set(),,10000.0,False
+clinton,Village,10000,,False,False,{334},{304},"{304, 305, 306, 303}",set(),,10000.0,False
+clinton,East Main Street Village,10000,,False,False,{334},{348},"{347, 348}",set(),,10000.0,False
+clinton,East Main Street Village,10000,,True,False,{334},{334},"{333, 334}",set(),,10000.0,False
+clinton,East Main Street Village,10000,,False,False,{334},{18},"{17, 18}",set(),,10000.0,False
+clinton,East Main Street Village,10000,,False,False,{334},{369},"{368, 369, 370, 371}",set(),,10000.0,False
+colchester,Westchester Village,40000,,False,False,{25},{16},"{16, 17, 18, 15}",set(),,40000.0,False
+colchester,Westchester Village,40000,,False,False,{25},{20},"{19, 20, 21, 22}",set(),,40000.0,False
+colchester,Westchester Village,40000,,True,False,{25},{26},"{25, 26, 27, 28, 29}",set(),,40000.0,False
+colchester,Westchester Village,40000,,False,False,{25},{2},"{1, 2, 3, 4, 5, 6}",set(),,40000.0,False
+columbia,Mixed-Use,20000,,True,False,{13},{13},"{12, 13, 14}",set(),,20000.0,False
+columbia,Mixed-Use,20000,,False,False,{13},{46},"{48, 45, 46, 47}",set(),,20000.0,False
+columbia,Mixed-Use,20000,,False,False,{13},{16},"{16, 17, 15}",set(),,20000.0,False
+columbia,Mixed-Use,20000,,False,False,{13},{67},"{66, 67, 68, 69}",set(),,20000.0,False
+columbia,Columbia Lake-Overlay B on Residential Agricultural,50000,,False,False,{13},{9},"{8, 9, 10, 11, 12}",set(),,50000.0,False
+coventry,Lake Residential,40000,,True,False,{28},{28},"{27, 28}",set(),,40000.0,False
+coventry,Lake Residential,40000,,False,False,{28},{100},"{99, 100, 101, 102}",set(),,40000.0,False
+coventry,Lake Residential,40000,,False,False,{28},{21},"{20, 21, 22}",set(),,40000.0,False
+coventry,Lake Residential,40000,,False,False,{28},{93},"{92, 93, 94, 95}",set(),,40000.0,False
+cromwell,Downtown Cromwell,5000,,True,False,{43},{41},"{40, 41, 42, 43}",set(),,5000.0,False
+cromwell,Downtown Cromwell,5000,,False,False,{43},{169},"{168, 169, 170, 171}",set(),,5000.0,False
+cromwell,Downtown Cromwell,5000,,False,False,{43},{49},"{48, 49, 50, 51}",set(),,5000.0,False
+cromwell,Downtown Cromwell,5000,,False,False,{43},{104},"{104, 105, 106, 103}",set(),,5000.0,False
+danbury,RH-3 High-Rise Residential,5000,,False,False,{87},{84},"{83, 84, 85, 86}",set(),,5000.0,False
+danbury,RH-3 High-Rise Residential,5000,,False,False,{87},{55},"{56, 54, 55}",set(),,5000.0,False
+danbury,RH-3 High-Rise Residential,5000,,False,False,{87},{67},"{66, 67, 68, 69, 70}",set(),,5000.0,False
+danbury,RH-3 High-Rise Residential,5000,,False,False,{87},{59},"{58, 59}",set(),,5000.0,False
+danbury,RH-3 High-Rise Residential,5000,,False,False,{87},{98},"{97, 98, 99, 100}",set(),,5000.0,False
+darien,Designed Commercial,43560,,True,False,{169},{168},"{168, 169, 170, 167}",set(),,43560.0,False
+darien,Designed Commercial,43560,,False,False,{169},{310},{309},set(),,43560.0,False
+darien,Designed Commercial,43560,,False,False,{169},{50},"{49, 50, 51, 52, 53, 54}",set(),,43560.0,False
+deep-river,Village Commercial,20000,,True,False,{33},{34},"{33, 34}",set(),,20000.0,False
+deep-river,Village Commercial,20000,,False,False,{33},{53},"{52, 53, 54}",set(),,20000.0,False
+deep-river,Village Commercial,20000,,False,False,{33},{116},"{115, 116, 117}",set(),,20000.0,False
+durham,Farm Residential,87120,,False,False,{19},{10},"{9, 10, 11, 12}",set(),,87120.0,False
+durham,Farm Residential,87120,,False,False,{19},{75},"{74, 75, 76}",set(),,87120.0,False
+durham,Farm Residential,87120,,True,False,{19},{17},"{16, 17, 18, 19, 20}",set(),,87120.0,False
+durham,Farm Residential,87120,,False,False,{19},{38},"{37, 38, 39, 40, 41}",set(),,87120.0,False
+durham,Farm Residential,87120,,False,False,{19},{25},"{24, 25, 26, 27}",set(),,87120.0,False
+east-granby,Planned Residential,30000,,True,False,{35},{34},"{33, 34, 35, 36}",set(),,30000.0,False
+east-granby,Planned Residential,30000,,False,False,{35},{41},"{40, 41, 42, 43}",set(),,30000.0,False
+east-haddam,Commercial/Business/Light Industrial,21780,,True,False,"{50, 55}",{56},"{56, 55}",set(),,21780.0,False
+east-haddam,Commercial/Business/Light Industrial,21780,,True,False,"{50, 55}",{50},"{49, 50, 51}",set(),,21780.0,False
+east-haddam,Commercial/Business/Light Industrial,21780,,False,False,"{50, 55}",{102},"{101, 102, 103}",set(),,21780.0,False
+east-haddam,Commercial/Business/Light Industrial,21780,,False,False,"{50, 55}",{65},"{64, 65, 66}",set(),,21780.0,False
+east-haddam,Commercial/Business/Light Industrial,21780,,False,False,"{50, 55}",{23},"{24, 25, 22, 23}",set(),,21780.0,False
+east-hartford,Business 1,5000,,False,False,{112},{102},"{101, 102, 103, 104, 105}",set(),,5000.0,False
+east-hartford,Business 1,5000,,False,False,{112},{239},"{240, 238, 239}",set(),,5000.0,False
+east-hartford,Business 2,7500,,False,False,{125},{111},"{110, 111, 112, 113, 114}",set(),,7500.0,False
+east-hartford,Residential 1,30000,,True,False,{73},{72},"{71, 72, 73, 74, 75, 76}",set(),,30000.0,False
+east-haven,Light Industrial 3,40000,,True,False,{67},{65},"{64, 65, 66, 67}",set(),,40000.0,False
+east-haven,Light Industrial 3,40000,,False,False,{67},{40},{39},set(),,40000.0,False
+east-haven,Light Industrial 3,40000,,False,False,{67},{159},"{160, 161, 158, 159}",set(),,40000.0,False
+east-haven,Light Industrial 3,40000,,False,False,{67},{60},"{59, 60, 61, 62}",set(),,40000.0,False
+east-lyme,CM Commercial,10000,,True,False,{31},{30},"{29, 30, 31}",set(),,10000.0,False
+east-lyme,CM Commercial,10000,,False,False,{31},{161},"{160, 161, 162}",set(),,10000.0,False
+east-lyme,CM Commercial,10000,,False,False,{31},{18},"{17, 18, 19, 20, 21}",set(),,10000.0,False
+east-lyme,CM Commercial,10000,,False,False,{31},{148},"{147, 148, 149, 150}",set(),,10000.0,False
+east-lyme,CM Commercial,10000,,False,False,{31},{174},"{176, 173, 174, 175}",set(),,10000.0,False
+east-windsor,Agriculture/Residential 1,43560,,False,False,{35},{37},"{36, 37}",set(),,43560.0,False
+east-windsor,Agriculture/Residential 1,43560,,True,False,{35},{34},"{33, 34, 35}",set(),,43560.0,False
+east-windsor,Agriculture/Residential 1,43560,,False,False,{35},{82},"{81, 82, 83}",set(),,43560.0,False
+east-windsor,Agriculture/Residential 1,43560,,False,False,{35},{110},"{109, 110, 111}",set(),,43560.0,False
+east-windsor,Transition 5,20000,,False,False,{43},{47},"{48, 46, 47}",set(),,20000.0,False
+east-windsor,Transition 5,20000,,True,False,{43},{43},"{42, 43}",set(),,20000.0,False
+east-windsor,Transition 5,20000,,False,False,{43},{110},"{109, 110, 111}",set(),,20000.0,False
+easton,Residential B,130680,,False,False,{35},{65},"{64, 65, 66, 67}",set(),,130680.0,False
+ellington,Designed Multifamily,"217800, 435600",,True,False,{23},{23},"{24, 25, 22, 23}",set(),,217800.0,False
+ellington,Designed Multifamily,"217800, 435600",,True,False,{23},{23},"{24, 25, 22, 23}",set(),,435600.0,False
+ellington,Designed Multifamily,"217800, 435600",,False,False,{23},{19},"{18, 19, 20, 21}",set(),,217800.0,False
+ellington,Designed Multifamily,"217800, 435600",,False,False,{23},{19},"{18, 19, 20, 21}",set(),,435600.0,False
+ellington,Designed Multifamily,"217800, 435600",,False,False,{23},{7},"{6, 7}",set(),,217800.0,False
+ellington,Designed Multifamily,"217800, 435600",,False,False,{23},{7},"{6, 7}",set(),,435600.0,False
+enfield,Business Professional,130680,,True,False,{59},{60},{59},set(),,130680.0,False
+enfield,Business Professional,130680,,False,False,{59},{61},{60},set(),,130680.0,False
+enfield,Business Professional,130680,,False,False,{59},{72},"{72, 71}",set(),,130680.0,False
+enfield,Business Professional,130680,,False,False,{59},{114},"{113, 114, 115}",set(),,130680.0,False
+essex,Waterfront Business,30000,,False,False,{68},{28},"{27, 28, 29, 30}",set(),,30000.0,False
+essex,Waterfront Business,30000,,False,False,{68},{63},"{64, 65, 66, 62, 63}",set(),,30000.0,False
+essex,Waterfront Business,30000,,True,False,{68},{68},"{67, 68, 69, 70, 71}",set(),,30000.0,False
+essex,Waterfront Business,30000,,False,False,{68},{23},"{24, 22, 23}",set(),,30000.0,False
+fairfield,Beach,9375,,False,False,{47},{38},"{37, 38, 39}",set(),,9375.0,False
+fairfield,Beach,9375,,False,False,{47},{24},"{23, 24, 25, 26, 27}",set(),,9375.0,False
+fairfield,Beach,9375,,False,False,{47},{90},"{89, 90, 91, 92, 93}",set(),,9375.0,False
+fairfield,Beach,9375,,True,False,{47},{47},"{48, 49, 46, 47}",set(),,9375.0,False
+farmington,Residential 12,12000,,False,False,{140},{142},"{141, 142, 143}",set(),,12000.0,False
+farmington,Residential 12,12000,,True,False,{140},{141},{140},set(),,12000.0,False
+farmington,Residential 12,12000,,False,False,{140},{73},"{72, 73, 74}",set(),,12000.0,False
+farmington,Business Restricted,80000,,False,False,{140},{40},"{40, 41, 42, 39}",set(),,80000.0,False
+farmington,Business Restricted,80000,,False,False,{140},{46},"{48, 45, 46, 47}",set(),,80000.0,False
+farmington,Business Restricted,80000,,False,False,{140},{147},"{146, 147, 148, 149}",set(),,80000.0,False
+franklin,R-80 Residential,80000,,True,False,{15},{15},"{14, 15, 16, 17, 18}",set(),,80000.0,False
+franklin,R-80 Residential,80000,,False,False,{15},{70},"{69, 70}",set(),,80000.0,False
+franklin,R-80 Residential,80000,,False,False,{15},{27},"{26, 27, 28}",set(),,80000.0,False
+franklin,R-80 Residential,80000,,False,False,{15},{62},"{61, 62, 63}",set(),,80000.0,False
+glastonbury,Village Commercial,20000,,False,False,{24},{82},"{81, 82, 83}",set(),,20000.0,False
+glastonbury,Village Commercial,20000,,True,False,{24},{24},"{24, 23}",set(),,20000.0,False
+glastonbury,Residence AA,25000,,False,False,{24},{136},"{136, 137, 135}",set(),,25000.0,False
+glastonbury,Residence AA,25000,,True,False,{24},{24},"{24, 23}",set(),,25000.0,False
+glastonbury,Residence AA,25000,,False,False,{24},{33},"{32, 33, 34, 35}",set(),,25000.0,False
+glastonbury,Planned Industrial,40000,,False,False,{24},{44},"{43, 44, 45}",set(),,40000.0,False
+glastonbury,Planned Industrial,40000,,True,False,{24},{24},"{24, 23}",set(),,40000.0,False
+glastonbury,Planned Industrial,40000,,False,False,{24},{137},"{136, 137, 138}",set(),,40000.0,False
+glastonbury,Planned Industrial,40000,,False,False,{24},{119},"{120, 118, 119}",set(),,40000.0,False
+goshen,Rural Recreational,8712000,,False,False,{39},{37},"{36, 37, 38}",set(),,8712000.0,False
+goshen,Rural Recreational,8712000,,False,False,{39},{27},"{26, 27, 28}",set(),,8712000.0,False
+goshen,Rural Recreational,8712000,,True,False,{39},{40},"{40, 41, 39}",set(),,8712000.0,False
+goshen,Rural Recreational,8712000,,False,False,{39},{1},"{0, 1, 2, 3}",set(),,8712000.0,False
+granby,Rural Residential,87120,,False,False,{77},{1},"{0, 1, 2, 3}",set(),,87120.0,False
+granby,Rural Residential,87120,,False,False,{77},{158},"{157, 158, 159}",set(),,87120.0,False
+granby,Rural Residential,87120,,True,False,{77},{77},"{76, 77}",set(),,87120.0,False
+granby,Rural Residential,87120,,False,False,{77},{17},"{16, 17, 18}",set(),,87120.0,False
+greenwich,R-C12 Residential Conservation,12000,,True,False,{45},{46},"{45, 46, 47}",set(),,12000.0,False
+greenwich,R-C12 Residential Conservation,12000,,False,False,{45},{287},"{288, 286, 287}",set(),,12000.0,False
+groton-long-point,Single Family Residence,6000,,True,False,{15},{14},"{13, 14, 15}",set(),,6000.0,False
+groton-long-point,Single Family Residence,6000,,False,False,{15},{1},{0},set(),,6000.0,False
+groton-long-point,Single Family Residence,6000,,False,False,{15},{2},"{1, 2, 3}",set(),,6000.0,False
+groton-noank,Low Density Residential,20000,,True,False,{3},{4},"{3, 4, 5}",set(),,20000.0,False
+groton-noank,Low Density Residential,20000,,False,False,{3},{23},"{24, 25, 22, 23}",set(),,20000.0,False
+guilford-old-quarry,Old Quarry,40000,,False,False,{14},{1},"{0, 1, 2, 3}",set(),,40000.0,False
+guilford-old-quarry,Old Quarry,40000,,True,False,{14},{9},"{8, 9, 10, 11, 12, 13, 14}",set(),,40000.0,False
+guilford-sachems-head,Residence C,10000,,False,False,{12},{16},"{15, 16, 17, 18, 19}",set(),,10000.0,False
+guilford-sachems-head,Residence C,10000,,True,False,{12},{10},"{9, 10, 11, 12, 13}",set(),,10000.0,False
+haddam,Residential R-1,43560,,False,False,{235},{116},"{115, 116, 117}",set(),,43560.0,False
+haddam,Residential R-1,43560,,False,False,{235},{25},"{24, 25, 26, 27, 28}",set(),,43560.0,False
+haddam,Residential R-2,87120,,False,False,{235},{116},"{115, 116, 117}",set(),,87120.0,False
+haddam,Residential R-2,87120,,False,False,{235},{25},"{24, 25, 26, 27, 28}",set(),,87120.0,False
+haddam,Residential R-2,87120,,False,False,{235},{35},"{34, 35, 36, 37, 38}",set(),,87120.0,False
+hamden,Residential R-5,6000,,True,False,{12},{12},"{11, 12, 13}",set(),,6000.0,False
+hamden,Residential R-5,6000,,False,False,{12},{113},"{112, 113, 114}",set(),,6000.0,False
+hamden,Residential R-5,6000,,False,False,{12},{78},"{80, 77, 78, 79}",set(),,6000.0,False
+hamden,Residential R-5,6000,,False,False,{12},{71},"{72, 70, 71}",set(),,6000.0,False
+hamden,Residential R-5,6000,,False,False,{12},{103},{102},set(),,6000.0,False
+hampton,B Business,50000,,True,False,{17},{18},"{17, 18, 19}",set(),,50000.0,False
+hampton,B Business,50000,,False,False,{17},{62},"{64, 61, 62, 63}",set(),,50000.0,False
+hampton,B Business,50000,,False,False,{17},{22},"{21, 22, 23, 24, 25}",set(),,50000.0,False
+hartland,Rural Residential,87120,,True,False,{28},{29},"{28, 29, 30}",set(),,87120.0,False
+hartland,Rural Residential,87120,,False,False,{28},{15},"{16, 17, 14, 15}",set(),,87120.0,False
+hartland,Rural Residential,87120,,False,False,{28},{7},"{8, 9, 6, 7}",set(),,87120.0,False
+harwinton,Retail Service A,43560,,True,False,{32},{31},"{32, 30, 31}",set(),,43560.0,False
+harwinton,Retail Service A,43560,,False,False,{32},{14},"{16, 13, 14, 15}",set(),,43560.0,False
+harwinton,Retail Service A,43560,,False,False,{32},{18},"{17, 18, 19, 20}",set(),,43560.0,False
+hebron,Amston Village,21780,,False,False,{91},{87},"{86, 87, 88, 89, 90}",set(),,21780.0,False
+hebron,Amston Village,21780,,True,False,{91},{92},"{91, 92, 93, 94}",set(),,21780.0,False
+hebron,Amston Village,21780,,False,False,{91},{145},"{144, 145, 146, 147, 148}",set(),,21780.0,False
+hebron,Planned Residential Development,348480,,False,False,{37},{41},"{40, 41, 42, 43}",set(),,348480.0,False
+hebron,Planned Residential Development,348480,,False,False,{37},{34},"{33, 34, 35, 36}",set(),,348480.0,False
+hebron,Planned Residential Development,348480,,False,False,{37},{247},"{248, 249, 246, 247}",set(),,348480.0,False
+kent,Birch Hill,43560,,False,False,{56},{52},"{51, 52, 53, 54}",set(),,43560.0,False
+kent,Birch Hill,43560,,True,False,{56},{57},"{56, 57, 58, 59}",set(),,43560.0,False
+kent,Birch Hill,43560,,False,False,{56},{150},"{149, 150, 151}",set(),,43560.0,False
+kent,Birch Hill,43560,,False,False,{56},{105},"{104, 105, 106}",set(),,43560.0,False
+killingly-borough-of-danielson,"Residential, Medium Density",11000,,True,False,{40},{41},"{40, 41, 42, 43}",set(),,11000.0,False
+killingly-borough-of-danielson,"Residential, Medium Density",11000,,False,False,{40},{12},"{11, 12, 13, 14, 15, 16}",set(),,11000.0,False
+killingly-borough-of-danielson,"Residential, Medium Density",11000,,False,False,{40},{62},"{64, 61, 62, 63}",set(),,11000.0,False
+lebanon,Rural Agricultural Residence,87120,,False,False,"{42, 13}",{73},"{72, 73, 74}",set(),,87120.0,False
+lebanon,Rural Agricultural Residence,87120,,True,False,"{42, 13}",{42},"{41, 42}",set(),,87120.0,False
+lebanon,Rural Agricultural Residence,87120,,False,False,"{42, 13}",{60},"{59, 60, 61, 62}",set(),,87120.0,False
+lebanon,Rural Agricultural Residence,87120,,True,False,"{42, 13}",{14},"{13, 14, 15}",set(),,87120.0,False
+lebanon,Rural Agricultural Residence,87120,,False,False,"{42, 13}",{77},"{76, 77, 78}",set(),,87120.0,False
+lebanon,Village Business,87120,,True,False,{42},{43},"{42, 43}",set(),,87120.0,False
+lebanon,Village Business,87120,,False,False,{42},{73},"{72, 73, 74}",set(),,87120.0,False
+lebanon,Village Business,87120,,False,False,{42},{60},"{59, 60, 61, 62}",set(),,87120.0,False
+lebanon,Village Business,87120,,False,False,{42},{84},"{83, 84, 85}",set(),,87120.0,False
+lebanon,Business,43560,,False,False,{42},{15},"{16, 17, 14, 15}",set(),,43560.0,False
+lebanon,Business,43560,,False,False,{42},{72},"{72, 73, 71}",set(),,43560.0,False
+lebanon,Business,43560,,True,False,{42},{43},"{42, 43}",set(),,43560.0,False
+lebanon,Business,43560,,False,False,{42},{68},"{67, 68, 69, 70}",set(),,43560.0,False
+lebanon,Business,43560,,False,False,{42},{60},"{59, 60, 61, 62}",set(),,43560.0,False
+ledyard,Commercial Marine,40000,,False,False,{16},{84},"{83, 84, 85}",set(),,40000.0,False
+ledyard,Commercial Marine,40000,,True,False,{16},{16},"{16, 15}",set(),,40000.0,False
+ledyard,Commercial Marine,40000,,False,False,{16},{79},"{80, 78, 79}",set(),,40000.0,False
+lisbon,Moderate Density Residential,40000,,True,False,{39},{39},"{40, 38, 39}",set(),,40000.0,False
+lisbon,Moderate Density Residential,40000,,False,False,{39},{15},"{14, 15}",set(),,40000.0,False
+lisbon,Moderate Density Residential,40000,,False,False,{39},{84},"{83, 84, 85}",set(),,40000.0,False
+lisbon,Moderate Density Residential,40000,,False,False,{39},{43},"{42, 43, 44}",set(),,40000.0,False
+lisbon,Business Village IV,40000,,True,False,{39},{39},"{40, 38, 39}",set(),,40000.0,False
+lisbon,Business Village IV,40000,,False,False,{39},{22},"{21, 22, 23}",set(),,40000.0,False
+lisbon,Business Village IV,40000,,False,False,{39},{43},"{42, 43, 44}",set(),,40000.0,False
+litchfield,Gateway Residences,40000,,True,False,{11},{11},"{10, 11, 12, 13}",set(),,40000.0,False
+lyme,Commercial,40000,,False,False,{22},{14},"{13, 14, 15, 16, 17}",set(),,40000.0,False
+lyme,Commercial,40000,,True,False,{22},{20},"{19, 20, 21, 22, 23}",set(),,40000.0,False
+madison,R-2 Residential,40000,,False,False,{19},{117},"{116, 117}",set(),,40000.0,False
+madison,R-2 Residential,40000,,True,False,{19},{20},"{19, 20}",set(),,40000.0,False
+madison,R-2 Residential,40000,,False,False,{19},{123},"{122, 123, 124}",set(),,40000.0,False
+manchester,Rural Residence,30000,,False,False,{57},{405},"{404, 405, 406, 407}",set(),,30000.0,False
+manchester,Rural Residence,30000,,False,False,{57},{49},"{48, 49, 50, 51}",set(),,30000.0,False
+manchester,Rural Residence,30000,,True,False,{57},{57},"{56, 57, 58, 59}",set(),,30000.0,False
+manchester,Rural Residence,30000,,False,False,{57},{327},"{326, 327, 328, 329, 330, 331, 332, 333}",set(),,30000.0,False
+middlebury,Light Industrial 200,217800,,True,False,{149},{148},"{147, 148, 149, 150, 151}",set(),,217800.0,False
+middlebury,Light Industrial 200,217800,,False,False,{149},{172},"{171, 172, 173, 174}",set(),,217800.0,False
+middlebury,Light Industrial 200,217800,,False,False,{149},{154},"{153, 154, 155, 156}",set(),,217800.0,False
+middlebury,Light Industrial 200,217800,,False,False,{149},{224},"{224, 225, 226, 227, 228, 223}",set(),,217800.0,False
+middlefield,Industrial Park I,87120,,True,False,{69},{70},"{69, 70, 71}",set(),,87120.0,False
+milford,One Family Residential R-7.5,7500,,True,False,{38},{36},"{35, 36, 37, 38}",set(),,7500.0,False
+monroe,Business 1,43560,,True,False,{84},{85},"{84, 85, 86, 87}",set(),,43560.0,False
+monroe,Business 1,43560,,False,False,{84},{93},"{96, 92, 93, 94, 95}",set(),,43560.0,False
+monroe,Business 1,43560,,False,False,{84},{64},"{64, 65, 66, 63}",set(),,43560.0,False
+morris,Residence 80,80000,,True,False,{34},{30},"{32, 33, 34, 29, 30, 31}",set(),,80000.0,False
+morris,Residence 80,80000,,False,False,{34},{14},"{16, 13, 14, 15}",set(),,80000.0,False
+morris,Residence 80,80000,,False,False,{34},{64},"{64, 65, 66, 63}",set(),,80000.0,False
+morris,Commercial B,40000,,False,False,{45},{41},"{40, 41, 42, 43, 44}",set(),,40000.0,False
+morris,Commercial B,40000,,False,False,{45},{27},"{26, 27, 28, 29, 30}",set(),,40000.0,False
+naugatuck,New Haven Road Design South,8000,,True,False,{67},{66},"{65, 66, 67}",set(),,8000.0,False
+naugatuck,New Haven Road Design South,8000,,False,False,{67},{37},"{36, 37, 38, 39, 40}",set(),,8000.0,False
+naugatuck,Business 4,30000,,False,False,{67},{2},"{1, 2, 3, 4, 5}",set(),,30000.0,False
+naugatuck,Business 4,30000,,True,False,{67},{66},"{65, 66, 67}",set(),,30000.0,False
+naugatuck,Business 4,30000,,False,False,{67},{74},"{73, 74, 75, 76}",set(),,30000.0,False
+naugatuck,Business 4,30000,,False,False,{67},{37},"{36, 37, 38, 39, 40}",set(),,30000.0,False
+new-britain,S-1 Single Family,13500,,False,False,{24},{213},"{212, 213}",set(),,13500.0,False
+new-britain,S-1 Single Family,13500,,True,False,{24},{23},"{24, 25, 22, 23}",set(),,13500.0,False
+new-britain,S-1 Single Family,13500,,False,False,{24},{143},"{144, 142, 143}",set(),,13500.0,False
+new-britain,S-1 Single Family,13500,,False,False,{24},{147},"{146, 147, 148, 149}",set(),,13500.0,False
+new-canaan,Business B,5000,,True,False,{95},{96},"{96, 97, 98, 95}",set(),,5000.0,False
+new-canaan,Business B,5000,,False,False,{95},{86},"{85, 86, 87, 88, 89}",set(),,5000.0,False
+new-fairfield,Multifamily Elderly,217800,,True,False,{27},{27},"{26, 27, 28}",set(),,217800.0,False
+new-fairfield,Multifamily Elderly,217800,,False,False,{27},{47},"{48, 49, 46, 47}",set(),,217800.0,False
+new-fairfield,Multifamily Elderly,217800,,False,False,{27},{30},"{32, 33, 29, 30, 31}",set(),,217800.0,False
+new-hartford,R-15 Residence,15000,,True,False,{40},{41},"{40, 41, 42}",set(),,15000.0,False
+new-hartford,R-15 Residence,15000,,False,False,{40},{48},"{48, 49, 47}",set(),,15000.0,False
+new-hartford,R-15 Residence,15000,,False,False,{40},{57},"{56, 57, 58, 59}",set(),,15000.0,False
+new-london,Waterfront Commercial /Industrial 1,10000,,True,False,{46},{43},"{42, 43, 44, 45, 46}",set(),,10000.0,False
+new-london,Waterfront Commercial /Industrial 1,10000,,False,False,{46},{143},"{142, 143, 144, 145, 146}",set(),,10000.0,False
+new-london,Waterfront Commercial /Industrial 1,10000,,False,False,{46},{149},"{148, 149, 150, 151}",set(),,10000.0,False
+new-milford,Cluster Conservation Subdivision 1,21780,,True,False,{218},{219},"{218, 219}",set(),,21780.0,False
+new-milford,Business,40000,,True,False,{27},{28},"{27, 28}",set(),,40000.0,False
+new-milford,Business,40000,,False,False,{27},{24},"{24, 25, 26, 23}",set(),,40000.0,False
+new-milford,Business,40000,,False,False,{27},{174},"{173, 174, 175, 176, 177}",set(),,40000.0,False
+new-milford,Business,40000,,False,False,{27},{34},"{33, 34, 35, 36, 37}",set(),,40000.0,False
+new-milford,Business,40000,,False,False,{27},{55},"{54, 55, 56, 57, 58}",set(),,40000.0,False
+newington,Residential R-12,12000,,False,False,{47},{10},"{9, 10}",set(),,12000.0,False
+newington,Residential R-12,12000,,False,False,{47},{80},"{80, 81, 79}",set(),,12000.0,False
+newington,Residential R-12,12000,,True,False,{47},{48},"{48, 47}",set(),,12000.0,False
+newington,Residential R-12,12000,,False,False,{47},{16},"{16, 17, 15}",set(),,12000.0,False
+newington,Residential R-12,12000,,False,False,{47},{20},"{19, 20, 21}",set(),,12000.0,False
+newington,Residential R-12,12000,,False,False,{47},{75},"{74, 75, 76}",set(),,12000.0,False
+newtown,Business & Professional Office,43560,,False,False,{123},{70},"{72, 69, 70, 71}",set(),,43560.0,False
+newtown,Business & Professional Office,43560,,True,False,{123},{123},"{122, 123}",set(),,43560.0,False
+newtown,Business & Professional Office,43560,,False,False,{123},{137},"{136, 137, 138, 139}",set(),,43560.0,False
+newtown,Farming & Residential-R-2,87120,,True,False,{123},{123},"{122, 123}",set(),,87120.0,False
+newtown,Farming & Residential-R-2,87120,,False,False,{123},{188},"{187, 188, 189, 190, 191}",set(),,87120.0,False
+newtown,Farming & Residential-R-2,87120,,False,False,{123},{59},"{58, 59, 60, 61}",set(),,87120.0,False
+newtown-borough,Professional,43560,,False,False,{43},{29},"{28, 29, 30, 31}",set(),,43560.0,False
+newtown-borough,Professional,43560,,False,False,{43},{33},"{32, 33, 34, 35, 36}",set(),,43560.0,False
+newtown-borough,Professional,43560,,True,False,{43},{43},"{42, 43}",set(),,43560.0,False
+norfolk,Village Business,5000,,False,False,{45},{38},"{40, 37, 38, 39}",set(),,5000.0,False
+norfolk,Village Business,5000,,True,False,{45},{45},"{44, 45}",set(),,5000.0,False
+north-canaan,Central Business,60000,,False,False,{19},{40},"{40, 41, 42, 39}",set(),,60000.0,False
+north-canaan,Central Business,60000,,False,False,{19},{6},"{8, 5, 6, 7}",set(),,60000.0,False
+north-canaan,Commercial,60000,,True,False,{19},{19},"{18, 19, 20}",set(),,60000.0,False
+north-canaan,Commercial,60000,,False,False,{19},{1},"{0, 1, 2, 3, 4}",set(),,60000.0,False
+north-canaan,Commercial,60000,,False,False,{19},{41},"{40, 41, 42, 43}",set(),,60000.0,False
+north-haven,Residence-Apartment RA-12,12000,,True,False,{25},{26},"{25, 26, 27}",set(),,12000.0,False
+north-haven,Residence-Apartment RA-12,12000,,False,False,{25},{16},"{15, 16, 17, 18, 19}",set(),,12000.0,False
+norwich,Chelsea Central,5000,,False,False,{17},{77},"{76, 77, 78}",set(),,5000.0,False
+norwich,Chelsea Central,5000,,False,False,{17},{32},"{32, 33, 31}",set(),,5000.0,False
+norwich,Chelsea Central,5000,,False,False,{17},{30},"{29, 30}",set(),,5000.0,False
+norwich,Chelsea Central,5000,,False,False,{17},{88},"{88, 87}",set(),,5000.0,False
+norwich,Chelsea Central,5000,,True,False,{17},{17},"{16, 17}",set(),,5000.0,False
+old-lyme,Multifamily Residence MFR-40,40000,,True,False,{207},{208},"{208, 209, 210, 207}",set(),,40000.0,False
+old-lyme,Multifamily Residence MFR-40,40000,,False,False,{207},{203},"{202, 203, 204, 205}",set(),,40000.0,False
+orange,Light Industrial 2,87120,,False,False,{51},{59},"{64, 65, 58, 59, 60, 61, 62, 63}",set(),,87120.0,False
+orange,Light Industrial 2,87120,,False,False,{51},{134},"{136, 133, 134, 135}",set(),,87120.0,False
+oxford,Route 67 Office Professional,65340,,False,False,{17},{93},"{92, 93, 94, 95}",set(),,65340.0,False
+plainfield,Residence A-40,40000,,False,False,{27},{32},"{32, 33, 34, 31}",set(),,40000.0,False
+plainfield,Residence A-40,40000,,False,False,{27},{57},"{56, 57, 58}",set(),,40000.0,False
+plainfield,Residence A-40,40000,,True,False,{27},{27},"{26, 27, 28, 29}",set(),,40000.0,False
+plainfield,Residence A-40,40000,,False,False,{27},{71},"{72, 70, 71}",set(),,40000.0,False
+plymouth,I-1 Industrial,20000,,True,False,{35},{35},"{34, 35}",set(),,20000.0,False
+plymouth,I-1 Industrial,20000,,False,False,{35},{7},"{8, 9, 6, 7}",set(),,20000.0,False
+plymouth,I-1 Industrial,20000,,False,False,{35},{74},"{73, 74, 75, 76}",set(),,20000.0,False
+plymouth,I-1 Industrial,20000,,False,False,{35},{31},"{32, 30, 31}",set(),,20000.0,False
+pomfret,Rural Residential,87120,,True,False,{27},{28},"{27, 28}",set(),,87120.0,False
+pomfret,Rural Residential,87120,,False,False,{27},{12},"{11, 12, 13}",set(),,87120.0,False
+pomfret,Rural Residential,87120,,False,False,{27},{65},"{64, 65, 66, 67}",set(),,87120.0,False
+preston,R-60 Residential,60000,,False,False,{69},{21},"{20, 21, 22, 23}",set(),,60000.0,False
+preston,R-60 Residential,60000,,False,False,{69},{6},"{5, 6, 7}",set(),,60000.0,False
+preston,R-60 Residential,60000,,True,False,{69},{70},"{69, 70}",set(),,60000.0,False
+preston,Poquetanuck Village,60000,,True,False,{69},{70},"{69, 70}",set(),,60000.0,False
+preston,Poquetanuck Village,60000,,False,False,{69},{59},"{58, 59, 60}",set(),,60000.0,False
+preston,R-40 Residential,40000,,False,False,{69},{21},"{20, 21, 22, 23}",set(),,40000.0,False
+preston,R-40 Residential,40000,,False,False,{69},{6},"{5, 6, 7}",set(),,40000.0,False
+preston,R-40 Residential,40000,,True,False,{69},{70},"{69, 70}",set(),,40000.0,False
+preston,Resort Commercial,200000,,False,False,{69},{71},"{72, 73, 70, 71}",set(),,200000.0,False
+preston,Resort Commercial,200000,,False,False,{69},{37},"{36, 37, 38, 39}",set(),,200000.0,False
+preston,Resort Commercial,200000,,False,False,{69},{21},"{20, 21, 22, 23}",set(),,200000.0,False
+preston,Resort Commercial,200000,,False,False,{69},{6},"{5, 6, 7}",set(),,200000.0,False
+prospect,Industrial - Manufacturing 2,40000,,True,False,"{45, 54}",{46},"{45, 46}",set(),,40000.0,False
+prospect,Industrial - Manufacturing 2,40000,,False,False,"{45, 54}",{35},"{34, 35, 36, 37}",set(),,40000.0,False
+prospect,Industrial - Manufacturing 2,40000,,False,False,"{45, 54}",{134},"{133, 134, 135}",set(),,40000.0,False
+putnam,Industrial,87120,,False,False,{77},{41},"{40, 41, 42, 43}",set(),,87120.0,False
+putnam,Industrial,87120,,True,False,{77},{78},{77},set(),,87120.0,False
+putnam,Industrial,87120,,False,False,{77},{81},"{80, 81, 82, 83, 84}",set(),,87120.0,False
+putnam,Industrial,87120,,False,False,{77},{136},"{136, 137, 138, 135}",set(),,87120.0,False
+putnam,Industrial,87120,,False,False,{77},{53},"{52, 53, 54, 55}",set(),,87120.0,False
+redding,Service Business,43560,,False,False,{37},{24},"{24, 25, 26, 23}",set(),,43560.0,False
+redding,Service Business,43560,,True,False,{37},{36},"{35, 36, 37}",set(),,43560.0,False
+redding,Service Business,43560,,False,False,{37},{30},"{32, 29, 30, 31}",set(),,43560.0,False
+redding,Suburban Residential,21780,,True,False,{37},{36},"{35, 36, 37}",set(),,21780.0,False
+redding,Suburban Residential,21780,,False,False,{37},{17},"{16, 17, 18}",set(),,21780.0,False
+ridgefield,Residential RA,43560,,True,False,{66},{67},"{66, 67, 68}",set(),,43560.0,False
+ridgefield,Residential RA,43560,,False,False,{66},{70},"{69, 70, 71}",set(),,43560.0,False
+ridgefield,Residential RA,43560,,False,False,{66},{88},"{87, 88, 89, 90, 91}",set(),,43560.0,False
+rocky-hill,Regional Commercial,43560,,True,False,{60},{61},"{60, 61}",set(),,43560.0,False
+roxbury,Residence A,130680,,True,False,{124},{125},"{124, 125, 126}",set(),,130680.0,False
+roxbury,Residence A,130680,,False,False,{124},{76},"{75, 76, 77}",set(),,130680.0,False
+roxbury,Residence A,130680,,False,False,{124},{107},"{106, 107, 108}",set(),,130680.0,False
+roxbury,Residence A,130680,,False,False,{124},{130},"{129, 130}",set(),,130680.0,False
+roxbury,Residence A,130680,,False,False,{124},{86},"{85, 86}",set(),,130680.0,False
+salem,Rural A,80000,,True,False,"{42, 3}",{43},"{42, 43}",set(),,80000.0,False
+salisbury,Commercial,20000,,True,False,{119},{120},"{120, 119}",set(),,20000.0,False
+salisbury,Commercial,20000,,False,False,{119},{118},"{117, 118}",set(),,20000.0,False
+salisbury,Commercial,20000,,False,False,{119},{31},"{32, 33, 30, 31}",set(),,20000.0,False
+salisbury,Commercial,20000,,False,False,{119},{21},"{20, 21, 22, 23}",set(),,20000.0,False
+salisbury,Commercial,20000,,False,False,{119},{25},"{24, 25, 26, 27}",set(),,20000.0,False
+scotland,Residential Agricultural,87120,,True,False,{36},{36},"{35, 36, 37}",set(),,87120.0,False
+scotland,Residential Agricultural,87120,,False,False,{36},{44},"{43, 44, 45, 46}",set(),,87120.0,False
+seymour,R-40 Residence,40000,,True,False,{19},{20},"{19, 20}",set(),,40000.0,False
+seymour,R-40 Residence,40000,,False,False,{19},{25},"{24, 25, 26}",set(),,40000.0,False
+seymour,R-40 Residence,40000,,False,False,{19},{29},"{28, 29}",set(),,40000.0,False
+seymour,R-40 Residence,40000,,False,False,{19},{18},"{17, 18}",set(),,40000.0,False
+seymour,R-40 Residence,40000,,False,False,{19},{15},"{14, 15}",set(),,40000.0,False
+seymour,R-40 Residence,40000,,False,False,{19},{3},"{2, 3, 4}",set(),,40000.0,False
+sharon,G R-1 General Residence,130680,,True,False,{25},{25},"{24, 25, 26}",set(),,130680.0,False
+sharon,G R-1 General Residence,130680,,False,False,{25},{9},"{8, 9, 10, 11}",set(),,130680.0,False
+sharon,G R-1 General Residence,130680,,False,False,{25},{51},"{50, 51, 52, 53}",set(),,130680.0,False
+shelton,Commercial CA-2,15000,,True,False,{49},{50},{49},set(),,15000.0,False
+shelton,Commercial CA-2,15000,,False,False,{49},{20},"{19, 20, 21}",set(),,15000.0,False
+shelton,Commercial CA-2,15000,,False,False,{49},{45},{44},set(),,15000.0,False
+shelton,Commercial CA-2,15000,,False,False,{49},{26},"{25, 26, 27}",set(),,15000.0,False
+simsbury,Restricted Industrial,435600,,False,False,{81},{92},"{91, 92, 93, 94}",set(),,435600.0,False
+simsbury,Restricted Industrial,435600,,True,False,{81},{82},{81},set(),,435600.0,False
+simsbury,Restricted Industrial,435600,,False,False,{81},{130},"{129, 130, 131, 132}",set(),,435600.0,False
+simsbury,Restricted Industrial,435600,,False,False,{81},{83},"{82, 83, 84, 85}",set(),,435600.0,False
+simsbury,Restricted Industrial,435600,,False,False,{81},{7},"{6, 7, 8, 9, 10, 11}",set(),,435600.0,False
+south-windsor,AA-30 Limited Residential,30000,,False,False,{25},{177},"{176, 177, 178}",set(),,30000.0,False
+south-windsor,AA-30 Limited Residential,30000,,False,False,{25},{236},"{235, 236, 237, 238}",set(),,30000.0,False
+south-windsor,AA-30 Limited Residential,30000,,False,False,{25},{23},"{22, 23}",set(),,30000.0,False
+south-windsor,AA-30 Limited Residential,30000,,True,False,{25},{26},"{25, 26}",set(),,30000.0,False
+south-windsor,AA-30 Limited Residential,30000,,False,False,{25},{262},"{261, 262, 263}",set(),,30000.0,False
+southbury,Designed Business 3C,40000,,True,False,{53},{54},{53},set(),,40000.0,False
+southbury,Marine Business 4,40000,,True,False,{53},{54},{53},set(),,40000.0,False
+southington,Central Business,30000,,True,False,{71},{71},"{72, 73, 70, 71}",set(),,30000.0,False
+southington,Central Business,30000,,False,False,{71},{140},{139},set(),,30000.0,False
+southington,Central Business,30000,,False,False,{71},{201},"{200, 201, 202, 203}",set(),,30000.0,False
+southington,Central Business,30000,,False,False,{71},{206},"{208, 205, 206, 207}",set(),,30000.0,False
+sprague,R-80 Rural,80000,,True,False,{31},{32},"{32, 33, 31}",set(),,80000.0,False
+sprague,R-80 Rural,80000,,False,False,{31},{79},"{80, 81, 78, 79}",set(),,80000.0,False
+sprague,R-80 Rural,80000,,False,False,{31},{59},"{58, 59, 60, 61}",set(),,80000.0,False
+sprague,R-80 Rural,80000,,False,False,{31},{13},"{12, 13, 14}",set(),,80000.0,False
+stafford,Rural & Single Family Residence AAA,88000,,True,False,{33},{34},"{33, 34}",set(),,88000.0,False
+stafford,Rural & Single Family Residence AAA,88000,,False,False,{33},{80},"{80, 81, 79}",set(),,88000.0,False
+stafford,Rural & Single Family Residence AAA,88000,,False,False,{33},{26},"{25, 26, 27, 28}",set(),,88000.0,False
+stafford,General Residence B,40000,,True,False,{33},{34},"{33, 34}",set(),,40000.0,False
+stafford,General Residence B,40000,,False,False,{33},{24},"{24, 25, 23}",set(),,40000.0,False
+stafford,General Residence B,40000,,False,False,{33},{82},"{81, 82, 83}",set(),,40000.0,False
+stafford,General Residence B,40000,,False,False,{33},{47},"{48, 49, 46, 47}",set(),,40000.0,False
+sterling,Primary Zoning,87120,,True,False,{8},{7},"{6, 7, 8, 9, 10}",set(),,87120.0,False
+stonington,Local Shopping,5000,,False,False,{120},{297},"{296, 297}",set(),,5000.0,False
+stonington,Local Shopping,5000,,False,False,{120},{302},"{301, 302}",set(),,5000.0,False
+stonington,Local Shopping,5000,,False,False,{120},{79},"{80, 81, 78, 79}",set(),,5000.0,False
+stonington,Local Shopping,5000,,False,False,{120},{213},"{212, 213}",set(),,5000.0,False
+stonington,Local Shopping,5000,,False,False,{120},{220},"{219, 220, 221, 222}",set(),,5000.0,False
+stonington-borough,Residential One,6000,,True,False,{61},{61},"{64, 60, 61, 62, 63}",set(),,6000.0,False
+suffield,R-90 Single Family Residential,90000,,True,False,"{41, 47}",{47},"{48, 46, 47}",set(),,90000.0,False
+suffield,R-90 Single Family Residential,90000,,False,False,"{41, 47}",{133},"{132, 133, 134}",set(),,90000.0,False
+suffield,R-90 Single Family Residential,90000,,False,False,"{41, 47}",{87},"{88, 89, 86, 87}",set(),,90000.0,False
+suffield,Planned Development Apartment,435600,,False,False,{69},{48},"{48, 49, 47}",set(),,435600.0,False
+suffield,Planned Development Apartment,435600,,False,False,{69},{151},"{152, 150, 151}",set(),,435600.0,False
+suffield,Planned Development Apartment,435600,,True,False,{69},{70},{69},set(),,435600.0,False
+suffield,Planned Development Apartment,435600,,False,False,{69},{41},"{40, 41, 42, 43}",set(),,435600.0,False
+thomaston,RA-80 Residential,80000,,True,False,{12},{12},"{11, 12, 13, 14}",set(),,80000.0,False
+thomaston,RA-80 Residential,80000,,False,False,{12},{28},"{27, 28, 29}",set(),,80000.0,False
+thompson,Commercial,15000,,False,False,{27},{61},"{60, 61, 62, 63}",set(),,15000.0,False
+thompson,Commercial,15000,,False,False,{27},{32},"{32, 33, 34, 31}",set(),,15000.0,False
+thompson,Commercial,15000,,True,False,{27},{27},"{26, 27, 28, 29}",set(),,15000.0,False
+thompson,Commercial,15000,,False,False,{27},{17},"{16, 17, 18, 19, 20}",set(),,15000.0,False
+tolland,Neighborhood Commercial-T,43560,,True,False,{73},{74},"{73, 74, 75, 76, 77}",set(),,43560.0,False
+tolland,Neighborhood Commercial-T,43560,,False,False,{73},{107},"{106, 107, 108}",set(),,43560.0,False
+tolland,Neighborhood Commercial-T,43560,,False,False,{73},{126},"{128, 125, 126, 127}",set(),,43560.0,False
+torrington,R-25 Residence,25000,,False,False,{33},{48},"{48, 49, 50, 47}",set(),,25000.0,False
+torrington,R-25 Residence,25000,,False,False,{33},{55},"{56, 54, 55}",set(),,25000.0,False
+torrington,R-25 Residence,25000,,True,False,{33},{33},"{32, 33, 34}",set(),,25000.0,False
+torrington,R-25 Residence,25000,,False,False,{33},{114},"{113, 114, 115, 116}",set(),,25000.0,False
+voluntown,Village Commercial Overlay,40000,,True,False,{13},{13},"{12, 13, 14, 15}",set(),,40000.0,False
+voluntown,Village Commercial Overlay,40000,,False,False,{13},{18},"{17, 18, 19}",set(),,40000.0,False
+voluntown,Village Commercial Overlay,40000,,False,False,{13},{10},"{9, 10, 11}",set(),,40000.0,False
+wallingford,Rural Residential-120,120000,,True,False,{137},{137},"{136, 137, 138}",set(),,120000.0,False
+wallingford,Rural Residential-120,120000,,False,False,{137},{153},"{152, 153, 154}",set(),,120000.0,False
+wallingford,Rural Residential-120,120000,,False,False,{137},{151},"{150, 151}",set(),,120000.0,False
+wallingford,Rural Residential-120,120000,,False,False,{137},{46},"{45, 46}",set(),,120000.0,False
+wallingford,Rural Residential-40,40000,,True,False,{137},{137},"{136, 137, 138}",set(),,40000.0,False
+wallingford,Rural Residential-40,40000,,False,False,{137},{153},"{152, 153, 154}",set(),,40000.0,False
+wallingford,Rural Residential-40,40000,,False,False,{137},{151},"{150, 151}",set(),,40000.0,False
+wallingford,Rural Residential-40,40000,,False,False,{137},{46},"{45, 46}",set(),,40000.0,False
+warren,North,87120,,False,False,{16},{37},"{36, 37, 38, 39}",set(),,87120.0,False
+warren,North,87120,,False,False,{16},{52},"{51, 52, 53, 54}",set(),,87120.0,False
+warren,North,87120,,False,False,{16},{29},"{28, 29, 30, 31}",set(),,87120.0,False
+washington,Woodville Business,"43560,65340,87120",,False,False,{37},{4},"{3, 4}",set(),,43560.0,False
+washington,Woodville Business,"43560,65340,87120",,False,False,{37},{4},"{3, 4}",set(),,65340.0,False
+washington,Woodville Business,"43560,65340,87120",,False,False,{37},{4},"{3, 4}",set(),,87120.0,False
+washington,Woodville Business,"43560,65340,87120",,True,False,{37},{38},"{37, 38, 39}",set(),,43560.0,False
+washington,Woodville Business,"43560,65340,87120",,True,False,{37},{38},"{37, 38, 39}",set(),,65340.0,False
+washington,Woodville Business,"43560,65340,87120",,True,False,{37},{38},"{37, 38, 39}",set(),,87120.0,False
+washington,Woodville Business,"43560,65340,87120",,False,False,{37},{35},"{34, 35, 36}",set(),,43560.0,False
+washington,Woodville Business,"43560,65340,87120",,False,False,{37},{35},"{34, 35, 36}",set(),,65340.0,False
+washington,Woodville Business,"43560,65340,87120",,False,False,{37},{35},"{34, 35, 36}",set(),,87120.0,False
+waterford,General Industrial,40000,,True,False,{32},{33},"{32, 33, 34}",set(),,40000.0,False
+waterford,General Industrial,40000,,False,False,{32},{96},"{96, 95}",set(),,40000.0,False
+waterford,General Industrial,40000,,False,False,{32},{89},"{88, 89, 90, 91}",set(),,40000.0,False
+waterford,Medium Density Residential,20000,,True,False,{32},{33},"{32, 33, 34}",set(),,20000.0,False
+waterford,Medium Density Residential,20000,,False,False,{32},{72},"{72, 73, 71}",set(),,20000.0,False
+waterford,Medium Density Residential,20000,,False,False,{32},{66},"{65, 66, 67}",set(),,20000.0,False
+waterford,Medium Density Residential,20000,,False,False,{32},{61},"{60, 61, 62}",set(),,20000.0,False
+waterford,Medium Density Residential,20000,,False,False,{32},{40},"{40, 41, 39}",set(),,20000.0,False
+waterford,Waterfront Development,20000,,True,False,{32},{33},"{32, 33, 34}",set(),,20000.0,False
+waterford,Waterfront Development,20000,,False,False,{32},{103},"{104, 102, 103}",set(),,20000.0,False
+watertown,General Business 1,15000,,False,False,{94},{96},"{96, 97, 98, 95}",set(),,15000.0,False
+watertown,Residential R-20,"20000,40000",,True,False,{89},{90},"{89, 90}",set(),,20000.0,False
+watertown,Residential R-20,"20000,40000",,True,False,{89},{90},"{89, 90}",set(),,40000.0,False
+watertown,Residential R-20,"20000,40000",,False,False,{89},{200},"{200, 201, 199}",set(),,20000.0,False
+watertown,Residential R-20,"20000,40000",,False,False,{89},{200},"{200, 201, 199}",set(),,40000.0,False
+watertown,Residential R-20,"20000,40000",,False,False,{89},{50},"{49, 50, 51}",set(),,20000.0,False
+watertown,Residential R-20,"20000,40000",,False,False,{89},{50},"{49, 50, 51}",set(),,40000.0,False
+watertown,Residential R-20,"20000,40000",,False,False,{89},{203},"{202, 203, 204}",set(),,20000.0,False
+watertown,Residential R-20,"20000,40000",,False,False,{89},{203},"{202, 203, 204}",set(),,40000.0,False
+west-hartford,RM-3R Multifamily Restricted Residential,3000,,True,False,{20},{21},"{20, 21, 22}",set(),,3000.0,False
+west-haven,Planned Village,3484800,,False,False,{72},{64},"{64, 65, 63}",set(),,3484800.0,False
+west-haven,Planned Village,3484800,,True,False,{72},{71},"{72, 70, 71}",set(),,3484800.0,False
+west-haven,Planned Village,3484800,,False,False,{72},{68},"{67, 68, 69}",set(),,3484800.0,False
+west-haven,Planned Village,3484800,,False,False,{72},{9},"{8, 9, 10}",set(),,3484800.0,False
+west-haven,Light Manufacturing,40000,,True,False,{63},{62},"{61, 62, 63}",set(),,40000.0,False
+west-haven,Light Manufacturing,40000,,False,False,{63},{122},"{121, 122, 123, 124, 125}",set(),,40000.0,False
+west-haven,Light Manufacturing,40000,,False,False,{63},{9},"{8, 9, 10}",set(),,40000.0,False
+westbrook,High Density Residential 2,"15000, 225000",,True,False,{19},{20},"{19, 20, 21, 22}",set(),,15000.0,False
+westbrook,High Density Residential 2,"15000, 225000",,True,False,{19},{20},"{19, 20, 21, 22}",set(),,225000.0,False
+westbrook,High Density Residential 2,"15000, 225000",,False,False,{19},{77},"{76, 77, 78, 79}",set(),,15000.0,False
+westbrook,High Density Residential 2,"15000, 225000",,False,False,{19},{77},"{76, 77, 78, 79}",set(),,225000.0,False
+westbrook,High Density Residential 2,"15000, 225000",,False,False,{19},{93},"{92, 93, 94, 95}",set(),,15000.0,False
+westbrook,High Density Residential 2,"15000, 225000",,False,False,{19},{93},"{92, 93, 94, 95}",set(),,225000.0,False
+weston,Neighborhood Shopping Center,217800,,False,False,{9},{3},"{2, 3, 4}",set(),,217800.0,False
+weston,Neighborhood Shopping Center,217800,,True,False,{9},{8},"{8, 9, 7}",set(),,217800.0,False
+weston,Neighborhood Shopping Center,217800,,False,False,{9},{27},"{26, 27, 28}",set(),,217800.0,False
+wethersfield,Special Residential Development,87120,,True,False,{30},{31},"{32, 30, 31}",set(),,87120.0,False
+wethersfield,Special Residential Development,87120,,False,False,{30},{36},"{35, 36, 37}",set(),,87120.0,False
+wilton,Single Family All Affordable Housing,261360,,False,False,{86},{113},"{112, 113, 114}",set(),,261360.0,False
+wilton,Single Family All Affordable Housing,261360,,True,False,{86},{86},"{88, 85, 86, 87}",set(),,261360.0,False
+winchester,Town Center,40000,,True,False,{80},{78},"{77, 78, 79, 80, 81, 82}",set(),,40000.0,False
+winchester,Town Center,40000,,False,False,{80},{35},"{34, 35, 36, 37}",set(),,40000.0,False
+winchester,Town Center,40000,,False,False,{80},{10},"{9, 10, 11}",set(),,40000.0,False
+windham,C-1 General Commercial,40000,,False,False,{70},{160},"{160, 159}",set(),,40000.0,False
+windham,C-1 General Commercial,40000,,False,False,{70},{69},"{68, 69}",set(),,40000.0,False
+wolcott,Residence R-40,40000,,False,False,{59},{116},"{115, 116, 117, 118}",set(),,40000.0,False
+wolcott,Residence R-40,40000,,False,False,{59},{47},"{48, 49, 46, 47}",set(),,40000.0,False
+woodbury,OS-80 Open Space Residence,80000,,True,False,{20},{20},"{19, 20, 21}",set(),,80000.0,False
+woodbury,OS-80 Open Space Residence,80000,,False,False,{20},{16},"{16, 17, 15}",set(),,80000.0,False
+woodbury,OS-80 Open Space Residence,80000,,False,False,{20},{98},"{97, 98, 99, 100}",set(),,80000.0,False
+woodstock,Community,108900,,True,False,{54},{55},"{56, 54, 55}",set(),,108900.0,False
+woodstock,Community,108900,,False,False,{54},{141},"{140, 141, 142, 143, 144, 145}",set(),,108900.0,False
+woodstock,Community,108900,,False,False,{54},{1},"{0, 1, 2, 3, 4, 5, 6, 7}",set(),,108900.0,False
