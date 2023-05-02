@@ -31,12 +31,6 @@ def nearest_pages(town, district, term="min lot size") -> list[PageSearchOutput]
         | Q("match_phrase", Text=district["Z"].replace(".", ""))
     )
 
-    # Search for term
-    # term_expansion = [
-    #     Q("match_phrase", Text=query.replace("min", r))
-    #     for query in thesaurus.get(term, [])
-    #     for r in ["min", "minimum", "min."]
-    # ]
     min_variations = thesaurus.get("min", [])
     term_expansion = []
     for query in thesaurus.get(term, []):
