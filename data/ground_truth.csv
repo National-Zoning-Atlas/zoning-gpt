@@ -88,7 +88,7 @@ haddam,R-1,Residential R-1,28,1,43560,235,"500/studio, 700/1BR, 900/2BR",,,Y,cou
 haddam,R-2,Residential R-2,28,2,87120,235,"500/studio, 700/1BR, 900/2BR",,,Y,could not verify min unit size
 hamden,R5,Residential R-5,,0.1377410468,6000,12,"600/1BR, 900/2BR, 1200/3BR",,,Y,"no single list of zones, could not verify min unit size"
 hampton,B,B Business,15,1.15,50000,17,,,,,
-hartland,R1,Rural Residential,,,87120,28,,"868 (no basement), 988 (basement)",29,Y,missing answers but present in doc
+hartland,R1,Rural Residential,,,87120,28,"868 (no basement), 988 (basement)","868, 988",29,Y,missing answers but present in doc
 harwinton,RS-A,Retail Service A,16,,43560,32,,,32,Y,missing answers but present in doc
 hebron,AV,Amston Village,,0.5,21780,91,,,,,no single list of zones
 hebron,PRD,Planned Residential Development,10,,348480,37,,750,38,,
