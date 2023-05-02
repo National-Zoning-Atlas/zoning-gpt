@@ -7,7 +7,7 @@ from typing import Generator, Optional
 
 import openai
 import rich
-from jinja2 import Template
+from jinja2 import Template, Environment, FileSystemLoader
 from joblib import Memory
 from pydantic import BaseModel, ValidationError
 from retry import retry
@@ -24,15 +24,9 @@ from .search import (
 with Path(__file__).parent.joinpath("thesaurus.json").open(encoding="utf-8") as f:
     thesaurus = json.load(f)
 
-with (get_project_root() / "templates" / "extraction_chat_completion.pmpt.tpl").open(
-    encoding="utf-8"
-) as f:
-    extraction_chat_completion_tmpl = f.read()
-
-with (get_project_root() / "templates" / "extraction_completion.pmpt.tpl").open(
-    encoding="utf-8"
-) as f:
-    extraction_completion_tmpl = f.read()
+env = Environment(loader=FileSystemLoader(get_project_root() / "templates"))
+extraction_chat_completion_tmpl = env.get_template("extraction_chat_completion.pmpt.tpl")
+extraction_completion_tmpl = env.get_template("extraction_completion.pmpt.tpl")
 
 memory = Memory(get_project_root() / ".joblib_cache", verbose=0)
 
@@ -64,7 +58,7 @@ class AllLookupOutput(BaseModel):
     sizes: dict[str, list[LookupOutput]]
 
 
-@memory.cache
+# @memory.cache
 @retry(exceptions=openai.error.RateLimitError, tries=-1, delay=10, backoff=2, jitter=(1, 10))  # type: ignore
 def lookup_term_prompt(
     model_name: str, page_text, district, term
@@ -74,7 +68,7 @@ def lookup_term_prompt(
             resp = openai.Completion.create(
                 model=model_name,
                 max_tokens=256,
-                prompt=Template(extraction_completion_tmpl).render(
+                prompt=extraction_completion_tmpl.render(
                     passage=page_text,
                     term=term,
                     synonyms=", ".join(thesaurus.get(term, [])),
@@ -91,7 +85,7 @@ def lookup_term_prompt(
                 messages=[
                     {
                         "role": "system",
-                        "content": Template(extraction_chat_completion_tmpl).render(
+                        "content": extraction_chat_completion_tmpl.render(
                             term=term,
                             synonyms=", ".join(thesaurus.get(term, [])),
                             zone_name=district["T"],
@@ -110,9 +104,12 @@ def lookup_term_prompt(
             raise ValueError(f"Unknown model name: {model_name}")
 
     try:
-        return PromptOutput(
-            **json.loads(text),
-        )
+        json_body = json.loads(text)
+        if json_body is None:
+            # The model is allowed to return null if it cannot find the answer,
+            # so just pass this onwards.
+            return None
+        return PromptOutput(**json_body)
     except (ValidationError, TypeError, json.JSONDecodeError) as exc:
         rich.print("Error parsing response from model during extraction:", exc)
         rich.print(f"Response: {text}")
