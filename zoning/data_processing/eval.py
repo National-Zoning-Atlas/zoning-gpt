@@ -122,7 +122,7 @@ def main():
                 / len(search_results_df),
                 # This is the answer accuracy conditional on the correct page having been looked up by ES
                 "conditional_answer_accuracy": len(
-                    results_df.query("correct_page_searched & correct_answer")
+                    search_results_df.query("correct_page_searched > 0 & correct_answer > 0")
                 )
                 / num_correct_page_searched,
                 "answer_accuracy": num_correct_answer / len(search_results_df),
