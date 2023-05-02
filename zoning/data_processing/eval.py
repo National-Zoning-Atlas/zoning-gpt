@@ -14,18 +14,17 @@ DATA_ROOT = get_project_root() / "data"
 EVAL_METRICS_PATH = DATA_ROOT / "results" / "eval.yaml"
 EVAL_OUTPUT_PATH = DATA_ROOT / "results" / "eval.csv"
 
+
 def compute_eval_result(town: str, district_name: str, term: str, row):
-    try:
-        outputs = extract_size(
-            town,
-            dict(T=district_name, Z=row.district_abb),
-            term,
-            6,
-            method=ExtractionMethod.MAP,
-        )
-    except Exception as e:
-        print(f"Error: {town} {district_name} | {e}")
-        return
+    outputs = extract_size(
+        town,
+        dict(T=district_name, Z=row.district_abb),
+        term,
+        6,
+        method=ExtractionMethod.MAP,
+        # model_name="gpt-3.5-turbo"
+        model_name="text-davinci-003"
+    )
     gt_page = set(map(int, str(row.min_lot_size_page_gt).split(",")))
     for result in outputs:
         searched_pages = {r.page_number for r in result.search_pages}
@@ -39,9 +38,7 @@ def compute_eval_result(town: str, district_name: str, term: str, row):
             "town": town,
             "district": district_name,
             "expected": row.min_lot_size_gt,
-            "actual": result.output.answer
-            if result.output is not None
-            else None,
+            "actual": result.output.answer if result.output is not None else None,
             "correct_page_searched": any(gt_page & searched_pages_expanded),
             "correct_page_extracted": any(gt_page & extracted_pages),
             "gt_page": gt_page,
@@ -49,6 +46,7 @@ def compute_eval_result(town: str, district_name: str, term: str, row):
             "searched_pages_expanded": searched_pages_expanded,
             "extracted_pages": extracted_pages,
         }
+
 
 def main():
     gt = pd.read_csv(DATA_ROOT / "ground_truth.csv", index_col=["town", "district"])
@@ -58,9 +56,10 @@ def main():
     term = "min lot size"
 
     results = []
-    for x in tqdm(gt_min_lot.iterrows(), total=len(gt_min_lot)):
-        result = list(compute_eval_result(x[0][0], x[0][1], term, x[1]))
-        sleep(0.25) # Needed to avoid blowing rate limits on OpenAI API
+    for result in thread_map(lambda x: list(compute_eval_result(x[0][0], x[0][1], term, x[1])), gt_min_lot.iterrows(), total=len(gt_min_lot)):
+    # for x in tqdm(gt_min_lot.iterrows(), total=len(gt_min_lot)):
+        # result = list(compute_eval_result(x[0][0], x[0][1], term, x[1]))
+        # sleep(0.25)  # Needed to avoid blowing rate limits on OpenAI API
         results.extend(result)
 
     results_df = pd.DataFrame(results)
@@ -75,32 +74,48 @@ def main():
             lambda s: [float(f.strip()) for f in s.split(",")]
         )
     ).explode("expected_normalized")
-    results_df = results_df.assign(correct_answer=results_df.actual_normalized == results_df.expected_normalized)
+    results_df = results_df.assign(
+        correct_answer=results_df.actual_normalized == results_df.expected_normalized
+    )
 
     results_df.to_csv(EVAL_OUTPUT_PATH, index=False)
 
     # groupby to calculate search page recall
-    search_results_df = results_df.groupby(by=['town', 'district']).agg({"correct_page_searched": "sum"}).reset_index()
-    search_results_df["correct"] = search_results_df["correct_page_searched"].apply(lambda x: 1 if x > 0 else 0)
+    search_results_df = (
+        results_df.groupby(by=["town", "district"])
+        .agg({"correct_page_searched": "sum"})
+        .reset_index()
+    )
+    search_results_df["correct"] = search_results_df["correct_page_searched"].apply(
+        lambda x: 1 if x > 0 else 0
+    )
 
     num_results = len(results_df)
-    num_correct_page_searched = float(search_results_df["correct"].sum()) #len(results_df.query("correct_page_searched"))
+    num_correct_page_searched = float(
+        search_results_df["correct"].sum()
+    )  # len(results_df.query("correct_page_searched"))
     num_correct_page_extracted = len(results_df.query("correct_page_extracted"))
     num_correct_answer = len(results_df.query("correct_answer"))
 
     with EVAL_METRICS_PATH.open("w", encoding="utf-8") as f:
-        yaml.dump({
-            "num_results": num_results,
-            "num_correct_page_searched": num_correct_page_searched,
-            "num_correct_page_extracted": num_correct_page_extracted,
-            "num_correct_answer": num_correct_answer,
-            "page_search_recall": num_correct_page_searched / search_results_df.shape[0],
-            "page_extract_recall": num_correct_page_extracted / num_results,
-            # This is the answer accuracy conditional on the correct page having been looked up by ES
-            "conditional_answer_accuracy": len(results_df.query("correct_page_searched & correct_answer")) / num_correct_page_searched,
-            "answer_accuracy": num_correct_answer / num_results,
-        }, f)
-
+        yaml.dump(
+            {
+                "num_results": num_results,
+                "num_correct_page_searched": num_correct_page_searched,
+                "num_correct_page_extracted": num_correct_page_extracted,
+                "num_correct_answer": num_correct_answer,
+                "page_search_recall": num_correct_page_searched
+                / search_results_df.shape[0],
+                "page_extract_recall": num_correct_page_extracted / num_results,
+                # This is the answer accuracy conditional on the correct page having been looked up by ES
+                "conditional_answer_accuracy": len(
+                    results_df.query("correct_page_searched & correct_answer")
+                )
+                / num_correct_page_searched,
+                "answer_accuracy": num_correct_answer / num_results,
+            },
+            f,
+        )
 
 
 if __name__ == "__main__":
