@@ -8,7 +8,7 @@ from typing import Generator, Optional
 import openai
 from joblib import Memory
 from jinja2 import Template
-from minichain import OpenAI, prompt
+import rich
 from pydantic import BaseModel, ValidationError
 
 from ..utils import chunks, get_project_root, load_jsonl
@@ -23,10 +23,15 @@ from .search import (
 with Path(__file__).parent.joinpath("thesaurus.json").open(encoding="utf-8") as f:
     thesaurus = json.load(f)
 
-with (get_project_root() / "templates" / "extraction.pmpt.tpl").open(
+with (get_project_root() / "templates" / "extraction_chat_completion.pmpt.tpl").open(
     encoding="utf-8"
 ) as f:
-    extraction_tmpl = f.read()
+    extraction_chat_completion_tmpl = f.read()
+
+with (get_project_root() / "templates" / "extraction_completion.pmpt.tpl").open(
+    encoding="utf-8"
+) as f:
+    extraction_completion_tmpl = f.read()
 
 memory = Memory(get_project_root() / ".joblib_cache", verbose=0)
 
@@ -59,33 +64,54 @@ class AllLookupOutput(BaseModel):
 
 
 @memory.cache
-def lookup_term_prompt(page_text, district, term) -> PromptOutput | None:
-    resp = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        max_tokens=256,
-        messages=[
-            {
-                "role": "system",
-                "content": Template(extraction_tmpl).render(
+def lookup_term_prompt(model_name: str, page_text, district, term) -> PromptOutput | None:
+    match model_name:
+        case "text-davinci-003":
+            resp = openai.Completion.create(
+                model=model_name,
+                max_tokens=256,
+                prompt=Template(extraction_completion_tmpl).render(
                     passage=page_text,
                     term=term,
-                    synonyms=" ,".join(thesaurus.get(term, [])),
+                    synonyms=", ".join(thesaurus.get(term, [])),
                     zone_name=district["T"],
                     zone_abbreviation=district["Z"],
                 ),
-            },
-            {
-                "role": "user",
-                "content": f"Input: \n\n {page_text}\n\n Output:",
-            },
-        ],
-    )
-    top_choice = resp.choices[0]
+            )
+            top_choice = resp.choices[0]
+            text = top_choice.text
+        case "gpt-3.5-turbo" | "gpt-4":
+            resp = openai.ChatCompletion.create(
+                model=model_name,
+                max_tokens=256,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": Template(extraction_chat_completion_tmpl).render(
+                            term=term,
+                            synonyms=", ".join(thesaurus.get(term, [])),
+                            zone_name=district["T"],
+                            zone_abbreviation=district["Z"],
+                        ),
+                    },
+                    {
+                        "role": "user",
+                        "content": f"Input: \n\n {page_text}\n\n Output:",
+                    },
+                ],
+            )
+            top_choice = resp.choices[0]
+            text = top_choice.message.content
+        case _:
+            raise ValueError(f"Unknown model name: {model_name}")
+
     try:
         return PromptOutput(
-            **json.loads(top_choice.message.content),
+            **json.loads(text),
         )
-    except (ValidationError, TypeError):
+    except (ValidationError, TypeError, json.JSONDecodeError) as exc:
+        rich.print("Error parsing response from model during extraction:", exc)
+        rich.print(f"Response: {text}")
         return None
 
 
@@ -96,7 +122,7 @@ class ExtractionMethod(str, Enum):
 
 
 def extract_size(
-    town, district, term, top_k_pages, method: ExtractionMethod = ExtractionMethod.STUFF
+    town, district, term, top_k_pages, method: ExtractionMethod = ExtractionMethod.STUFF, model_name: str = "text-davinci-003"
 ) -> list[LookupOutput]:
     pages = nearest_pages(town, district, term)
     #pages = get_non_overlapping_chunks(pages)[:top_k_pages]
@@ -111,8 +137,6 @@ def extract_size(
         case ExtractionMethod.NONE:
             outputs = []  # if only running search
             for page in pages:
-                # print(town, "page", page.page_number)
-                # print(town, "pages_covered", page_coverage([page])[0])
                 outputs.append(
                     LookupOutput(
                         output=None,
@@ -130,30 +154,28 @@ def extract_size(
             # TODO: Determine this automatically
             prompt_base_token_length = 256
             for chunk in chunks(all_page, 8192 - prompt_base_token_length):
-                result: PromptOutput | None = lookup_term_prompt(chunk, district, term)
-                if result is not None:
-                    return [
-                        LookupOutput(
-                            output=result,
-                            search_pages=pages,
-                            search_pages_expanded=page_coverage(pages)[0],
-                        )
-                    ]
+                result: PromptOutput | None = lookup_term_prompt(model_name, chunk, district, term)
+                return [
+                    LookupOutput(
+                        output=result,
+                        search_pages=pages,
+                        search_pages_expanded=page_coverage(pages)[0],
+                    )
+                ]
         case ExtractionMethod.MAP:
             outputs = []
             with ThreadPoolExecutor(max_workers=20) as executor:
                 for page, result in executor.map(
-                    lambda page: (page, lookup_term_prompt(page.text, district, term)),
+                    lambda page: (page, lookup_term_prompt(model_name, page.text, district, term)),
                     pages,
                 ):
-                    if result is not None:
-                        outputs.append(
-                            LookupOutput(
-                                output=result,
-                                search_pages=[page],
-                                search_pages_expanded=page_coverage([page])[0],
-                            )
+                    outputs.append(
+                        LookupOutput(
+                            output=result,
+                            search_pages=[page],
+                            search_pages_expanded=page_coverage([page])[0],
                         )
+                    )
             return outputs
 
     return []
