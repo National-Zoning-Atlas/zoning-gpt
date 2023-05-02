@@ -6,10 +6,11 @@ from pathlib import Path
 from typing import Generator, Optional
 
 import openai
-from joblib import Memory
-from jinja2 import Template
 import rich
+from jinja2 import Template
+from joblib import Memory
 from pydantic import BaseModel, ValidationError
+from retry import retry
 
 from ..utils import chunks, get_project_root, load_jsonl
 from .eval_results import clean_string_units
@@ -64,7 +65,10 @@ class AllLookupOutput(BaseModel):
 
 
 @memory.cache
-def lookup_term_prompt(model_name: str, page_text, district, term) -> PromptOutput | None:
+@retry(exceptions=openai.error.RateLimitError, tries=-1, delay=10, backoff=2, jitter=(1, 10))  # type: ignore
+def lookup_term_prompt(
+    model_name: str, page_text, district, term
+) -> PromptOutput | None:
     match model_name:
         case "text-davinci-003":
             resp = openai.Completion.create(
@@ -122,20 +126,22 @@ class ExtractionMethod(str, Enum):
 
 
 def extract_size(
-    town, district, term, top_k_pages, method: ExtractionMethod = ExtractionMethod.STUFF, model_name: str = "text-davinci-003"
+    town,
+    district,
+    term,
+    top_k_pages,
+    method: ExtractionMethod = ExtractionMethod.STUFF,
+    model_name: str = "text-davinci-003",
 ) -> list[LookupOutput]:
     pages = nearest_pages(town, district, term)
-    #pages = get_non_overlapping_chunks(pages)[:top_k_pages]
-    if town == 'ansonia':
-        print("with overlap", [page.page_number for page in pages])
     pages = get_non_overlapping_chunks(pages)[:top_k_pages]
 
     if len(pages) == 0:
         return []
 
+    outputs = []  # if only running search
     match method:
         case ExtractionMethod.NONE:
-            outputs = []  # if only running search
             for page in pages:
                 outputs.append(
                     LookupOutput(
@@ -144,7 +150,6 @@ def extract_size(
                         search_pages_expanded=page_coverage([page])[0],
                     )
                 )
-            return outputs
         case ExtractionMethod.STUFF:
             # Stuff all pages into prompt, in order of page number
             all_page = reduce(
@@ -154,19 +159,23 @@ def extract_size(
             # TODO: Determine this automatically
             prompt_base_token_length = 256
             for chunk in chunks(all_page, 8192 - prompt_base_token_length):
-                result: PromptOutput | None = lookup_term_prompt(model_name, chunk, district, term)
-                return [
+                result: PromptOutput | None = lookup_term_prompt(
+                    model_name, chunk, district, term
+                )
+                outputs.append(
                     LookupOutput(
                         output=result,
                         search_pages=pages,
                         search_pages_expanded=page_coverage(pages)[0],
                     )
-                ]
+                )
         case ExtractionMethod.MAP:
-            outputs = []
             with ThreadPoolExecutor(max_workers=20) as executor:
                 for page, result in executor.map(
-                    lambda page: (page, lookup_term_prompt(model_name, page.text, district, term)),
+                    lambda page: (
+                        page,
+                        lookup_term_prompt(model_name, page.text, district, term),
+                    ),
                     pages,
                 ):
                     outputs.append(
@@ -176,9 +185,8 @@ def extract_size(
                             search_pages_expanded=page_coverage([page])[0],
                         )
                     )
-            return outputs
 
-    return []
+    return outputs
 
 
 def extract_all_sizes(

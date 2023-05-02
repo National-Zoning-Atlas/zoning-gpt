@@ -61,9 +61,6 @@ def main():
         gt_min_lot.iterrows(),
         total=len(gt_min_lot),
     ):
-        # for x in tqdm(gt_min_lot.iterrows(), total=len(gt_min_lot)):
-        # result = list(compute_eval_result(x[0][0], x[0][1], term, x[1]))
-        # sleep(0.25)  # Needed to avoid blowing rate limits on OpenAI API
         results.extend(result)
 
     results_df = pd.DataFrame(results)

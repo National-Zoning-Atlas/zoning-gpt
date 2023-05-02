@@ -16,3 +16,4 @@ streamlit
 tiktoken
 guardrails-ai
 pydantic
+retry
