@@ -23,6 +23,7 @@ def compute_eval_result(town: str, district_name: str, term: str, row):
         6,
         method=ExtractionMethod.MAP,
         # model_name="gpt-4"
+        # model_name="gpt-3.5-turbo"
         model_name="text-davinci-003",
     )
     gt_page = set(map(int, str(row.min_lot_size_page_gt).split(",")))

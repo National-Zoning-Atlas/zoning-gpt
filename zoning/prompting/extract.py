@@ -7,7 +7,7 @@ from typing import Generator, Optional
 
 import openai
 import rich
-from jinja2 import Template, Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader
 from joblib import Memory
 from pydantic import BaseModel, ValidationError
 from retry import retry
@@ -57,18 +57,23 @@ class AllLookupOutput(BaseModel):
     district: District
     sizes: dict[str, list[LookupOutput]]
 
+TEMPLATE_MAPPING = {
+    "text-davinci-003": extraction_completion_tmpl,
+    "gpt-3.5-turbo": extraction_chat_completion_tmpl,
+    "gpt-4": extraction_chat_completion_tmpl,
+}
 
-# @memory.cache
+@memory.cache
 @retry(exceptions=openai.error.RateLimitError, tries=-1, delay=10, backoff=2, jitter=(1, 10))  # type: ignore
 def lookup_term_prompt(
-    model_name: str, page_text, district, term
+    model_name: str, page_text, district, term, template_mapping=TEMPLATE_MAPPING
 ) -> PromptOutput | None:
     match model_name:
         case "text-davinci-003":
             resp = openai.Completion.create(
                 model=model_name,
                 max_tokens=256,
-                prompt=extraction_completion_tmpl.render(
+                prompt=template_mapping[model_name].render(
                     passage=page_text,
                     term=term,
                     synonyms=", ".join(thesaurus.get(term, [])),
@@ -85,7 +90,7 @@ def lookup_term_prompt(
                 messages=[
                     {
                         "role": "system",
-                        "content": extraction_chat_completion_tmpl.render(
+                        "content": template_mapping[model_name].render(
                             term=term,
                             synonyms=", ".join(thesaurus.get(term, [])),
                             zone_name=district["T"],
