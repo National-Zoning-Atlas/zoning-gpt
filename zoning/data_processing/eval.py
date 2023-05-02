@@ -128,22 +128,20 @@ def main():
         )
 
         metrics = {
-            terms_code[i]: {
-                "num_results": num_results,
-                "num_correct_page_searched": num_correct_page_searched,
-                "num_correct_page_extracted": num_correct_page_extracted,
-                "num_correct_answer": num_correct_answer,
-                "page_search_recall": num_correct_page_searched
-                / len(search_results_df),
-                "page_extract_recall": num_correct_page_extracted
-                / len(search_results_df),
-                # This is the answer accuracy conditional on the correct page having been looked up by ES
-                "conditional_answer_accuracy": len(
-                    search_results_df.query("correct_page_searched > 0 & correct_answer > 0")
-                )
-                / num_correct_page_searched,
-                "answer_accuracy": num_correct_answer / len(search_results_df),
-            }
+            "num_results": num_results,
+            "num_correct_page_searched": num_correct_page_searched,
+            "num_correct_page_extracted": num_correct_page_extracted,
+            "num_correct_answer": num_correct_answer,
+            "page_search_recall": num_correct_page_searched
+            / len(search_results_df),
+            "page_extract_recall": num_correct_page_extracted
+            / len(search_results_df),
+            # This is the answer accuracy conditional on the correct page having been looked up by ES
+            "conditional_answer_accuracy": len(
+                search_results_df.query("correct_page_searched > 0 & correct_answer > 0")
+            )
+            / num_correct_page_searched,
+            "answer_accuracy": num_correct_answer / len(search_results_df),
         }
 
         append_to_yaml(EVAL_METRICS_PATH, term=terms_code[i], data=metrics)
