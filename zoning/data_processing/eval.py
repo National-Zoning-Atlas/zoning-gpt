@@ -22,8 +22,8 @@ def compute_eval_result(town: str, district_name: str, term: str, row):
         term,
         6,
         method=ExtractionMethod.MAP,
-        # model_name="gpt-3.5-turbo"
-        model_name="text-davinci-003"
+        model_name="gpt-3.5-turbo"
+        # model_name="text-davinci-003",
     )
     gt_page = set(map(int, str(row.min_lot_size_page_gt).split(",")))
     for result in outputs:
@@ -56,8 +56,12 @@ def main():
     term = "min lot size"
 
     results = []
-    for result in thread_map(lambda x: list(compute_eval_result(x[0][0], x[0][1], term, x[1])), gt_min_lot.iterrows(), total=len(gt_min_lot)):
-    # for x in tqdm(gt_min_lot.iterrows(), total=len(gt_min_lot)):
+    for result in thread_map(
+        lambda x: list(compute_eval_result(x[0][0], x[0][1], term, x[1])),
+        gt_min_lot.iterrows(),
+        total=len(gt_min_lot),
+    ):
+        # for x in tqdm(gt_min_lot.iterrows(), total=len(gt_min_lot)):
         # result = list(compute_eval_result(x[0][0], x[0][1], term, x[1]))
         # sleep(0.25)  # Needed to avoid blowing rate limits on OpenAI API
         results.extend(result)
@@ -83,19 +87,30 @@ def main():
     # groupby to calculate search page recall
     search_results_df = (
         results_df.groupby(by=["town", "district"])
-        .agg({"correct_page_searched": "sum"})
+        .agg(
+            {
+                "correct_page_searched": "sum",
+                "correct_page_extracted": "sum",
+                "correct_answer": "sum",
+            }
+        )
         .reset_index()
-    )
-    search_results_df["correct"] = search_results_df["correct_page_searched"].apply(
-        lambda x: 1 if x > 0 else 0
     )
 
     num_results = len(results_df)
     num_correct_page_searched = float(
-        search_results_df["correct"].sum()
-    )  # len(results_df.query("correct_page_searched"))
-    num_correct_page_extracted = len(results_df.query("correct_page_extracted"))
-    num_correct_answer = len(results_df.query("correct_answer"))
+        search_results_df["correct_page_searched"]
+        .apply(lambda x: 1 if x > 0 else 0)
+        .sum()
+    )
+    num_correct_page_extracted = float(
+        search_results_df["correct_page_extracted"]
+        .apply(lambda x: 1 if x > 0 else 0)
+        .sum()
+    )
+    num_correct_answer = float(
+        search_results_df["correct_answer"].apply(lambda x: 1 if x > 0 else 0).sum()
+    )
 
     with EVAL_METRICS_PATH.open("w", encoding="utf-8") as f:
         yaml.dump(
@@ -105,14 +120,15 @@ def main():
                 "num_correct_page_extracted": num_correct_page_extracted,
                 "num_correct_answer": num_correct_answer,
                 "page_search_recall": num_correct_page_searched
-                / search_results_df.shape[0],
-                "page_extract_recall": num_correct_page_extracted / num_results,
+                / len(search_results_df),
+                "page_extract_recall": num_correct_page_extracted
+                / len(search_results_df),
                 # This is the answer accuracy conditional on the correct page having been looked up by ES
                 "conditional_answer_accuracy": len(
                     results_df.query("correct_page_searched & correct_answer")
                 )
                 / num_correct_page_searched,
-                "answer_accuracy": num_correct_answer / num_results,
+                "answer_accuracy": num_correct_answer / len(search_results_df),
             },
             f,
         )
