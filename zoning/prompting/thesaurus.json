@@ -2,6 +2,7 @@
 
     "zoning district": ["zone", "district"],
     "min": ["min", "minimum", "min."],
+    "max": ["max", "maximum", "max."],
     "min lot size": ["min lot size", "min lot coverage", "min parcel size", "min lot and building", "area and bulk", "min dimensional", "min lot area", "lot area", "min area", "min lot area", "min lot and area", "min lot", "min lot requirements", "min parcel area", "lot size", "lot and building", "dimensional", "min lot", "lot requirements", "lot and building requirements", "area requirements", "area and bulk requirements", "dimensional requirements"],
     "min unit size": ["min unit size", "minimum unit size", "min floor area", "min livable floor area", "minimum building size", "minimum floor area", "unit size", "minimum size", "floor area", "minimum livable floor area"],
     "floor-to-area ratio": ["floor to area", "FAR", "floor area ratio", "F.A.R.", "Floor to area", "Floor-to-area", "Floor-area ratio"],

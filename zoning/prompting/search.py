@@ -32,11 +32,15 @@ def nearest_pages(town, district, term="min lot size") -> list[PageSearchOutput]
     )
 
     min_variations = thesaurus.get("min", [])
+    max_variations = thesaurus.get("max", [])
     term_expansion = []
     for query in thesaurus.get(term, []):
         if "min" in query or "minimum" in query:
             for r in min_variations:
                 term_expansion.append(Q("match_phrase", Text=query.replace("min", r)))
+        elif "max" in query or "maximum" in query:
+            for r in max_variations:
+                term_expansion.append(Q("match_phrase", Text=query.replace("max", r)))
         else:
             term_expansion.append(Q("match_phrase", Text=query))
 

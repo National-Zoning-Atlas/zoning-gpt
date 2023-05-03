@@ -22,7 +22,7 @@ def compute_eval_result(town: str, district_name: str, term: str, term_code: str
         dict(T=district_name, Z=row.district_abb),
         term,
         6,
-        method=ExtractionMethod.NONE,
+        method=ExtractionMethod.MAP,
         # model_name="gpt-4"
         # model_name="gpt-3.5-turbo"
         model_name="text-davinci-003",
@@ -39,6 +39,7 @@ def compute_eval_result(town: str, district_name: str, term: str, term_code: str
         yield {
             "town": town,
             "district": district_name,
+            "term": term_code,
             "expected": row[f"{term_code}_gt"],
             "actual": result.output.answer if result.output is not None else None,
             "correct_page_searched": any(gt_page & searched_pages_expanded),
@@ -97,7 +98,7 @@ def main():
             correct_answer=results_df.actual_normalized == results_df.expected_normalized
         )
 
-        results_df.to_csv(EVAL_OUTPUT_PATH, index=False)
+        results_df.to_csv(EVAL_OUTPUT_PATH, index=False, mode="w" if first else "a")
 
         # groupby to calculate search page recall
         search_results_df = (
@@ -146,6 +147,7 @@ def main():
 
         append_to_yaml(EVAL_METRICS_PATH, term=terms_code[i], data=metrics)
 
+        first = False
 
 if __name__ == "__main__":
     main()
