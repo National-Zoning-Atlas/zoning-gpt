@@ -96,15 +96,15 @@ stages:
       md5: cdd9b0b79ac4ed02da5897315ccc15df
       size: 91
     - path: zoning/data_processing/eval.py
-      md5: a2c9dd83648f2652cd9a13776b7e2872
-      size: 5532
+      md5: 5f6ac3a26bf6a666253508c70ae9c9d9
+      size: 5572
     - path: zoning/data_processing/index_towns.py
       md5: cd3c4af8c8e19c9927e28912aaf7ced5
       size: 1580
     outs:
     - path: data/results/eval.csv
-      md5: 1462e912c579c50a16bef54f334a60b2
-      size: 72198
+      md5: 75282be4e22f84f772850a7e986c2bf0
+      size: 71202
     - path: data/results/eval.yaml
-      md5: d434a6f5a3003b90a95844b509d5fcc4
-      size: 603
+      md5: cd8efa1d54625236187491d204d03e4c
+      size: 605

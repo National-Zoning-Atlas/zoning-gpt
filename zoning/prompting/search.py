@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from itertools import islice
 
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Q, Search
@@ -64,12 +65,11 @@ def nearest_pages(town, district, term="min lot size") -> list[PageSearchOutput]
 
 def page_coverage(search_result: list[PageSearchOutput]) -> list[list[int]]:
     pages_covered = []
-    for i in range(len(search_result)):
-        text = search_result[i].text
-        chunks = text.split("NEW PAGE ")
+    for r in search_result:
+        chunks = r.text.split("NEW PAGE ")
         pages = []
-        for j in range(1, len(chunks)):
-            page = chunks[j].split('\n')[0]
+        for chunk in chunks[1:]:
+            page = chunk.split('\n')[0]
             pages.append(int(page))
         pages_covered.append(pages)
     return pages_covered

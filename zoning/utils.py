@@ -6,6 +6,9 @@ from typing import Any
 from git.repo import Repo
 import yaml
 
+def flatten(l):
+    return [item for sublist in l for item in sublist]
+
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(lst), n):

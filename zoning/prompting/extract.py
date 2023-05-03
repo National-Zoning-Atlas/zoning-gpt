@@ -12,7 +12,7 @@ from joblib import Memory
 from pydantic import BaseModel, ValidationError
 from retry import retry
 
-from ..utils import chunks, get_project_root, load_jsonl
+from ..utils import chunks, flatten, get_project_root, load_jsonl
 from .eval_results import clean_string_units
 from .search import (
     PageSearchOutput,
@@ -25,7 +25,9 @@ with Path(__file__).parent.joinpath("thesaurus.json").open(encoding="utf-8") as 
     thesaurus = json.load(f)
 
 env = Environment(loader=FileSystemLoader(get_project_root() / "templates"))
-extraction_chat_completion_tmpl = env.get_template("extraction_chat_completion.pmpt.tpl")
+extraction_chat_completion_tmpl = env.get_template(
+    "extraction_chat_completion.pmpt.tpl"
+)
 extraction_completion_tmpl = env.get_template("extraction_completion.pmpt.tpl")
 
 memory = Memory(get_project_root() / ".joblib_cache", verbose=0)
@@ -40,6 +42,7 @@ class PromptOutput(BaseModel):
     answer: str
     extracted_text: str
     pages: list[int]
+    confidence: float
 
 
 class LookupOutput(BaseModel):
@@ -57,11 +60,13 @@ class AllLookupOutput(BaseModel):
     district: District
     sizes: dict[str, list[LookupOutput]]
 
+
 TEMPLATE_MAPPING = {
     "text-davinci-003": extraction_completion_tmpl,
     "gpt-3.5-turbo": extraction_chat_completion_tmpl,
     "gpt-4": extraction_chat_completion_tmpl,
 }
+
 
 @memory.cache
 @retry(exceptions=openai.error.RateLimitError, tries=-1, delay=10, backoff=2, jitter=(1, 10))  # type: ignore
@@ -141,7 +146,7 @@ def extract_size(
     if len(pages) == 0:
         return []
 
-    outputs = []  # if only running search
+    outputs = []
     match method:
         case ExtractionMethod.NONE:
             for page in pages:
@@ -149,7 +154,7 @@ def extract_size(
                     LookupOutput(
                         output=None,
                         search_pages=[page],
-                        search_pages_expanded=page_coverage([page])[0],
+                        search_pages_expanded=flatten(page_coverage([page])),
                     )
                 )
         case ExtractionMethod.STUFF:
@@ -161,14 +166,11 @@ def extract_size(
             # TODO: Determine this automatically
             prompt_base_token_length = 256
             for chunk in chunks(all_page, 8192 - prompt_base_token_length):
-                result: PromptOutput | None = lookup_term_prompt(
-                    model_name, chunk, district, term
-                )
                 outputs.append(
                     LookupOutput(
-                        output=result,
+                        output=lookup_term_prompt(model_name, chunk, district, term),
                         search_pages=pages,
-                        search_pages_expanded=page_coverage(pages)[0],
+                        search_pages_expanded=flatten(page_coverage(pages)),
                     )
                 )
         case ExtractionMethod.MAP:
@@ -184,11 +186,13 @@ def extract_size(
                         LookupOutput(
                             output=result,
                             search_pages=[page],
-                            search_pages_expanded=page_coverage([page])[0],
+                            search_pages_expanded=flatten(page_coverage([page])),
                         )
                     )
 
-    return outputs
+    return sorted(
+        outputs, key=lambda x: x.output.confidence if x.output else 0, reverse=True
+    )
 
 
 def extract_all_sizes(

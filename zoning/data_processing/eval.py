@@ -1,10 +1,8 @@
 import yaml
 import os
 
-from tqdm.auto import tqdm
 from tqdm.contrib.concurrent import thread_map
 import pandas as pd
-from time import sleep
 
 from ..prompting.eval_results import clean_string_units
 from ..prompting.extract import extract_size, ExtractionMethod
@@ -40,6 +38,7 @@ def compute_eval_result(town: str, district_name: str, term: str, term_code: str
             "town": town,
             "district": district_name,
             "term": term_code,
+            "confidence": result.output.confidence if result.output is not None else 0.0,
             "expected": row[f"{term_code}_gt"],
             "actual": result.output.answer if result.output is not None else None,
             "correct_page_searched": int(any(gt_page & searched_pages_expanded)),
