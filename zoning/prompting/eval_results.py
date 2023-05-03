@@ -14,15 +14,43 @@ def get_results(file):
       json_lines = (json.loads(l) for l in f.readlines())
       return list(json_lines)
 
+def extract_fraction_decimal(text):
+    fraction_pattern = r'\d+\s*\d*\/\d+'
+    fractions = re.findall(fraction_pattern, text)
+    if fractions:
+        fraction = fractions[0]
+        if ' ' in fraction:
+            whole, fraction = fraction.split()
+            numerator, denominator = map(int, fraction.split('/'))
+            decimal_value = int(whole) + numerator / denominator
+        else:
+            numerator, denominator = map(int, fraction.split('/'))
+            decimal_value = numerator / denominator
+        return decimal_value
+    else:
+        return None
+
 def clean_string_units(x):
-  res = []
-  if any(substring in str(x) for substring in ['sq ft', 'square feet', 'sq. ft.', 'sq. ft', 'sqft', 'ft2', 'ft^2']):
-    res =  re.findall(r'(?:\d{4,}|\d{1,3}(?:,\d{3})*)(?:\.\d+)?', x)
-    res = [float(a.replace(',', '')) for a in res]
-  if any(substring in str(x) for substring in ['acres', 'acre', 'acreage']):
-    res =  re.findall(r'(?:\d{4,}|\d{1,3}(?:,\d{3})*)(?:\.\d+)?', x)
-    res = [float(a.replace(',', '')) * 43560 for a in res]
-  return res
+    res = []
+    x = x.lower() if isinstance(x, str) else x
+    if any(substring in str(x) for substring in ['sq ft', 'square feet', 'sq. ft.', 'sq. ft', 'sqft',
+                                               'ft2', 'ft^2', 'sf', 's.f.', 'SF', 'sq.ft.', 'sq-ft', 'sq. Ft.']):
+        if '/' in x:
+          x_split = x.split('/')
+          num = len(x_split) - 1
+          res = [extract_fraction_decimal(x) for i in range(num)]
+        else:
+          res =  re.findall(r'(?:\d{4,}|\d{1,3}(?:,\d{3})*)(?:\.\d+)?', x)
+          res = [float(a.replace(',', '')) for a in res]
+    if any(substring in str(x) for substring in ['acres', 'acre', 'acreage', '-acre']):
+        if '/' in x:
+          x_split = x.split('/')
+          num = len(x_split) - 1
+          res = [extract_fraction_decimal(x) * 43560 for i in range(num)]
+        else:
+          res =  re.findall(r'(?:\d{4,}|\d{1,3}(?:,\d{3})*)(?:\.\d+)?', x)
+          res = [float(a.replace(',', '')) * 43560 for a in res]
+    return res
 
 def clean_gt(x):
   res = []

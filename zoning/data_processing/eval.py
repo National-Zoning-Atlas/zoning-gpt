@@ -22,10 +22,10 @@ def compute_eval_result(town: str, district_name: str, term: str, term_code: str
         dict(T=district_name, Z=row.district_abb),
         term,
         6,
-        method=ExtractionMethod.NONE,
+        method=ExtractionMethod.MAP,
         # model_name="gpt-4"
-        model_name="gpt-3.5-turbo"
-        # model_name="text-davinci-003",
+        # model_name="gpt-3.5-turbo"
+        model_name="text-davinci-003",
     )
     gt_page = set(map(int, str(row[f"{term_code}_page_gt"]).split(",")))
     for result in outputs:

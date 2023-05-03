@@ -136,13 +136,7 @@ def extract_size(
     model_name: str = "text-davinci-003",
 ) -> list[LookupOutput]:
     pages = nearest_pages(town, district, term)
-    #pages = get_non_overlapping_chunks(pages)[:top_k_pages]
-
-    if town == "ansonia":
-        print("with overlap", [page.page_number for page in pages])
     pages = get_non_overlapping_chunks(pages)[:top_k_pages]
-    if town == "ansonia":
-        print("without overlap", [page.page_number for page in pages])
 
     if len(pages) == 0:
         return []
