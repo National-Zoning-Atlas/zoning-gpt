@@ -81,18 +81,42 @@ def get_non_overlapping_chunks(search_result: list[PageSearchOutput]) -> list[Pa
     non_overlapping_chunks: list[PageSearchOutput] = []
     for i, index in enumerate(indices):
         has_overlap = False
-        score_delta = 0
         current_pages = set(pages_covered[i])
         for prev_index in non_overlapping_indices:
             prev_pages = set(pages_covered[indices.index(prev_index)])
             if current_pages.intersection(prev_pages):
                 has_overlap = True
-                score_delta = search_result[i-1].score - search_result[i].score
                 break
         if not has_overlap:
             non_overlapping_indices.append(index)
             non_overlapping_chunks.append(search_result[i])
     return non_overlapping_chunks
+
+# def get_non_overlapping_chunks(search_result: list[PageSearchOutput]) -> list[PageSearchOutput]:
+#     sorted_result = sorted(search_result, key=lambda x: x.page_number)
+#     indices = [r.page_number for r in sorted_result]
+#     pages_covered = page_coverage(sorted_result)
+#     non_overlapping_chunks: list[PageSearchOutput] = []
+#     i = 0
+#     while i < len(indices):
+#         current_pages = set(pages_covered[i])
+#         max_chunk = sorted_result[i]
+#         max_index = indices[i]
+#         i += 1
+#         # Find all overlapping chunks and keep track of the highest value
+#         while i < len(indices) and current_pages.intersection(set(pages_covered[i])):
+#             next_index = indices[i]
+#             if next_index > max_index:
+#                 max_chunk = sorted_result[i]
+#                 max_index = next_index
+#                 current_pages.update(pages_covered[i])
+#             i += 1
+#         non_overlapping_chunks.append(max_chunk)
+#     return non_overlapping_chunks
+
+
+
+
 
 def main():
     districts_file = get_project_root() / "data" / "results" / "districts_gt.jsonl"

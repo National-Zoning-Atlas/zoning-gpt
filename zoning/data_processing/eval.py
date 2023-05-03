@@ -22,10 +22,10 @@ def compute_eval_result(town: str, district_name: str, term: str, term_code: str
         dict(T=district_name, Z=row.district_abb),
         term,
         6,
-        method=ExtractionMethod.MAP,
+        method=ExtractionMethod.NONE,
         # model_name="gpt-4"
-        # model_name="gpt-3.5-turbo"
-        model_name="text-davinci-003",
+        model_name="gpt-3.5-turbo"
+        # model_name="text-davinci-003",
     )
     gt_page = set(map(int, str(row[f"{term_code}_page_gt"]).split(",")))
     for result in outputs:
@@ -42,8 +42,8 @@ def compute_eval_result(town: str, district_name: str, term: str, term_code: str
             "term": term_code,
             "expected": row[f"{term_code}_gt"],
             "actual": result.output.answer if result.output is not None else None,
-            "correct_page_searched": any(gt_page & searched_pages_expanded),
-            "correct_page_extracted": any(gt_page & extracted_pages),
+            "correct_page_searched": int(any(gt_page & searched_pages_expanded)),
+            "correct_page_extracted": int(any(gt_page & extracted_pages)),
             "gt_page": gt_page,
             "searched_pages": searched_pages,
             "searched_pages_expanded": searched_pages_expanded,
@@ -98,7 +98,7 @@ def main():
             correct_answer=results_df.actual_normalized == results_df.expected_normalized
         )
 
-        results_df.to_csv(EVAL_OUTPUT_PATH, index=False, mode="w" if first else "a")
+        results_df.to_csv(EVAL_OUTPUT_PATH, index=False, mode="w" if first else "a", header=first)
 
         # groupby to calculate search page recall
         search_results_df = (
