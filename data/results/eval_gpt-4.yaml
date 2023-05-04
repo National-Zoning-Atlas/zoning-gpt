@@ -1,18 +1,18 @@
-min_lot_size:
-  answer_accuracy: 0.810126582278481
-  conditional_answer_accuracy: 0.9057971014492754
-  num_correct_answer: 128.0
-  num_correct_page_extracted: 125.0
-  num_correct_page_searched: 138.0
-  num_results: 513
-  page_extract_recall: 0.7911392405063291
-  page_search_recall: 0.8734177215189873
-min_unit_size:
-  answer_accuracy: 0.5757575757575758
-  conditional_answer_accuracy: 0.75
-  num_correct_answer: 19.0
-  num_correct_page_extracted: 21.0
-  num_correct_page_searched: 24.0
-  num_results: 104
-  page_extract_recall: 0.6363636363636364
-  page_search_recall: 0.7272727272727273
+min lot size:
+  answer_accuracy: 0.8425925925925926
+  conditional_answer_accuracy: 0.9251336898395722
+  num_correct_answer: 182
+  num_correct_page_extracted: 172
+  num_correct_page_searched: 187
+  num_results: 701
+  page_extract_recall: 0.7962962962962963
+  page_search_recall: 0.8657407407407407
+min unit size:
+  answer_accuracy: 0.8724489795918368
+  conditional_answer_accuracy: 0.9464285714285714
+  num_correct_answer: 171
+  num_correct_page_extracted: 160
+  num_correct_page_searched: 168
+  num_results: 552
+  page_extract_recall: 0.8163265306122449
+  page_search_recall: 0.8571428571428571

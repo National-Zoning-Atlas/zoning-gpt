@@ -1,4 +1,3 @@
-import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pandas as pd
@@ -99,7 +98,8 @@ def evaluate_term(term: str, term_code: str, gt: pd.DataFrame, progress: Progres
     # Explode expected values so that we have one row per expected-actual-value pair.
     results_df = results_df.assign().explode("expected_normalized")
     results_df = results_df.assign(
-        correct_answer=results_df.actual_normalized == results_df.expected_normalized
+        # NaN != NaN, so we need to replace this with alternative values to correctly compare fields where no answer is expected.
+        correct_answer=results_df.actual_normalized.fillna("N/A").eq(results_df.expected_normalized.fillna("N/A"))
     )
 
     # groupby to calculate search page recall
@@ -146,8 +146,6 @@ def main():
     terms = ["min lot size", "min unit size"]  # update to list of terms you want to run
 
     terms_code = [term.replace(" ", "_") for term in terms]
-    first = True
-
     metrics = {}
 
     with Progress(
@@ -159,10 +157,12 @@ def main():
         for i, term in enumerate(terms):
             metrics[term], results_df = evaluate_term(term, terms_code[i], gt, progress)
             results_df.to_csv(
-                EVAL_OUTPUT_PATH, index=False, mode="w" if first else "a", header=first
+                EVAL_OUTPUT_PATH,
+                index=False,
+                mode="w" if i == 0 else "a",
+                header=i == 0,
             )
             progress.advance(term_task)
-            first = False
 
     with EVAL_METRICS_PATH.open("w", encoding="utf-8") as f:
         yaml.dump(metrics, f)
