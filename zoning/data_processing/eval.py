@@ -1,5 +1,5 @@
 import os
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pandas as pd
 import yaml
@@ -55,29 +55,32 @@ def evaluate_term(term: str, term_code: str, gt: pd.DataFrame, progress: Progres
     gt_term = gt.query(f"~{term_code}_gt.isna() & ~{term_code}_page_gt.isna()")
     eval_task = progress.add_task(f"Evaluating {term}", total=len(gt_term))
 
+    result_fs = []
     results = []
     with ThreadPoolExecutor(max_workers=20) as executor:
-        for result in executor.map(
-            lambda x: list(
-                compute_eval_result(x[0][0], x[0][1], term, term_code, x[1])
-            ),
-            gt_term.iterrows(),
-        ):
+        for index, row in gt_term.iterrows():
+            town, district = index
+            result_fs.append(
+                executor.submit(
+                    compute_eval_result, town, district, term, term_code, row
+                )
+            )
+
+        for result in as_completed(result_fs):
             progress.advance(eval_task)
-            results.extend(result)
+            results.extend(result.result())
 
     results_df = pd.DataFrame(results)
 
     # Attempt to normalize LLM responses
     results_df = results_df.assign(
-        actual_normalized=results_df.actual.apply(clean_string_units)
-    ).explode("actual_normalized")
-    # Explode expected values so that we have one row per expected-actual-value pair.
-    results_df = results_df.assign(
+        actual_normalized=results_df.actual.apply(clean_string_units),
         expected_normalized=results_df.expected.apply(
             lambda s: [float(f.strip()) for f in s.split(",")]
-        )
-    ).explode("expected_normalized")
+        ),
+    ).explode("actual_normalized")
+    # Explode expected values so that we have one row per expected-actual-value pair.
+    results_df = results_df.assign().explode("expected_normalized")
     results_df = results_df.assign(
         correct_answer=results_df.actual_normalized == results_df.expected_normalized
     )
@@ -96,19 +99,13 @@ def evaluate_term(term: str, term_code: str, gt: pd.DataFrame, progress: Progres
     )
 
     num_results = len(results_df)
-    num_correct_page_searched = float(
-        search_results_df["correct_page_searched"]
-        .apply(lambda x: 1 if x > 0 else 0)
-        .sum()
+    num_correct_page_searched = len(
+        search_results_df.query("correct_page_searched > 0")
     )
-    num_correct_page_extracted = float(
-        search_results_df["correct_page_extracted"]
-        .apply(lambda x: 1 if x > 0 else 0)
-        .sum()
+    num_correct_page_extracted = len(
+        search_results_df.query("correct_page_extracted > 0")
     )
-    num_correct_answer = float(
-        search_results_df["correct_answer"].apply(lambda x: 1 if x > 0 else 0).sum()
-    )
+    num_correct_answer = len(search_results_df.query("correct_answer > 0"))
 
     return {
         "num_results": num_results,
