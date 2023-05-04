@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pandas as pd
 import yaml
-from rich.progress import Progress
+from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 
 from ..prompting.eval_results import clean_string_units
 from ..prompting.extract import ExtractionMethod, extract_size
@@ -24,7 +24,15 @@ def compute_eval_result(town: str, district_name: str, term: str, term_code: str
         method=ExtractionMethod.MAP,
         model_name="gpt-4",
     )
-    gt_page = set(map(int, str(row[f"{term_code}_page_gt"]).split(",")))
+    gt_page = row[f"{term_code}_page_gt"]
+    if pd.isna(gt_page):
+        # No ground truth page
+        gt_page = set()
+    else:
+        gt_page = set(map(int, str(gt_page).split(",")))
+
+    expected = row[f"{term_code}_gt"]
+
     for result in outputs:
         searched_pages = {r.page_number for r in result.search_pages}
         searched_pages_expanded = set(result.search_pages_expanded)
@@ -40,10 +48,20 @@ def compute_eval_result(town: str, district_name: str, term: str, term_code: str
             "confidence": result.output.confidence
             if result.output is not None
             else 0.0,
-            "expected": row[f"{term_code}_gt"],
+            "expected": expected if not pd.isna(expected) else None,
             "actual": result.output.answer if result.output is not None else None,
-            "correct_page_searched": int(any(gt_page & searched_pages_expanded)),
-            "correct_page_extracted": int(any(gt_page & extracted_pages)),
+            # For determining the correct page, we consider the page to be
+            # correct if the ground truth was also blank and GPT did not return
+            # an answer. Note that search always returns some page, so we ignore
+            # that result as long as GPT ignored it.
+            "correct_page_searched": int(
+                any(gt_page & searched_pages_expanded)
+                or (len(gt_page) == 0 and result.output is None)
+            ),
+            "correct_page_extracted": int(
+                any(gt_page & extracted_pages)
+                or (len(gt_page) == 0 and len(extracted_pages) == 0)
+            ),
             "gt_page": gt_page,
             "searched_pages": searched_pages,
             "searched_pages_expanded": searched_pages_expanded,
@@ -52,13 +70,12 @@ def compute_eval_result(town: str, district_name: str, term: str, term_code: str
 
 
 def evaluate_term(term: str, term_code: str, gt: pd.DataFrame, progress: Progress):
-    gt_term = gt.query(f"~{term_code}_gt.isna() & ~{term_code}_page_gt.isna()")
-    eval_task = progress.add_task(f"Evaluating {term}", total=len(gt_term))
+    eval_task = progress.add_task(f"Evaluating {term}", total=len(gt))
 
     result_fs = []
     results = []
     with ThreadPoolExecutor(max_workers=20) as executor:
-        for index, row in gt_term.iterrows():
+        for index, row in gt.iterrows():
             town, district = index
             result_fs.append(
                 executor.submit(
@@ -76,7 +93,7 @@ def evaluate_term(term: str, term_code: str, gt: pd.DataFrame, progress: Progres
     results_df = results_df.assign(
         actual_normalized=results_df.actual.apply(clean_string_units),
         expected_normalized=results_df.expected.apply(
-            lambda s: [float(f.strip()) for f in s.split(",")]
+            lambda s: [float(f.strip()) for f in s.split(",")] if s is not None else []
         ),
     ).explode("actual_normalized")
     # Explode expected values so that we have one row per expected-actual-value pair.
@@ -133,7 +150,11 @@ def main():
 
     metrics = {}
 
-    with Progress() as progress:
+    with Progress(
+        SpinnerColumn(),
+        *Progress.get_default_columns(),
+        TimeElapsedColumn(),
+    ) as progress:
         term_task = progress.add_task("Terms", total=len(terms))
         for i, term in enumerate(terms):
             metrics[term], results_df = evaluate_term(term, terms_code[i], gt, progress)
