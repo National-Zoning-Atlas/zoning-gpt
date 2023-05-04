@@ -1,0 +1,18 @@
+min_lot_size:
+  answer_accuracy: 0.43670886075949367
+  conditional_answer_accuracy: 0.4855072463768116
+  num_correct_answer: 69.0
+  num_correct_page_extracted: 71.0
+  num_correct_page_searched: 138.0
+  num_results: 503
+  page_extract_recall: 0.44936708860759494
+  page_search_recall: 0.8734177215189873
+min_unit_size:
+  answer_accuracy: 0.5151515151515151
+  conditional_answer_accuracy: 0.6666666666666666
+  num_correct_answer: 17.0
+  num_correct_page_extracted: 14.0
+  num_correct_page_searched: 24.0
+  num_results: 105
+  page_extract_recall: 0.42424242424242425
+  page_search_recall: 0.7272727272727273
