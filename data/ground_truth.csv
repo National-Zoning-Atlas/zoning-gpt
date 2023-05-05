@@ -1,4 +1,4 @@
-town,district_abb,district,district_page,min_lot_size_acres_gt_orig,min_lot_size_gt,min_lot_size_page_gt,min_unit_size_sf_gt_orig,min_unit_size_gt,min_unit_size_page_gt,review,notes
+town,district_abb,district,district_page,min_lot_size_gt_orig,min_lot_size_gt,min_lot_size_page_gt,min_unit_size_gt_orig,min_unit_size_gt,min_unit_size_page_gt,review,notes
 andover,AL,Andover Lake,14,1.38 (year-round); 0.69 (seasonal),,,500,500,41,,
 ansonia,AA,AA Residence,17,0.69,30000,52,,,,,
 ashford,TD,Technology Development,21,,,,900,900,29,,

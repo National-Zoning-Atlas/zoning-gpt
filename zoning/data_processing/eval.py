@@ -48,6 +48,7 @@ def compute_eval_result(town: str, district_name: str, term: str, term_code: str
             if result.output is not None
             else 0.0,
             "expected": expected if not pd.isna(expected) else None,
+            "expected_extended": row[f"{term_code}_gt_orig"],
             "actual": result.output.answer if result.output is not None else None,
             # For determining the correct page, we consider the page to be
             # correct if the ground truth was also blank and GPT did not return
