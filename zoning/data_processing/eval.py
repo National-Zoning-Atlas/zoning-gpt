@@ -6,6 +6,7 @@ from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 
 from ..prompting.eval_results import clean_string_units
 from ..prompting.extract import ExtractionMethod, extract_size
+from ..prompting.semantic_comparison import semantic_comparison
 from ..utils import get_project_root
 
 DATA_ROOT = get_project_root() / "data"
@@ -69,12 +70,34 @@ def compute_eval_result(town: str, district_name: str, term: str, term_code: str
         }
 
 
+def compare_results(
+    actual_normalized: float | None, actual_raw: str | None, expected: str | None, expected_extended: str | None
+) -> bool:
+    # Normalize responses to None if they are any pandas empty value.
+    actual_raw = None if pd.isna(actual_raw) else actual_raw
+    actual_normalized = None if pd.isna(actual_normalized) else actual_normalized
+    expected = None if pd.isna(expected) else expected
+    expected_extended = None if pd.isna(expected_extended) else expected_extended
+
+    if actual_raw is not None and expected is None and expected_extended is not None:
+        # If no normalized expected answer exists, but an extended one does,
+        # then compare the un-normalized answer from the LLM with our extended
+        # ground truth using an LLM comparison. 
+
+        # TODO: If this returns true, then what we actually want to return to
+        # the user is the raw answer, not the normalized one.
+        return semantic_comparison(expected_extended, actual_raw)
+    else:
+        # The correct answer is something simple (or nothing)
+        return actual_normalized == expected
+
+
 def evaluate_term(term: str, term_code: str, gt: pd.DataFrame, progress: Progress):
     eval_task = progress.add_task(f"Evaluating {term}", total=len(gt))
 
     result_fs = []
     results = []
-    with ThreadPoolExecutor(max_workers=20) as executor:
+    with ThreadPoolExecutor(max_workers=10) as executor:
         for index, row in gt.iterrows():
             town, district = index
             result_fs.append(
@@ -84,23 +107,34 @@ def evaluate_term(term: str, term_code: str, gt: pd.DataFrame, progress: Progres
             )
 
         for result in as_completed(result_fs):
-            progress.advance(eval_task)
             results.extend(result.result())
+            progress.advance(eval_task)
 
     results_df = pd.DataFrame(results)
 
     # Attempt to normalize LLM responses
-    results_df = results_df.assign(
-        actual_normalized=results_df.actual.apply(clean_string_units),
-        expected_normalized=results_df.expected.apply(
-            lambda s: [float(f.strip()) for f in s.split(",")] if s is not None else []
-        ),
-    ).explode("actual_normalized")
-    # Explode expected values so that we have one row per expected-actual-value pair.
-    results_df = results_df.assign().explode("expected_normalized")
+    # Explode all values so that we have one row per expected-actual-value pair.
+    results_df = (
+        results_df.assign(
+            actual_normalized=results_df.actual.apply(clean_string_units),
+            expected_normalized=results_df.expected.apply(
+                lambda s: [float(f.strip()) for f in s.split(",")]
+                if s is not None
+                else []
+            ),
+        )
+        .explode("actual_normalized")
+        .explode("expected_normalized")
+    )
     results_df = results_df.assign(
         # NaN != NaN, so we need to replace this with alternative values to correctly compare fields where no answer is expected.
-        correct_answer=results_df.actual_normalized.fillna("N/A").eq(results_df.expected_normalized.fillna("N/A"))
+        # correct_answer=results_df.actual_normalized.fillna("N/A").eq(results_df.expected_normalized.fillna("N/A"))
+        correct_answer=results_df.apply(
+            lambda row: compare_results(
+                row.actual_normalized, row.actual, row.expected_normalized, row.expected_extended
+            ),
+            axis=1,
+        )
     )
 
     # groupby to calculate search page recall

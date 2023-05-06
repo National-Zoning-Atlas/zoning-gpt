@@ -4,15 +4,21 @@ from enum import Enum
 from functools import reduce
 from pathlib import Path
 from typing import Generator, Optional
+from joblib import Memory
 
 import openai
 import rich
-from jinja2 import Environment, FileSystemLoader
-from joblib import Memory
 from pydantic import BaseModel, ValidationError
 from retry import retry
 
-from ..utils import chunks, flatten, get_project_root, load_jsonl
+from ..utils import (
+    chunks,
+    flatten,
+    get_jinja_environment,
+    get_project_cache,
+    get_project_root,
+    load_jsonl,
+)
 from .eval_results import clean_string_units
 from .search import (
     PageSearchOutput,
@@ -24,13 +30,14 @@ from .search import (
 with Path(__file__).parent.joinpath("thesaurus.json").open(encoding="utf-8") as f:
     thesaurus = json.load(f)
 
-env = Environment(loader=FileSystemLoader(get_project_root() / "templates"))
-extraction_chat_completion_tmpl = env.get_template(
+extraction_chat_completion_tmpl = get_jinja_environment().get_template(
     "extraction_chat_completion.pmpt.tpl"
 )
-extraction_completion_tmpl = env.get_template("extraction_completion.pmpt.tpl")
+extraction_completion_tmpl = get_jinja_environment().get_template(
+    "extraction_completion.pmpt.tpl"
+)
 
-memory = Memory(get_project_root() / ".joblib_cache", verbose=0)
+memory = Memory(get_project_root() / ".joblib_cache", verbose=2)
 
 
 class District(BaseModel):
@@ -40,7 +47,7 @@ class District(BaseModel):
 
 class PromptOutput(BaseModel):
     answer: str
-    extracted_text: str
+    extracted_text: list[str]
     pages: list[int]
     confidence: float
 
@@ -69,16 +76,16 @@ TEMPLATE_MAPPING = {
 
 
 @memory.cache
-@retry(exceptions=openai.error.RateLimitError, tries=-1, delay=10, backoff=2, jitter=(1, 10))  # type: ignore
+@retry(exceptions=(openai.error.APIError, openai.error.RateLimitError), tries=-1, delay=10, backoff=1.25, jitter=(1, 10))  # type: ignore
 def lookup_term_prompt(
-    model_name: str, page_text, district, term, template_mapping=TEMPLATE_MAPPING
+    model_name: str, page_text, district, term
 ) -> PromptOutput | None:
     match model_name:
         case "text-davinci-003":
             resp = openai.Completion.create(
                 model=model_name,
                 max_tokens=256,
-                prompt=template_mapping[model_name].render(
+                prompt=TEMPLATE_MAPPING[model_name].render(
                     passage=page_text,
                     term=term,
                     synonyms=", ".join(thesaurus.get(term, [])),
@@ -95,7 +102,7 @@ def lookup_term_prompt(
                 messages=[
                     {
                         "role": "system",
-                        "content": template_mapping[model_name].render(
+                        "content": TEMPLATE_MAPPING[model_name].render(
                             term=term,
                             synonyms=", ".join(thesaurus.get(term, [])),
                             zone_name=district["T"],

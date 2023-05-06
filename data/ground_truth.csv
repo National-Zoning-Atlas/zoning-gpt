@@ -1,5 +1,5 @@
 town,district_abb,district,district_page,min_lot_size_gt_orig,min_lot_size_gt,min_lot_size_page_gt,min_unit_size_gt_orig,min_unit_size_gt,min_unit_size_page_gt,review,notes
-andover,AL,Andover Lake,14,1.38 (year-round); 0.69 (seasonal),,,500,500,41,,
+andover,AL,Andover Lake,14,60000 (year-round); 30000 (seasonal),,97,500,500,41,,
 ansonia,AA,AA Residence,17,0.69,30000,52,,,,,
 ashford,TD,Technology Development,21,,,,900,900,29,,
 avon,IP,Industrial Park,"1,2",,,,,,,,
@@ -27,14 +27,14 @@ brooklyn,RB,Restricted Business,,0.459,20000,74,,,,,no single list of zones
 burlington,I,Industrial,5,1,43560,58,1000,1000,,Y,No min unit size for I zone?
 canaan-falls-village,Rural Business,Rural Business,,0.92,40000,21,,,,,no single list of zones
 canterbury,VC,Village Commercial,,,,,,,,,no single list of zones
-canton,R-3,R-3 Residential,,2 (front); 3 (rear),,70,,,,,no single list of zones
+canton,R-3,R-3 Residential,,87120 (front); 130680 (rear),,70,,,,,no single list of zones
 chaplin,AZ,Aquifer Protection,15,,,,,,,,
 cheshire,R-20A,Residential R-20A,18,,20000,90,,,,,
 chester,TW2,Tidal Wetlands,13,2,87120,34,,,,,
 clinton,B-2,Business-2,,0.23,10000,334,"900 for 1 story, 500 ground floor area for 2 story",,,Y,no single list of zones
 clinton,V-Z,Village,,0.23,10000,334,1000 for 1 story; 800 ground floor for 2 story,,,Y,no single list of zones
 clinton,EMVD,East Main Street Village,,0.23,10000,334,1000 for 1 story; 800 ground floor for 2 story,,,Y,
-colchester,SU,Suburban Use,3,30000 sq ft (w/ sewer); 40000 sq ft (w/o sewer),,15,1000 (one-story); 1200 (1.5 story); 1400 (two-story),,65,Y,district abbreviations not listed with districts
+colchester,SU,Suburban Use,3,30000 (w/ sewer); 40000 (w/o sewer),,15,1000 (one-story); 1200 (1.5 story); 1400 (two-story),,65,Y,district abbreviations not listed with districts
 colchester,WV,Westchester Village,3,0.9182736455,40000,25,1000 (one-story); 1200 (1.5 story); 1400 (two-story),,65,Y,district abbreviations not listed with districts
 colebrook,AP,Aquifer Protection Overlay,17,,,,,,,,
 columbia,MU,Mixed-Use,8,0.4591368228,20000,13,1000 (one-floor); 750 on first floor & 1250 on total (two-floor),,13,Y,
@@ -50,7 +50,7 @@ derby,I-C,Industrial Campus,44,,,,,,,,
 durham,FR,Farm Residential,17,2,87120,19,"960 for one floor, 1,150 for two floors",,23,Y,
 east-granby,PRD,Planned Residential,6,0.6887052342,30000,35,1400,1400,35,,
 east-haddam,C/B/IG,Commercial/Business/Light Industrial,23,,21780,"50, 55",,1000,"50,55",,
-east-hampton,R-3,R-3 Resource Residential,,1.03 (w/ sewer); 1.49 (w/o sewer),,62,,,,Y,no single list of zones
+east-hampton,R-3,R-3 Resource Residential,,45000 (w/ sewer); 65000 (w/o sewer),,62,,,,Y,no single list of zones
 east-hartford,B-1,Business 1,6,0.0872,5000,112,"1,000 (for a 1 floor dwelling); 1,200 (for a 2 floor dwelling)",,,Y,orig answers incorrect
 east-hartford,B-2,Business 2,6,0.0872,7500,125,"1,000 (for a 1 floor dwelling); 1,200 (for a 2 floor dwelling)",,,Y,orig answers incorrect
 east-hartford,DDD-2,Design Development II,6,,,,"950 (2br attached); 1,000 (2br detached); 1,150 (3br attached); 1,250 (3br detached)",,224,Y,
@@ -109,7 +109,7 @@ lyme,C-40,Commercial,13,,40000,22,,,,Y,missing answers but present in doc
 madison,R-2,R-2 Residential,6,0.92,40000,19,,,,,
 manchester,RR,Rural Residence,23,0.69,30000,57,1100,1100,57,,district abbreviations not listed with districts
 mansfield,PB-2,Planned Business 2,9,,,,,,,,
-marlborough,R,Residential,5,"80,000 sq ft (individual septic), 120,000 sq ft (yard septic), 50,000 (sewer)",,86,,,,Y,
+marlborough,R,Residential,5,"80000 sq ft (individual septic), 120000 sq ft (yard septic), 50000 (sewer)",,86,,,,Y,
 meriden,R-R,Rural Residential,19,0.92,40000,,,,,Y,Answer found in appendix that is not included in this document.
 meriden,C-2,General Commercial,19,,,,,,,Y,
 middlebury,LI-200,Light Industrial 200,8,,217800,149,,,,Y,missing answers but present in doc
@@ -139,9 +139,9 @@ newtown,R-2,Farming & Residential-R-2,24,1,87120,123,1500,1500,123,,orig lot siz
 newtown-borough,P,Professional,19,1,43560,43,,1500,43,Y,missing answers but present in doc
 norfolk,Village Business,Village Business,,0.11,5000,45,,,,,no single list of zones
 north-branford,I-3,Industrial I-3,29,,,,,,,Y,Answer found in appendix that is not included in this document.
-north-canaan,C-B,Central Business,6,0.5 (if served by water & sewer); 1.38 (if not),60000,19,,,,Y,"orig abbreviation incorrect, orig lot size incorrect, document is rotated"
-north-canaan,C,Commercial,6,0.5 (if served by water & sewer); 1.38 (if not),60000,19,,,,Y,"orig abbreviation incorrect, orig lot size incorrect, document is rotated"
-north-canaan,R,Residential,6,0.5 (if served by water & sewer); 1.38 (if not),,19,,,,Y,"orig abbreviation incorrect, document is rotated"
+north-canaan,C-B,Central Business,6,21780 (if served by water & sewer); 60000 (if not),60000,19,,,,Y,"orig abbreviation incorrect, orig lot size incorrect, document is rotated"
+north-canaan,C,Commercial,6,21780 (if served by water & sewer); 60000 (if not),60000,19,,,,Y,"orig abbreviation incorrect, orig lot size incorrect, document is rotated"
+north-canaan,R,Residential,6,21780 (if served by water & sewer); 60000 (if not),,19,,,,Y,"orig abbreviation incorrect, document is rotated"
 north-haven,RA-12,Residence-Apartment RA-12,15,0.28,12000,25,600 SF for 2 rooms; 700 for 3 rooms; each additional room 100,,,Y,could not verify min unit size
 norwalk,AA,AA Residence,"18,19",0.5,21780,,,,,Y,Answer found in appendix that is not included in this document.
 norwich,CC,Chelsea Central,,,5000,17,,,,Y,missing answers but present in doc
@@ -153,7 +153,7 @@ plainfield,RA-40,Residence A-40,18,0.92,40000,27,"650/1BR, 770/2BR, 950/3BR, plu
 plainville,QI,Quarry Industrial,,,,45,,,,,no single list of zones
 plymouth,I-1,I-1 Industrial,6,,20000,35,,,,,missing answers but present in doc
 pomfret,RR,Rural Residential,11,2,87120,27,,,,,
-portland,RI,Restricted Industrial,7,0.92 (if public water or sewer); 1.38 (if none),,55,,,,Y,
+portland,RI,Restricted Industrial,7,40000 (if public water or sewer); 60000 (if none),,55,,,,Y,
 preston,R-60,R-60 Residential,"22,23",1.38,60000,69,"900 if one floor, 1200 if two floors",,71,Y,missing answers but present in doc
 preston,PCVD,Poquetanuck Village,"22,23",1.38,60000,69,"900 if one floor, 1200 if two floors",,71,Y,missing answers but present in doc
 preston,R-40,R-40 Residential,"22,23",0.92,40000,69,"900 if one floor, 1200 if two floors",,71,Y,missing answers but present in doc
@@ -173,16 +173,16 @@ sharon,GR-1,G R-1 General Residence,6,3,130680,25,500 SF/1 bedroom + 150 SF/addi
 shelton,CA-2,Commercial CA-2,21,0.34435262,15000,49,550,550,49,,
 sherman,D,Historic D,10,,,,600,600,89,Y,Meaning is a bit ambiguous for min unit size
 simsbury,I-1,Restricted Industrial,"7,8",,435600,81,,,81,,missing answers but present in doc
-somers,VB,Village Business,,0.46 (sewer); 0.92 (septic),,41,,,,Y,no single list of zones
+somers,VB,Village Business,,20000 (sewer); 40000 (septic),,63,,,,Y,no single list of zones
 south-windsor,AA-30,AA-30 Limited Residential,"13,14",,30000,25,,,,,
 southbury,B-3C,Designed Business 3C,"17,18",0.9183,40000,53,900,900,53,,
 southbury,B-4,Marine Business 4,"17,18",0.9183,40000,53,900,900,53,,
 southington,CB,Central Business,7,,30000,71,,,,,
-sprague,BV,Baltic Village,"13,14,15",0.17 if served by public sewer system; 0.92 if not,,31,,960,34,Y,missing answers but present in doc
+sprague,BV,Baltic Village,"13,14,15",7500 if served by public sewer system; 40000 if not,,31,,960,34,Y,missing answers but present in doc
 sprague,R-80,R-80 Rural,"13,14,15",1.84,80000,31,,960,34,Y,missing answers but present in doc
 stafford,AAA,Rural & Single Family Residence AAA,7,2,88000,33,"1300, or 860 for 1st floor of 2-story",,,Y,could not verify min unit size
 stafford,B,General Residence B,,0.92,40000,33,1000,1000,,Y,could not verify min unit size
-stamford,R-D,Designed Residence,"45,46","25 in RA-3, 15 in RA-2, 10 in RA-1, 8 in R-20 or R-10",,197,,,,,
+stamford,R-D,Designed Residence,"45,46","1089000 in RA-3, 653400 in RA-2, 435600 in RA-1, 348480 in R-20 or R-10",,197,,,,,
 stamford,IP-D,Designed Industrial Park,"45,46",,,,,,,,
 sterling,Primary Zoning,Primary Zoning,7,2,87120,8,,,,,
 stonington,LS 5,Local Shopping,"9,10",0.23,5000,120,,,,Y,orig min lot size incorrect

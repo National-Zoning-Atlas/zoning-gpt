@@ -28,7 +28,7 @@ def extract_fraction_decimal(text):
             decimal_value = numerator / denominator
         return decimal_value
     else:
-        return None
+        return 0.0 # TODO: Is this correct? @ek542
 
 def clean_string_units(x):
     res = []

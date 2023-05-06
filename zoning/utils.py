@@ -3,21 +3,27 @@ import json
 from pathlib import Path
 from typing import Any
 
+from jinja2 import Environment, FileSystemLoader
+from joblib import Memory
 from git.repo import Repo
 import yaml
 
+
 def flatten(l):
     return [item for sublist in l for item in sublist]
+
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
 
+
 @cache
 def load_jsonl(path: Path) -> list:
     with path.open(encoding="utf-8") as f:
         return [json.loads(l) for l in f.readlines()]
+
 
 @cache
 def get_project_root() -> Path:
@@ -28,7 +34,16 @@ def get_project_root() -> Path:
 
     return Path(path)
 
+
 @cache
 def load_pipeline_config() -> dict[str, Any]:
     with (get_project_root() / "params.yaml").open(encoding="utf-8") as f:
         return yaml.safe_load(f)
+
+
+def get_project_cache() -> Memory:
+    return Memory(get_project_root() / ".joblib_cache", verbose=0)
+
+@cache
+def get_jinja_environment() -> Environment:
+    return Environment(loader=FileSystemLoader(get_project_root() / "templates"))
