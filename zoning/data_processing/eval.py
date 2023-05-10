@@ -4,9 +4,9 @@ import pandas as pd
 import yaml
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 
-from ..prompting.eval_results import clean_string_units
-from ..prompting.extract import ExtractionMethod, extract_size
-from ..prompting.semantic_comparison import semantic_comparison
+from ..term_extraction.eval_results import clean_string_units
+from ..term_extraction.extract import ExtractionMethod, extract_size
+from ..term_extraction.semantic_comparison import semantic_comparison
 from ..utils import get_project_root
 
 DATA_ROOT = get_project_root() / "data"

@@ -5,8 +5,8 @@ import fitz
 from PIL import Image, ImageDraw
 import streamlit as st
 
-from zoning.prompting.search import nearest_pages
-from zoning.prompting.extract import lookup_term
+from zoning.term_extraction.search import nearest_pages
+from zoning.term_extraction.extract import extract_size
 from zoning.utils import get_project_root
 
 @st.cache_data
@@ -63,18 +63,6 @@ def render_page_results(page_image: Image.Image, page_results: dict) -> Image.Im
 
     return page_image
 
-# TODO: Use guardrails for this
-def parse_size_answer(a):
-    answer_lines = [l.strip() for l in a.split("*")]
-    reasons = [l.replace("Reason:", "").strip() for l in answer_lines if l.startswith("Reason")]
-    answers = [l for l in answer_lines if not l.startswith("Reason") and len(l) > 0]
-
-    return {
-        "answer": answers,
-        "reason": reasons,
-    }
-
-
 def main():
     with st.sidebar:
         st.title("Warpspeed Document QA")
@@ -107,17 +95,10 @@ def main():
         )
         page_text = next(r[0] for r in pages if r[1] == page_num)
 
-        result = lookup_term(page_text, district, term)
-        result = parse_size_answer(result)
+        results = extract_size(town["Town"], district, term, 5)
 
         st.header("Answer")
-        st.table(result["answer"])
-
-        st.header("Reason")
-        st.caption(
-            "The following content was used to generate this answer:"
-        )
-        st.table(result["reason"])
+        st.table(results)
 
     page_image = get_pdf_page_image(document_path, page_num)
     page_result = None

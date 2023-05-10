@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-from itertools import islice
 
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Q, Search

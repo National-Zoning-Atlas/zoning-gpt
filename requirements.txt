@@ -3,10 +3,8 @@ dvc[azure]
 elasticsearch-dsl
 faiss-cpu
 fuzzywuzzy
-git+https://github.com/srush/MiniChain/@146ed27446621daa282be5654367580a68be5e27
 GitPython
 manifest-ml
-minichain
 numpy
 openai
 pandas
@@ -14,6 +12,5 @@ Pillow
 pymupdf
 streamlit
 tiktoken
-guardrails-ai
 pydantic
 retry

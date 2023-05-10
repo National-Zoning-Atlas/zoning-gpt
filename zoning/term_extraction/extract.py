@@ -140,11 +140,11 @@ class ExtractionMethod(str, Enum):
 
 
 def extract_size(
-    town,
-    district,
-    term,
-    top_k_pages,
-    method: ExtractionMethod = ExtractionMethod.STUFF,
+    town: str,
+    district: District,
+    term: str,
+    top_k_pages: int,
+    method: ExtractionMethod = ExtractionMethod.MAP,
     model_name: str = "text-davinci-003",
 ) -> list[LookupOutput]:
     pages = nearest_pages(town, district, term)
