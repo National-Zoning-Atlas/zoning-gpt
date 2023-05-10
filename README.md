@@ -1,6 +1,114 @@
-# zoning
+# Cornell Tech x National Zoning Atlas: AI-Driven Information Extraction from Zoning Codes
 
-### General Guide / Instructions
+## Introduction
+
+This repository is the result of a collaboration between the team led by Sara
+Bronin at the [National Zoning Atlas](https://www.zoningatlas.org/team) and a
+team of researchers under Alexander Rush at [Cornell Tech](https://tech.cornell.edu/).
+
+The National Zoning Atlas (NZA) is working to depict key aspects of zoning codes
+in an online, user-friendly map. This currently requires extensive human effort
+to manually review zoning codes and extract information for each zoning district
+within each jurisdiction in the country.
+
+The goal of this project is to use Large Language Models (LLMs) in conjunction
+with other natural language processing (NLP) techniques to automatically extract
+structured, relevant information from U.S. Zoning Code documents, so as to help
+the NZA team expand the reach of its atlas.
+
+## Setup
+
+This repository contains a number of experiments, as well as an automated
+evaluation pipeline. Dependencies are managed using `pip`. (Note that this
+repository has been tested only with Python 3.10.) To setup your development
+environment, run the following:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Download Existing Artifacts
+
+To use existing artifacts produced by our team, you will need to obtain access
+to our Azure Blob Storage. You will need to obtain a credentialed connection
+string to this blob storage, and add it to your local DVC configuration using
+the following command:
+
+```bash
+dvc remote modify --local cornell-aap-azure connection_string <YOUR CONNECTION STRING HERE>
+```
+
+Once you have the DVC remote added, you can pull all existing pipeline data using:
+
+```bash
+dvc pull
+```
+
+## Generate/Update Artifacts
+
+If you do not have access to the Azure Blob storage or if you wish to generate your own
+results, you can place any number of PDF documents at `data/orig-documents`.
+
+You will need an OpenAI API key available in your environment.
+
+```bash
+export OPENAI_API_KEY=<YOUR API KEY HERE>
+```
+
+Your environment will also need to have credentials to an AWS IAM identity with
+permissions to use AWS Textract and read/write access to an S3 bucket.
+
+```bash
+export AWS_DEFAULT_PROFILE=***
+# OR
+export AWS_ACCESS_KEY_ID=***
+export AWS_SECRET_ACCESS_KEY=***
+```
+
+You will need to update `params.yaml` to point to your S3 bucket. This bucket
+will be used to store your documents so that Textract can run OCR on them. Chang
+the `orig_document_s3_bucket` field to be your bucket name.
+
+Finally, you will need to have an ElasticSearch cluster available at
+`localhost:9200`. If you don't have ElasticSearch setup, we provide brief
+instructions to run a local cluster
+[below](#running-an-elasticsearch-cluster-locally).
+
+Once everything running, you can generate a full set of results using the
+following command:
+
+```bash
+dvc repro
+```
+
+Depending on how many documents you provide, running this may take quite some
+time. Anticipate associated costs with using the AWS Textract and OpenAI APIs.
+When processing is complete, evaluation metrics will be available in
+`data/results/eval.yaml` and the actual generated responses will be available in
+`data/results/eval.csv`.
+
+## Architecture
+
+TODO
+
+## Appendix
+
+### Running an ElasticSearch Cluster locally
+
+A Docker Compose setup for running a full ElasticSearch stack with Logstash and
+Kibana is provided by the Docker Organization. This is the easiest way to run
+ElasticSearch locally, but it requires having Docker available on your machine.
+
+If you have Docker available, you can clone the repository and start the cluster
+by running:
+
+```
+git clone https://github.com/maxdumas/awesome-compose
+cd awesome-compose/elasticsearch-logstash-kibana
+docker compose up
+```
+
+The initial startup may take some time. 
 
 ### Instructions for adding new terms:
 - STEP 1: Edit/review thesaurus
