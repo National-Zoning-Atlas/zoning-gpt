@@ -110,7 +110,8 @@ docker compose up
 
 The initial startup may take some time. 
 
-### Instructions for adding new terms:
+### Instructions for adding new terms
+
 ##### STEP 1: Edit/review thesaurus
 - Ensure that the new term is in the thesaurus (ex. “min unit size”)
 - Ensure that relevant identifier terms like “max” or “min” are included in
@@ -152,7 +153,8 @@ The initial startup may take some time.
 - View metrics in `eval.yaml` and results in `eval.csv` in the
   [data/results] folder
 
-### Debugging and improvement tips: 
+### Debugging and improvement tips
+
 - When adding a new term, first establish a baseline by following the steps
   above.
 - Debugging and improving page recall (search):
