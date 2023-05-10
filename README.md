@@ -27,19 +27,18 @@
     - The main reason for poor search recall is typically the lack of a fleshed out thesaurus. The best way to debug this is to add more terms to the thesaurus by manually going over the cases where it does not find the correct page and seeing what term is used in that zoning doc.
     - We are currently using a simple elastic search query for search. You may want to experiment with faiss indexing (embeddings based search) as it may work better for cases where a fleshed out thesaurus is not available.
 - Debugging and improving answer accuracy (extraction):
-    - In order to improve answer accuracy, it is important to understand the types of errors
-    - Types of errors:
-        - Incorrect answer because correct page not found (this can likely be addressed by improving page recall performance)
-        - Incorrect answer despite correct page being found
-            - Answer in complex table, model returns NaN/incorrect cell (this is a common error and we have found that even GPT-4 makes such errors when tables are complex and especially when keywords like “Minimum” and “Lot Size” are split up into different cells of the table)
-                - This can be addressed either by changing the way tables are represented in text or by providing examples in the prompt that capture such cases
-            - Answer is in linked table/appendix that is inaccessible (this is not very common)
-            - Text-based answer with not very obvious wording (the answer is in the text but the keywords used are different from what is in the thesaurus)
-            - Complex answer with multiple values - the model just returns 1 of the others or something completely incorrect
-    - Other things to look out for:
-        - Sometimes (very rarely) the answer may be correct (or somewhat correct) but may be marked as wrong by our evaluation pipeline.
-            - We have two evaluation workflows:
-                - For simple numerical answer, we clean the model output (using regex) and convert it to a numerical value for direct comparison with expected value
-                - For complex answers with multiple values, we pass the model output to another prompt that compared the expected and returned answers
-            - For the numerical workflow, the evaluation pipeline may sometimes (very rarely) mark a correct answer as incorrect if it is not in the correct format or has an atypical unit. If this happens, you should update the clean_string_units function in zoning/prompting/eval_results.py to include the edge case you found.
-            - For the complex answer workflow, our method is not perfect, so you may want to iterate on the prompt to improve evaluation performance.
+    - In order to improve answer accuracy, it is important to understand the types of errors. The different types of errors are:
+      - Incorrect answer because correct page not found (this can likely be addressed by improving page recall performance)
+      - Incorrect answer despite correct page being found
+        - Answer in complex table, model returns NaN/incorrect cell (this is a common error and we have found that even GPT-4 makes such errors when tables are complex and especially when keywords like “Minimum” and “Lot Size” are split up into different cells of the table)
+            - This can be addressed either by changing the way tables are represented in text or by providing examples in the prompt that capture such cases
+         - Answer is in linked table/appendix that is inaccessible (this is not very common)
+         - Text-based answer with not very obvious wording (the answer is in the text but the keywords used are different from what is in the thesaurus)
+         - Complex answer with multiple values - the model just returns 1 of the others or something completely incorrect
+- Other things to look out for:
+    - Sometimes (very rarely) the answer may be correct (or somewhat correct) but may be marked as wrong by our evaluation pipeline.
+        - We have two evaluation workflows:
+            - For simple numerical answers, we clean the model output (using regex) and convert it to a numerical value for direct comparison with expected value
+            - For complex answers with multiple values, we pass the model output to another prompt that compared the expected and returned answers
+        - For the numerical workflow, the evaluation pipeline may sometimes (very rarely) mark a correct answer as incorrect if it is not in the correct format or has an atypical unit. If this happens, you should update the clean_string_units function in zoning/prompting/eval_results.py to include the edge case you found.
+        - For the complex answer workflow, our method is not perfect, so you may want to iterate on the prompt to improve evaluation performance.
