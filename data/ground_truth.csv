@@ -5,7 +5,7 @@ ashford,TD,Technology Development,21,,,,900,900,29,,
 avon,IP,Industrial Park,"1,2",,,,,,,,
 barkhamsted,B-1,Restricted Business,11,,,,,,,,
 barkhamsted,B-2,General Business,11,,,,,,,,
-beacon-falls,PARD-3,Planned Adaptive Reuse Development 3,8,143,6185520,121,1200,1200,121,,
+beacon-falls,PARD-3,Planned Adaptive Reuse Development 3,8,142,6185520,121,1200,1200,121,,
 berlin,GI,General Industrial,33,,,,,,,,
 berlin,VDO,Village Overlay,33,,,,,,,,
 bethany,HOD,Housing Opportunity Development,70,30,1306800,70,,,,,district not mentioned in the main list of districts
@@ -55,7 +55,7 @@ east-hartford,B-1,Business 1,6,0.0872,5000,112,"1,000 (for a 1 floor dwelling); 
 east-hartford,B-2,Business 2,6,0.0872,7500,125,"1,000 (for a 1 floor dwelling); 1,200 (for a 2 floor dwelling)",,,Y,orig answers incorrect
 east-hartford,DDD-2,Design Development II,6,,,,"950 (2br attached); 1,000 (2br detached); 1,150 (3br attached); 1,250 (3br detached)",,224,Y,
 east-hartford,R-1,Residential 1,6,0.6887,30000,73,"1,000 (for a 1 floor dwelling); 1,200 (for a 2 floor dwelling)",,74,,
-east-haven,LI-3,Light Industrial 3,27,,80000,67,,900,67,Y,missing answers but present in doc
+east-haven,LI-3,Light Industrial 3,27,,80000,67,,,67,Y,missing answers but present in doc
 east-lyme,CM,CM Commercial,17,0.23,10000,31,500,500,,Y,could not find min unit size
 east-windsor,A-1,Agriculture/Residential 1,14,1,43560,35,,1248,39,Y,missing answers but present in doc
 east-windsor,TZ5,Transition 5,14,,20000,43,,,,Y,missing answers but present in doc
@@ -113,7 +113,7 @@ marlborough,R,Residential,5,"80000 sq ft (individual septic), 120000 sq ft (yard
 meriden,R-R,Rural Residential,19,0.92,40000,,,,,Y,Answer found in appendix that is not included in this document.
 meriden,C-2,General Commercial,19,,,,,,,Y,
 middlebury,LI-200,Light Industrial 200,8,,217800,149,,,,Y,missing answers but present in doc
-middlefield,IPD-1,Industrial Park I,25,,87120,69,,500,70,Y,missing answers but present in doc
+middlefield,IPD-1,Industrial Park I,25,,87120,69,,5000,70,Y,missing answers but present in doc
 middletown,I-1,Service Industrial,8,,,,,,,,
 middletown,MX,Mixed Use,,0.23,10000,,,,,,
 milford,R-7.5,One Family Residential R-7.5,17,0.17,7500,38,,,,,
