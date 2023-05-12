@@ -27,7 +27,7 @@ environment, run the following:
 pip install -r requirements.txt
 ```
 
-### Download Existing Artifacts
+## Download Existing Artifacts
 
 To use existing artifacts produced by our team, you will need to obtain access
 to our Azure Blob Storage. You will need to obtain a credentialed connection
