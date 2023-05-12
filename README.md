@@ -1,4 +1,4 @@
-# Cornell Tech x National Zoning Atlas: AI-Driven Information Extraction from Zoning Codes
+# Cornell Tech x National Zoning Atlas: Understanding Zoning Codes with Large Language Models
 
 ## Introduction
 
