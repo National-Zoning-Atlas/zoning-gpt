@@ -15,11 +15,8 @@ from ..utils import (
     chunks,
     flatten,
     get_jinja_environment,
-    get_project_cache,
     get_project_root,
-    load_jsonl,
 )
-from .eval_results import clean_string_units
 from .search import (
     PageSearchOutput,
     get_non_overlapping_chunks,
@@ -220,41 +217,3 @@ def extract_all_sizes(
                     for term in terms
                 },
             )
-
-
-def main():
-    districts_file = get_project_root() / "data" / "results" / "districts_gt.jsonl"
-    import pandas as pd
-
-    gt = pd.read_csv(
-        get_project_root() / "data" / "ground_truth.csv",
-        index_col=["town", "district_abb"],
-    )
-
-    town_districts = load_jsonl(districts_file)
-
-    for result in extract_all_sizes(
-        town_districts, ["min lot size", "min unit size"], 6
-    ):
-        for term, lookups in result.sizes.items():
-            for l in lookups:
-                expected = set(
-                    float(f)
-                    for f in gt.loc[
-                        result.town, result.district.Z
-                    ].min_lot_size_gt.split(", ")
-                )
-                actual = (
-                    set(clean_string_units(l.output.answer))
-                    if l.output is not None
-                    else set()
-                )
-                is_correct = any(expected & actual)
-                if not is_correct:
-                    print(
-                        f"{result.town} - {result.district.T} ({l.output.pages}): {term} | Expected: {expected} | Actual: {actual} | Correct: {is_correct}"
-                    )
-
-
-if __name__ == "__main__":
-    main()

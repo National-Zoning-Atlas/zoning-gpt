@@ -45,7 +45,6 @@ stages:
   evaluate:
     cmd: python -m zoning.data_processing.eval
     deps:
-    - zoning/data_processing/index_towns.py
     - zoning/data_processing/eval.py
     - templates/extraction_chat_completion.pmpt.tpl
     - templates/extraction_completion.pmpt.tpl

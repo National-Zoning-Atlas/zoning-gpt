@@ -5,7 +5,7 @@ import yaml
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 
 from ..term_extraction.eval_results import clean_string_units
-from ..term_extraction.extract import ExtractionMethod, extract_size
+from ..term_extraction.extract import ExtractionMethod, extract_size, District
 from ..term_extraction.semantic_comparison import semantic_comparison
 from ..utils import get_project_root
 
@@ -18,7 +18,7 @@ EVAL_OUTPUT_PATH = DATA_ROOT / "results" / "eval.csv"
 def compute_eval_result(town: str, district_name: str, term: str, term_code: str, row):
     outputs = extract_size(
         town,
-        dict(T=district_name, Z=row.district_abb),
+        District(T=district_name, Z=row.district_abb),
         term,
         6,
         method=ExtractionMethod.MAP,
@@ -71,7 +71,10 @@ def compute_eval_result(town: str, district_name: str, term: str, term_code: str
 
 
 def compare_results(
-    actual_normalized: float | None, actual_raw: str | None, expected: str | None, expected_extended: str | None
+    actual_normalized: float | None,
+    actual_raw: str | None,
+    expected: str | None,
+    expected_extended: str | None,
 ) -> bool:
     # Normalize responses to None if they are any pandas empty value.
     actual_raw = None if pd.isna(actual_raw) else actual_raw
@@ -82,7 +85,7 @@ def compare_results(
     if actual_raw is not None and expected is None and expected_extended is not None:
         # If no normalized expected answer exists, but an extended one does,
         # then compare the un-normalized answer from the LLM with our extended
-        # ground truth using an LLM comparison. 
+        # ground truth using an LLM comparison.
 
         # TODO: If this returns true, then what we actually want to return to
         # the user is the raw answer, not the normalized one.
@@ -131,7 +134,10 @@ def evaluate_term(term: str, term_code: str, gt: pd.DataFrame, progress: Progres
         # correct_answer=results_df.actual_normalized.fillna("N/A").eq(results_df.expected_normalized.fillna("N/A"))
         correct_answer=results_df.apply(
             lambda row: compare_results(
-                row.actual_normalized, row.actual, row.expected_normalized, row.expected_extended
+                row.actual_normalized,
+                row.actual,
+                row.expected_normalized,
+                row.expected_extended,
             ),
             axis=1,
         )

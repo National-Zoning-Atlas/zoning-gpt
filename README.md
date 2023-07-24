@@ -133,7 +133,7 @@ The initial startup may take some time.
     size”) `terms = ["min lot size", "min unit size"] # update to list of terms
     you want to run`
 ##### STEP 4: Edit/review prompt 
-- This will be under [templates/extraction_chat_completition.pmpt.tpl] for
+- This will be under [templates/extraction_chat_completion.pmpt.tpl] for
   gpt-3.5 and gpt-4 or [templates/extraction_completion.pmpt.tpl] for gpt-3
   "text-davinci-003"
 - We are using a few-shot prompting approach by providing the model with
