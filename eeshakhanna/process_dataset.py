@@ -1,7 +1,7 @@
 import sys
 import pandas as pd
 import huggingface_hub
-from datasets import load_dataset, DatasetDict, load_from_disk, Dataset
+from datasets import load_dataset, DatasetDict, Dataset
 
 # login to huggingface using API key
 HF_API_KEY_READ = sys.argv[2]

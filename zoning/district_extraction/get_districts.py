@@ -1,11 +1,9 @@
 import datasets
 from manifest import Manifest
 import numpy as np
-from minichain import EmbeddingPrompt, TemplatePrompt, show_log, start_chain, Prompt
+from minichain import EmbeddingPrompt, TemplatePrompt, start_chain
 import json
 from zoning.utils import get_project_root
-from pathlib import Path
-from jinja2 import FileSystemLoader, Environment
 
 QUERY = "Districts. The town is divided into the following district zones: * residential (R2-0) * industrial (I-10) * rural overlay (T-190)"
 
@@ -50,7 +48,6 @@ def get_districts(dataset):
         # Extract district table
         dp = DistrictsPrompt(backend.Manifest(manifest))
         #districts = json.loads(dp({"docs": doc_list["docs"]}))
-        districts = []
         districts_per_page = []
         for doc in doc_list["docs"]:
             page_districts = json.loads(dp(dict(docs = [doc])))

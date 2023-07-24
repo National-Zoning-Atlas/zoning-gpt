@@ -1,6 +1,5 @@
 import sys
 import math
-import pandas as pd
 import openai
 
 #TODO: Figure out where to store intermediate data...

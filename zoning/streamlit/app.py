@@ -93,7 +93,7 @@ def main():
         page_num = st.select_slider(
             f"Page ({len(pages)} total)", options=[page_num for _, page_num, _ in pages]
         )
-        page_text = next(r[0] for r in pages if r[1] == page_num)
+        next(r[0] for r in pages if r[1] == page_num)
 
         results = extract_size(town["Town"], district, term, 5)
 

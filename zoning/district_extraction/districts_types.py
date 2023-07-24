@@ -1,6 +1,6 @@
 import datasets
 import numpy as np
-from minichain import EmbeddingPrompt, TemplatePrompt, show_log, start_chain, Prompt
+from minichain import EmbeddingPrompt, TemplatePrompt, start_chain
 import json
 
 data = datasets.load_dataset("xyzNLP/nza-ct-zoning-codes-text")
