@@ -178,7 +178,13 @@ def evaluate_term(term: str, term_code: str, gt: pd.DataFrame, progress: Progres
 def main():
     gt = pd.read_csv(DATA_ROOT / "ground_truth.csv", index_col=["town", "district"])
 
-    terms = ["min lot size", "min unit size"]  # update to list of terms you want to run
+    terms = [
+        "min lot size",
+        "min unit size",
+        "max height",
+        "max lot coverage",
+        "max lot coverage pavement",
+    ]  # update to list of terms you want to run
 
     terms_code = [term.replace(" ", "_") for term in terms]
     metrics = {}
