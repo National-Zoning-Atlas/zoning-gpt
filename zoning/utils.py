@@ -1,12 +1,13 @@
-from functools import cache
+import asyncio
 import json
+from functools import cache
 from pathlib import Path
 from typing import Any
 
+import yaml
+from git.repo import Repo
 from jinja2 import Environment, FileSystemLoader
 from joblib import Memory
-from git.repo import Repo
-import yaml
 
 
 def flatten(l):
@@ -47,3 +48,38 @@ def get_project_cache() -> Memory:
 @cache
 def get_jinja_environment() -> Environment:
     return Environment(loader=FileSystemLoader(get_project_root() / "templates"))
+
+
+async def gather_with_concurrency(n: int, *coros):
+    semaphore = asyncio.Semaphore(n)
+
+    async def sem_coro(coro):
+        async with semaphore:
+            return await coro
+
+    return await asyncio.gather(*(sem_coro(c) for c in coros))
+
+def limit_global_concurrency(n: int):
+    def decorator(func):
+        semaphore = asyncio.Semaphore(n)
+        async def wrapper(*args, **kwargs):
+            async def sem_coro(coro):
+                async with semaphore:
+                    return await coro
+            return await sem_coro(func(*args, **kwargs))
+        return wrapper
+    return decorator
+
+def cached(cache, keyfunc):
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
+            key = keyfunc(*args, **kwargs)
+            if key in cache:
+                return cache[key]
+            else:
+                result = await func(*args, **kwargs)
+                cache[key] = result
+                return result
+        return wrapper
+    return decorator
+    

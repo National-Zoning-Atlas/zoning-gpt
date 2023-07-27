@@ -14,3 +14,4 @@ streamlit
 tiktoken
 pydantic
 retry
+diskcache

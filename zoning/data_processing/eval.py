@@ -1,11 +1,12 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import asyncio
+from typing import TypeVar
 
 import pandas as pd
 import yaml
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 
 from ..term_extraction.eval_results import clean_string_units
-from ..term_extraction.extract import ExtractionMethod, extract_size, District
+from ..term_extraction.extract import District, ExtractionMethod, extract_answer
 from ..term_extraction.semantic_comparison import semantic_comparison
 from ..utils import get_project_root
 
@@ -15,23 +16,23 @@ EVAL_METRICS_PATH = DATA_ROOT / "results" / "eval.yaml"
 EVAL_OUTPUT_PATH = DATA_ROOT / "results" / "eval.csv"
 
 
-def compute_eval_result(town: str, district_name: str, term: str, term_code: str, row):
-    outputs = extract_size(
+async def compute_eval_result(town: str, district_name: str, term: str, row):
+    outputs = await extract_answer(
         town,
-        District(T=district_name, Z=row.district_abb),
+        District(full_name=district_name, short_name=row.district_abb),
         term,
         6,
         method=ExtractionMethod.MAP,
         model_name="gpt-4",
     )
-    gt_page = row[f"{term_code}_page_gt"]
+    gt_page = row[f"{term}_page_gt"]
     if pd.isna(gt_page):
         # No ground truth page
         gt_page = set()
     else:
         gt_page = set(map(int, str(gt_page).split(",")))
 
-    expected = row[f"{term_code}_gt"]
+    expected = row[f"{term}_gt"]
 
     for result in outputs:
         searched_pages = {r.page_number for r in result.search_pages}
@@ -44,12 +45,12 @@ def compute_eval_result(town: str, district_name: str, term: str, term_code: str
         yield {
             "town": town,
             "district": district_name,
-            "term": term_code,
+            "term": term,
             "confidence": result.output.confidence
             if result.output is not None
             else 0.0,
             "expected": expected if not pd.isna(expected) else None,
-            "expected_extended": row[f"{term_code}_gt_orig"],
+            "expected_extended": row[f"{term}_gt_orig"],
             "actual": result.output.answer if result.output is not None else None,
             # For determining the correct page, we consider the page to be
             # correct if the ground truth was also blank and GPT did not return
@@ -70,6 +71,13 @@ def compute_eval_result(town: str, district_name: str, term: str, term_code: str
         }
 
 
+TVal = TypeVar("TVal")
+
+
+def standardize_empty_val(val: TVal) -> TVal | None:
+    return None if pd.isna(val) else val
+
+
 def compare_results(
     actual_normalized: float | None,
     actual_raw: str | None,
@@ -77,10 +85,10 @@ def compare_results(
     expected_extended: str | None,
 ) -> bool:
     # Normalize responses to None if they are any pandas empty value.
-    actual_raw = None if pd.isna(actual_raw) else actual_raw
-    actual_normalized = None if pd.isna(actual_normalized) else actual_normalized
-    expected = None if pd.isna(expected) else expected
-    expected_extended = None if pd.isna(expected_extended) else expected_extended
+    actual_raw = standardize_empty_val(actual_raw)
+    actual_normalized = standardize_empty_val(actual_normalized)
+    expected = standardize_empty_val(expected)
+    expected_extended = standardize_empty_val(expected_extended)
 
     if actual_raw is not None and expected is None and expected_extended is not None:
         # If no normalized expected answer exists, but an extended one does,
@@ -95,23 +103,19 @@ def compare_results(
         return actual_normalized == expected
 
 
-def evaluate_term(term: str, term_code: str, gt: pd.DataFrame, progress: Progress):
+async def evaluate_term(term: str, gt: pd.DataFrame, progress: Progress):
     eval_task = progress.add_task(f"Evaluating {term}", total=len(gt))
 
-    result_fs = []
+    # Generate results for the given term in parallel, showing progress along
+    # the way.
     results = []
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        for index, row in gt.iterrows():
-            town, district = index
-            result_fs.append(
-                executor.submit(
-                    compute_eval_result, town, district, term, term_code, row
-                )
-            )
-
-        for result in as_completed(result_fs):
-            results.extend(result.result())
-            progress.advance(eval_task)
+    for index, row in gt.iterrows():
+        town, district = index
+        progress.update(eval_task, description=f"Evaluating {term}, {town}, {district}")
+        async for result in compute_eval_result(town, district, term, row):
+            results.append(result)
+        progress.advance(eval_task)
+    progress.update(eval_task, description=f"Evaluated {term}")
 
     results_df = pd.DataFrame(results)
 
@@ -130,8 +134,6 @@ def evaluate_term(term: str, term_code: str, gt: pd.DataFrame, progress: Progres
         .explode("expected_normalized")
     )
     results_df = results_df.assign(
-        # NaN != NaN, so we need to replace this with alternative values to correctly compare fields where no answer is expected.
-        # correct_answer=results_df.actual_normalized.fillna("N/A").eq(results_df.expected_normalized.fillna("N/A"))
         correct_answer=results_df.apply(
             lambda row: compare_results(
                 row.actual_normalized,
@@ -181,20 +183,32 @@ def evaluate_term(term: str, term_code: str, gt: pd.DataFrame, progress: Progres
     }, results_df
 
 
-def main():
-    gt = pd.read_csv(DATA_ROOT / "ground_truth.csv", index_col=["town", "district"])
+async def main():
+    # TODO: Reproduce evaluation on everything
 
     terms = [
-        "min lot size",
-        "min unit size",
-        "max height",
-        "max lot coverage",
-        "max lot coverage pavement",
+        "min_lot_size",
+        "min_unit_size",
+        "max_height",
+        "max_lot_coverage",
+        "max_lot_coverage_pavement",
     ]  # update to list of terms you want to run
 
-    terms_code = [term.replace(" ", "_") for term in terms]
     metrics = {}
 
+    # Load Ground Truth
+    gt = pd.read_csv(
+        DATA_ROOT / "ground_truth.csv",
+        index_col=["town", "district"],
+        dtype={
+            **{f"{tc}_gt": str for tc in terms},
+            **{f"{tc}_page_gt": str for tc in terms},
+        },
+        nrows=33,
+    )
+
+    # Run evaluation against entire ground truth for each term and aggregate all
+    # results into one object.
     with Progress(
         SpinnerColumn(),
         *Progress.get_default_columns(),
@@ -202,7 +216,7 @@ def main():
     ) as progress:
         term_task = progress.add_task("Terms", total=len(terms))
         for i, term in enumerate(terms):
-            metrics[term], results_df = evaluate_term(term, terms_code[i], gt, progress)
+            metrics[term], results_df = await evaluate_term(term, gt, progress)
             results_df.to_csv(
                 EVAL_OUTPUT_PATH,
                 index=False,
@@ -216,4 +230,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

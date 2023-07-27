@@ -5,8 +5,6 @@ from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Q, Search
 from pydantic import BaseModel
 
-from ..utils import get_project_root
-
 es = Elasticsearch("http://localhost:9200")  # default client
 
 # Global thesaurus
@@ -25,10 +23,10 @@ def nearest_pages(town, district, term="min lot size") -> list[PageSearchOutput]
 
     # Search for district
     district_query = (
-        Q("match_phrase", Text=district["T"])
-        | Q("match_phrase", Text=district["Z"])
-        | Q("match_phrase", Text=district["Z"].replace("-", ""))
-        | Q("match_phrase", Text=district["Z"].replace(".", ""))
+        Q("match_phrase", Text=district.full_name)
+        | Q("match_phrase", Text=district.short_name)
+        | Q("match_phrase", Text=district.short_name.replace("-", ""))
+        | Q("match_phrase", Text=district.short_name.replace(".", ""))
     )
 
     min_variations = thesaurus.get("min", [])
@@ -52,7 +50,7 @@ def nearest_pages(town, district, term="min lot size") -> list[PageSearchOutput]
 
     dim_query = Q(
         "bool",
-        should=[Q("match_phrase", Text=d) for d in thesaurus[term + " dimensions"]],
+        should=[Q("match_phrase", Text=d) for d in thesaurus[f"{term} dimensions"]],
         minimum_should_match=1,
     )
 
@@ -76,7 +74,7 @@ def page_coverage(search_result: list[PageSearchOutput]) -> list[list[int]]:
 def get_non_overlapping_chunks(search_result: list[PageSearchOutput]) -> list[PageSearchOutput]:
     indices = [r.page_number for r in search_result]
     pages_covered = page_coverage(search_result)
-    non_overlapping_indices = []
+    non_overlapping_indices: list[int] = []
     non_overlapping_chunks: list[PageSearchOutput] = []
     for i, index in enumerate(indices):
         has_overlap = False
@@ -90,20 +88,3 @@ def get_non_overlapping_chunks(search_result: list[PageSearchOutput]) -> list[Pa
             non_overlapping_indices.append(index)
             non_overlapping_chunks.append(search_result[i])
     return non_overlapping_chunks
-
-def main():
-    districts_file = get_project_root() / "data" / "results" / "districts_gt.jsonl"
-    for l in districts_file.open(encoding="utf-8").readlines():
-        d = json.loads(l)
-        town = d["Town"]
-        for district in d["Districts"]:
-            print(town)
-            print(district)
-            print(nearest_pages(town, district))
-            # nearest_pages(town, district)
-            # break - to only perform search for first district, remove to do search for each district in the town
-
-
-
-if __name__ == "__main__":
-    main()

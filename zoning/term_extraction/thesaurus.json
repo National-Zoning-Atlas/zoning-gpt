@@ -2,7 +2,7 @@
   "zoning district": ["zone", "district"],
   "min": ["min", "minimum", "min.", "Min", "Minimum", "Min."],
   "max": ["max", "maximum", "max.", "Max", "Maximum", "Max."],
-  "min lot size": [
+  "min_lot_size": [
     "min lot size",
     "min lot coverage",
     "min parcel size",
@@ -27,7 +27,7 @@
     "area and bulk requirements",
     "dimensional requirements"
   ],
-  "min unit size": [
+  "min_unit_size": [
     "min unit size",
     "minimum unit size",
     "min floor area",
@@ -56,7 +56,7 @@
     "Floor-to-area",
     "Floor-area ratio"
   ],
-  "min lot size dimensions": [
+  "min_lot_size dimensions": [
     "acre",
     "acres",
     "Acre",
@@ -71,7 +71,7 @@
     "sqft",
     "sq.ft."
   ],
-  "min unit size dimensions": [
+  "min_unit_size dimensions": [
     "square feet",
     "sq ft",
     "sf",
@@ -82,7 +82,7 @@
     "sqft",
     "sq.ft."
   ],
-  "max height": [
+  "max_height": [
     "Area and Bulk Requirements",
     "Dimensional Requirements",
     "Lot and Building Requirements",
@@ -92,29 +92,29 @@
     "Stories",
     "Story"
   ],
-  "max height dimensions": [
+  "max_height dimensions": [
     "feet",
     "ft",
     "ft."
   ],
-  "max lot coverage": [
+  "max_lot_coverage": [
     "Lot Coverage",
     "Building Coverage",
     "Pervious Surface",
     "Coverage"
   ],
-  "max lot coverage dimensions": [
+  "max_lot_coverage dimensions": [
     "percent",
     "%",
     "per cent",
     "ratio"
   ],
-  "max lot coverage pavement": [
+  "max_lot_coverage_pavement": [
     "Lot Coverage",
     "Impervious Surface",
     "Coverage"
   ],
-  "max lot coverage pavement dimensions": [
+  "max_lot_coverage_pavement dimensions": [
     "percent",
     "%",
     "per cent",
