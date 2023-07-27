@@ -14,7 +14,7 @@ answer as it pertains to single-family homes.
 # Schema
 {
     "answer": str, // The value of {{term}} extracted from the text. Answer must include units and must be normalized, e.g. (sqr. ft. becomes sq ft)
-    "extracted_text": str, // The verbatim text from which the result was extracted. Make sure to escape newlines.
+    "extracted_text": list[str], // The verbatim text from which the result was extracted. Make sure to escape newlines.
     "pages": list[int], // The pages that were used to generate the result. 
     "confidence": float // The confidence value that you have in your answer. Must be between 0.0 and 1.0, inclusive. 1.0 means you are absolutely certain this is the correct answer, 0.0 means this is certainly the wrong answer. 0.5 would indicate that this answer could be correct, but it could apply to sub-districts, overlay districts, subdivisions, or something else.
 }
