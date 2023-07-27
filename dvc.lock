@@ -90,21 +90,18 @@ stages:
     cmd: python -m zoning.data_processing.eval
     deps:
     - path: templates/extraction_chat_completion.pmpt.tpl
-      md5: fe1d4b27d86b0b0204b27ccbfe536cc8
-      size: 4317
+      md5: fb8c39e56d3adde90fedba8d8d7fe382
+      size: 4323
     - path: templates/extraction_completion.pmpt.tpl
       md5: cdd9b0b79ac4ed02da5897315ccc15df
       size: 91
     - path: zoning/data_processing/eval.py
-      md5: 75403d543ce94915be0f9b7a5aa46b3b
-      size: 7822
-    - path: zoning/data_processing/index_towns.py
-      md5: cd3c4af8c8e19c9927e28912aaf7ced5
-      size: 1580
+      md5: e3f684aebabf524afdf317e8e772633f
+      size: 8126
     outs:
     - path: data/results/eval.csv
-      md5: 6b45885275743c2cd8ee90299467e04c
-      size: 174972
+      md5: e4271c87b664c8efe5e1ecbaf0bc3c99
+      size: 40290
     - path: data/results/eval.yaml
-      md5: 80d2e5feeb6e15840927df5083148f79
-      size: 595
+      md5: cab2207be125608882b7cd282511cfe6
+      size: 1352
