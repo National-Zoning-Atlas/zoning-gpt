@@ -47,35 +47,26 @@ def extract_fraction_decimal(text):
     else:
         return 0.0  # TODO: Is this correct? @ek542
 
-
+split_regex = re.compile(r"\s+(?:or|and)\s+")
 parsing_regex = re.compile(r"(?:\d{4,}|\d{1,3}(?:,\d{3})*)(?:\.\d+)?")
 
-# TODO: This function is horrifying. Need to clean this up.
-def clean_string_units(x):
+def parse_token(token: str):
+    if "/" in token:
+        x_split = token.split("/")
+        num = len(x_split) - 1
+        yield from (extract_fraction_decimal(token) for i in range(num))
+    else:
+        res = re.findall(parsing_regex, token)
+        yield from (float(a.replace(",", "")) for a in res)
+
+def clean_string_units(input_string):
     res = []
-    x = x.lower() if isinstance(x, str) else x
-    if any(substring in str(x) for substring in FT_FORMS):
-        if "/" in x:
-            x_split = x.split("/")
-            num = len(x_split) - 1
-            res = [extract_fraction_decimal(x) * 43560 for i in range(num)]
-        else:
-            res = re.findall(parsing_regex, x)
-            res = [float(a.replace(",", "")) for a in res]
-    if any(substring in str(x) for substring in SQ_FT_FORMS | FT_FORMS | PERCENT_FORMS):
-        if "/" in x:
-            x_split = x.split("/")
-            num = len(x_split) - 1
-            res = [extract_fraction_decimal(x) for i in range(num)]
-        else:
-            res = re.findall(parsing_regex, x)
-            res = [float(a.replace(",", "")) for a in res]
-    if any(substring in str(x) for substring in ACRE_FORMS):
-        if "/" in x:
-            x_split = x.split("/")
-            num = len(x_split) - 1
-            res = [extract_fraction_decimal(x) * 43560 for i in range(num)]
-        else:
-            res = re.findall(parsing_regex, x)
-            res = [float(a.replace(",", "")) * 43560 for a in res]
+    input_string = str(input_string).lower()
+    # Split tokens along any conjunctions, e.g. "35 feet or 2.5 stories" -> ["35 feet", "2.5 stories"]
+    tokens = split_regex.split(input_string)
+    for token in tokens:
+        if any(substring in token for substring in SQ_FT_FORMS | FT_FORMS | PERCENT_FORMS):
+            res.extend(parse_token(token))
+        if any(substring in token for substring in ACRE_FORMS):
+            res.extend(t * 43560 for t in parse_token(token))
     return res
