@@ -18,6 +18,18 @@ SQ_FT_FORMS = {
 
 ACRE_FORMS = {"acres", "acre", "acreage", "-acre"}
 
+FT_FORMS = {
+    "ft",
+    "feet",
+    "ft.",
+    "\'"
+}
+
+PERCENT_FORMS = {
+    "%",
+    "percent",
+    "per cent"
+}
 
 def extract_fraction_decimal(text):
     fraction_pattern = r"\d+\s*\d*\/\d+"
@@ -36,16 +48,27 @@ def extract_fraction_decimal(text):
         return 0.0  # TODO: Is this correct? @ek542
 
 
+parsing_regex = re.compile(r"(?:\d{4,}|\d{1,3}(?:,\d{3})*)(?:\.\d+)?")
+
+# TODO: This function is horrifying. Need to clean this up.
 def clean_string_units(x):
     res = []
     x = x.lower() if isinstance(x, str) else x
-    if any(substring in str(x) for substring in SQ_FT_FORMS):
+    if any(substring in str(x) for substring in FT_FORMS):
+        if "/" in x:
+            x_split = x.split("/")
+            num = len(x_split) - 1
+            res = [extract_fraction_decimal(x) * 43560 for i in range(num)]
+        else:
+            res = re.findall(parsing_regex, x)
+            res = [float(a.replace(",", "")) for a in res]
+    if any(substring in str(x) for substring in SQ_FT_FORMS | FT_FORMS | PERCENT_FORMS):
         if "/" in x:
             x_split = x.split("/")
             num = len(x_split) - 1
             res = [extract_fraction_decimal(x) for i in range(num)]
         else:
-            res = re.findall(r"(?:\d{4,}|\d{1,3}(?:,\d{3})*)(?:\.\d+)?", x)
+            res = re.findall(parsing_regex, x)
             res = [float(a.replace(",", "")) for a in res]
     if any(substring in str(x) for substring in ACRE_FORMS):
         if "/" in x:
@@ -53,6 +76,6 @@ def clean_string_units(x):
             num = len(x_split) - 1
             res = [extract_fraction_decimal(x) * 43560 for i in range(num)]
         else:
-            res = re.findall(r"(?:\d{4,}|\d{1,3}(?:,\d{3})*)(?:\.\d+)?", x)
+            res = re.findall(parsing_regex, x)
             res = [float(a.replace(",", "")) * 43560 for a in res]
     return res
