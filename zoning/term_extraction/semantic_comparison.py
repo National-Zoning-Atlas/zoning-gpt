@@ -1,16 +1,29 @@
+import json
+
+import diskcache as dc
 import openai
-from joblib import Memory
-from retry import retry
+from tenacity import retry, retry_if_exception_type, wait_random_exponential
 
-from ..utils import get_project_root, get_jinja_environment
-
+from ..utils import get_jinja_environment, get_project_root, cached
 
 template  = get_jinja_environment().get_template("semantic_comparison.pmpt.tpl")
-memory = Memory(get_project_root() / ".joblib_cache", verbose=0)
+cache = dc.Cache(get_project_root() / ".diskcache")
 
 
-@memory.cache
-@retry(exceptions=openai.error.RateLimitError, tries=-1, delay=10, backoff=1.25, jitter=(1, 10))  # type: ignore
+@cached(cache, lambda *args: json.dumps(args))
+@retry(
+    retry=retry_if_exception_type(
+        (
+            openai.error.APIError,
+            openai.error.RateLimitError,
+            openai.error.APIConnectionError,
+            openai.error.ServiceUnavailableError,
+            openai.error.Timeout,
+            openai.error.TryAgain,
+        )
+    ),
+    wait=wait_random_exponential(multiplier=1, max=60),
+)
 def semantic_comparison(expected: str, actual: str) -> bool:
     resp = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",

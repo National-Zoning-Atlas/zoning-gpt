@@ -9,7 +9,6 @@ import diskcache as dc
 import openai
 import rich
 from pydantic import BaseModel, ValidationError
-from retry import retry
 from tenacity import retry, retry_if_exception_type, wait_random_exponential
 
 from ..utils import (
@@ -68,10 +67,7 @@ TEMPLATE_MAPPING = {
 }
 
 
-def mykey(*args):
-    return json.dumps(args)
-
-@cached(cache, mykey)
+@cached(cache, lambda *args: json.dumps(args))
 @retry(
     retry=retry_if_exception_type(
         (
