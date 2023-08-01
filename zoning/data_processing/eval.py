@@ -204,7 +204,7 @@ async def main():
             **{f"{tc}_gt": str for tc in terms},
             **{f"{tc}_page_gt": str for tc in terms},
         },
-        nrows=33,
+        nrows=32,
     )
 
     # Run evaluation against entire ground truth for each term and aggregate all

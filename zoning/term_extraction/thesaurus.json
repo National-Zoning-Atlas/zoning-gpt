@@ -102,6 +102,7 @@
     "Lot Coverage",
     "Building Coverage",
     "Pervious Surface",
+    "Building Area as % of Lot",
     "Coverage"
   ],
   "max_lot_coverage dimensions": [
@@ -113,7 +114,8 @@
   "max_lot_coverage_pavement": [
     "Lot Coverage",
     "Impervious Surface",
-    "Coverage"
+    "Coverage",
+    "Lot Coverage by Impervious Surfaces"
   ],
   "max_lot_coverage_pavement dimensions": [
     "percent",
