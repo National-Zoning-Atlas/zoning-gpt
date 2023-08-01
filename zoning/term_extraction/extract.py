@@ -25,6 +25,7 @@ from .search import (
     nearest_pages,
     page_coverage,
 )
+from .types import District
 
 with Path(__file__).parent.joinpath("thesaurus.json").open(encoding="utf-8") as f:
     thesaurus = json.load(f)
@@ -37,10 +38,6 @@ extraction_completion_tmpl = get_jinja_environment().get_template(
 )
 
 cache = dc.Cache(get_project_root() / ".diskcache")
-
-class District(BaseModel):
-    full_name: str
-    short_name: str
 
 
 class PromptOutput(BaseModel):

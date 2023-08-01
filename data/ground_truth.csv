@@ -1,7 +1,7 @@
 town,district_abb,district,district_page,min_lot_size_gt_orig,min_lot_size_gt,min_lot_size_page_gt,min_unit_size_gt_orig,min_unit_size_gt,min_unit_size_page_gt,max_height_gt_orig,max_height_gt,max_height_page_gt,max_lot_coverage_gt_orig,max_lot_coverage_gt,max_lot_coverage_page_gt,max_lot_coverage_pavement_gt_orig,max_lot_coverage_pavement_gt,max_lot_coverage_pavement_page_gt,review,notes
 andover,AL,Andover Lake,14,60000 (year-round); 30000 (seasonal),,97,500,500,41,35,35,97,,,,12,12,97,,
 ansonia,AA,AA Residence,17,0.69,30000,"52,150",,,,35,35,150,20,20,150,40,40,150,,
-ashford,TD,Technology Development,21,,,,900,900,29,35,35,49,40,40,49,60,60,49,,
+ashford,TD,Technology Development,21,,,,900,900,29,35,35,49,40,25,49,60,60,49,,
 avon,IP,Industrial Park,"1,2",,,,,,,,,,,,,,,,,
 barkhamsted,B-1,Restricted Business,11,,43560,20,,750,20,,35,21,,,,,40,20,,"missing values for all fields, max lot coverage def on separate page"
 barkhamsted,B-2,General Business,11,,87120,20,,750,20,,35,21,,,,,40,20,,"missing values for all fields, max lot coverage def on separate page"
@@ -19,7 +19,7 @@ branford-pine-orchard,A-1,A-1,8,0.46,20000,20,,,,,,,,,,,,,,
 branford-short-beach,SB-C,Business C,12,0.1,4500,23,600,600,25,30,30,24,30,30,25,70,85,25,,orig lot coverage incorrect
 bridgeport,MXN,Mixed Use Neighborhood Corners,10,,,,,,,46,,,,,,95,,,,"Does not conform to this standard, requirements are based on use, not zone"
 bridgeport,MX2,Mixed Use Corridor,10,,,,,,,74,,,,,,95,,,,"Does not conform to this standard, requirements are based on use, not zone"
-bridgewater,C,Commercial,26,,130680,31,,,,,35,31,,10,31,,,,,
+bridgewater,C,Commercial,26,,130680,31,,,,,35,31,,10,31,,50,32,,
 bristol,R-40,Residential R-40,30,,40000,47,,,,35,35,47,20,20,47,,,,,
 brookfield,TCD-P,Town Center Perimeter Overlay,,0.23,10000,85,,,,,42,85,,,,,80,85,,no single list of zones
 brooklyn,IND,Industrial,,,87120,86,,,,,35,86,,,86,,,86,,no single list of zones

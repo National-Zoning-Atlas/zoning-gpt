@@ -67,6 +67,14 @@ def clean_string_units(input_string):
     for token in tokens:
         if any(substring in token for substring in SQ_FT_FORMS | FT_FORMS | PERCENT_FORMS):
             res.extend(parse_token(token))
-        if any(substring in token for substring in ACRE_FORMS):
+        elif any(substring in token for substring in ACRE_FORMS):
             res.extend(t * 43560 for t in parse_token(token))
+        else:
+            # The token may be unitless
+            # TODO: This is a terrible hack! This will fail for any values
+            # that are truly between 0 and 1. This is just to accommodate the
+            # fact that some zoning codes express what should be a percentage as
+            # a decimal fraction. e.g. 0.20 really means 20%.
+            res.extend(t * 100 if t < 1 else t for t in parse_token(token))
+
     return res

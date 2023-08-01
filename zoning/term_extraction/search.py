@@ -3,7 +3,11 @@ from pathlib import Path
 
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Q, Search
+from elasticsearch_dsl.query import Query
 from pydantic import BaseModel
+
+import rich
+from .types import District
 
 es = Elasticsearch("http://localhost:9200")  # default client
 
@@ -16,8 +20,24 @@ class PageSearchOutput(BaseModel):
     page_number: int
     highlight: list[str]
     score: float
+    query: dict
 
-def nearest_pages(town, district, term="min lot size") -> list[PageSearchOutput]:
+
+def expand_term(term: str):
+    min_variations = thesaurus.get("min", [])
+    max_variations = thesaurus.get("max", [])
+    for query in thesaurus.get(term, []):
+        if "min" in query or "minimum" in query:
+            for r in min_variations:
+                yield Q("match_phrase", Text=query.replace("min", r))
+        elif "max" in query or "maximum" in query:
+            for r in max_variations:
+                yield Q("match_phrase", Text=query.replace("max", r))
+        else:
+            yield Q("match_phrase", Text=query)
+
+
+def nearest_pages(town: str, district: District, term: str) -> list[PageSearchOutput]:
     # Search in town
     s = Search(using=es, index=town)
 
@@ -29,36 +49,34 @@ def nearest_pages(town, district, term="min lot size") -> list[PageSearchOutput]
         | Q("match_phrase", Text=district.short_name.replace(".", ""))
     )
 
-    min_variations = thesaurus.get("min", [])
-    max_variations = thesaurus.get("max", [])
-    term_expansion = []
-    for query in thesaurus.get(term, []):
-        if "min" in query or "minimum" in query:
-            for r in min_variations:
-                term_expansion.append(Q("match_phrase", Text=query.replace("min", r)))
-        elif "max" in query or "maximum" in query:
-            for r in max_variations:
-                term_expansion.append(Q("match_phrase", Text=query.replace("max", r)))
-        else:
-            term_expansion.append(Q("match_phrase", Text=query))
-
     term_query = Q(
         "bool",
-        should=term_expansion,
+        should=list(expand_term(term)),
         minimum_should_match=1,
     )
 
     dim_query = Q(
         "bool",
-        should=[Q("match_phrase", Text=d) for d in thesaurus[f"{term} dimensions"]],
+        should=list(expand_term(f"{term} dimensions")),
         minimum_should_match=1,
     )
 
     s.query = district_query & term_query & dim_query
-    
+
     s = s.highlight("Text")
     res = s.execute()
-    return [PageSearchOutput(text=r.Text, page_number=r.Page, highlight=list(r.meta.highlight.Text), score=r.meta.score) for r in res]
+    
+    return [
+        PageSearchOutput(
+            text=r.Text,
+            page_number=r.Page,
+            highlight=list(r.meta.highlight.Text),
+            score=r.meta.score,
+            query=s.query.to_dict()
+        )
+        for r in res
+    ]
+
 
 def page_coverage(search_result: list[PageSearchOutput]) -> list[list[int]]:
     pages_covered = []
@@ -66,12 +84,15 @@ def page_coverage(search_result: list[PageSearchOutput]) -> list[list[int]]:
         chunks = r.text.split("NEW PAGE ")
         pages = []
         for chunk in chunks[1:]:
-            page = chunk.split('\n')[0]
+            page = chunk.split("\n")[0]
             pages.append(int(page))
         pages_covered.append(pages)
     return pages_covered
 
-def get_non_overlapping_chunks(search_result: list[PageSearchOutput]) -> list[PageSearchOutput]:
+
+def get_non_overlapping_chunks(
+    search_result: list[PageSearchOutput],
+) -> list[PageSearchOutput]:
     indices = [r.page_number for r in search_result]
     pages_covered = page_coverage(search_result)
     non_overlapping_indices: list[int] = []
