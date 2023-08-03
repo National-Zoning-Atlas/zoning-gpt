@@ -24,6 +24,7 @@ from .search import (
     get_non_overlapping_chunks,
     nearest_pages,
     page_coverage,
+    SearchMethod,
 )
 from .types import District
 
@@ -55,6 +56,12 @@ class LookupOutput(BaseModel):
     The set of pages, in descending order or relevance, used to produce the
     result.
     """
+
+
+class ExtractionMethod(str, Enum):
+    NONE = "search_only"
+    STUFF = "stuff"
+    MAP = "map"
 
 
 TEMPLATE_MAPPING = {
@@ -155,12 +162,6 @@ def lookup_term_prompt(
             raise ValueError(f"Unknown model name: {model_name}")
 
 
-class ExtractionMethod(str, Enum):
-    NONE = "search_only"
-    STUFF = "stuff"
-    MAP = "map"
-
-
 async def extract_answer(
     town: str,
     district: District,
@@ -174,7 +175,7 @@ async def extract_answer(
     attempt to extract the value for the term from the zoning document that
     corresponds to the town.
     """
-    pages = nearest_pages(town, district, term)
+    pages = list(nearest_pages(town, district, term, SearchMethod.ELASTICSEARCH))
     pages = get_non_overlapping_chunks(pages)[:top_k_pages]
 
     if len(pages) == 0:
@@ -211,6 +212,7 @@ async def extract_answer(
                     )
                 )
         case ExtractionMethod.MAP:
+
             async def worker(page):
                 return (
                     page,
