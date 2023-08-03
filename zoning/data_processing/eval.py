@@ -192,6 +192,7 @@ async def main():
         "max_height",
         "max_lot_coverage",
         "max_lot_coverage_pavement",
+        "min_parking_spaces",
     ]  # update to list of terms you want to run
 
     metrics = {}
