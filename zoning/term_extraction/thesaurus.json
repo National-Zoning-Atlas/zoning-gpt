@@ -127,15 +127,14 @@
     "ratio"
   ],
   "min_parking_spaces": [
-    "Offstreet Parking & Loading",
-    "Off Street Parking",
-    "Off street parking",
-    "Parking Requirements",
-    "Parking & Loading Requirements",
-    "Parking Spaces Required",
-    "Minimum Parking Spaces"
-  ],
-  "min_parking_spaces dimensions": [
-    "Single Family Residence per Dwelling"
+    "min parking spaces",
+    "offstreet parking & loading",
+    "off street parking",
+    "parking requirements",
+    "parking and loading requirements",
+    "parking spaces required",
+    "single family residence",
+    "single family",
+    "per dwelling"
   ]
 }
