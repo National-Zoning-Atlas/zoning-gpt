@@ -83,15 +83,15 @@
     "sq.ft."
   ],
   "max_height": [
-    "Area and Bulk Requirements",
-    "Dimensional Requirements",
-    "Lot and Building Requirements",
-    "Area Requirements",
-    "Maximum height",
-    "Maximum building height",
-    "Height",
-    "Stories",
-    "Story"
+    "max building height",
+    "max height",
+    "area and bulk requirements",
+    "dimensional requirements",
+    "lot and building requirements",
+    "area requirements",
+    "height",
+    "stories",
+    "story"
   ],
   "max_height dimensions": [
     "feet",
@@ -99,12 +99,12 @@
     "ft."
   ],
   "max_lot_coverage": [
-    "Lot Coverage",
-    "Building Coverage",
-    "Pervious Surface",
-    "Building Area as % of Lot",
-    "Coverage",
-    "Maximum Lot Coverage"
+    "building coverage",
+    "lot coverage",
+    "pervious surface",
+    "building area as % of lot",
+    "coverage",
+    "maximum lot coverage"
   ],
   "max_lot_coverage dimensions": [
     "percent",
@@ -113,12 +113,12 @@
     "ratio"
   ],
   "max_lot_coverage_pavement": [
-    "Lot Coverage",
-    "Impervious Surface",
-    "Coverage",
-    "Lot Coverage by Impervious Surfaces",
-    "Maximum Imperv. Coverage",
-    "Maximum Impervious Coverage"
+    "lot coverage by impervious surfaces",
+    "lot coverage",
+    "impervious surface",
+    "coverage",
+    "maximum imperv. coverage",
+    "maximum impervious coverage"
   ],
   "max_lot_coverage_pavement dimensions": [
     "percent",

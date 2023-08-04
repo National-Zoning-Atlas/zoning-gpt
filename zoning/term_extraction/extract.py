@@ -175,7 +175,7 @@ async def extract_answer(
     attempt to extract the value for the term from the zoning document that
     corresponds to the town.
     """
-    pages = list(nearest_pages(town, district, term, SearchMethod.ELASTICSEARCH))
+    pages = list(nearest_pages(town, district, term, SearchMethod.EMBEDDINGS_KNN))
     pages = get_non_overlapping_chunks(pages)[:top_k_pages]
 
     if len(pages) == 0:

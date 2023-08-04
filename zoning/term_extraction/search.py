@@ -1,17 +1,20 @@
-from functools import cache
 import json
-from pathlib import Path
 from enum import Enum
-import pandas as pd
+from functools import cache
+from pathlib import Path
+from typing import cast
 
+import datasets
+import numpy as np
+import pandas as pd
+import tiktoken
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Q, Search
-from pydantic import BaseModel
-import datasets
 from openai.embeddings_utils import get_embedding
-import numpy as np
+from pydantic import BaseModel
 
 from .types import District
+
 
 @cache
 def get_elasticsearch_client():
@@ -23,7 +26,18 @@ def get_thesaurus() -> dict[str, list[str]]:
     # Global thesaurus
     with Path(__file__).parent.joinpath("thesaurus.json").open(encoding="utf-8") as f:
         return json.load(f)
-
+    
+@cache
+def get_knn_lookup_tables(town: str) -> tuple[datasets.Dataset, pd.DataFrame]:
+    ds = cast(
+        datasets.Dataset,
+        datasets.load_dataset(
+            "xyzNLP/nza-ct-zoning-codes-text", split="train+test"
+        ),
+    )
+    df = ds.to_pandas().set_index(["Town", "Page"]).loc[town]
+    result = ds.filter(lambda x: x["Town"] == town).add_faiss_index("embeddings")
+    return result, df
 
 class PageSearchOutput(BaseModel):
     text: str
@@ -79,7 +93,9 @@ def nearest_pages(
 
             dim_query = Q(
                 "bool",
-                should=list(Q("match_phrase", Text=t) for t in expand_term(f"{term} dimensions")),
+                should=list(
+                    Q("match_phrase", Text=t) for t in expand_term(f"{term} dimensions")
+                ),
                 minimum_should_match=1,
             )
 
@@ -100,22 +116,27 @@ def nearest_pages(
             )
         case SearchMethod.EMBEDDINGS_KNN:
             k = 6
-            ds = datasets.load_dataset(
-                "xyzNLP/nza-ct-zoning-codes-text", split="train+test"
-            )
-            query = " ".join(expand_term(term))
-            query_embedding = np.array(
-                get_embedding(query, "text-embedding-ada-002")
-            )
-            result = (
-                ds.filter(lambda x: x["Town"] == town)
-                .add_faiss_index("embeddings")
-                .get_nearest_examples("embeddings", query_embedding, k)
-            )
+            query = next(expand_term(term))
+            query_embedding = np.array(get_embedding(query, "text-embedding-ada-002"))
+            ds, df = get_knn_lookup_tables(town)
+            result = ds.get_nearest_examples("embeddings", query_embedding, k)
+            # Add next 10 pages of context to the result, clipping the result to
+            # a maximum of 2000 tokens.
+            additional_context_pages = 10
+            max_chunk_size = 2000
+            enc = tiktoken.encoding_for_model("text-davinci-003")
+
             for i in range(k):
+                page = result.examples["Page"][i]
+                text = result.examples["Text"][i]
+                for j in range(1, additional_context_pages):
+                    if page + j not in df.index:
+                        continue
+
+                    text += f"\nNEW PAGE {page + j - 1}\n" + df.loc[page + j]["Text"]
                 yield PageSearchOutput(
-                    text=result.examples["Text"][i],
-                    page_number=result.examples["Page"][i],
+                    text=enc.decode(enc.encode(text)[:max_chunk_size]),
+                    page_number=page,
                     score=result.scores[i],
                     highlight=[],
                     query=query,
