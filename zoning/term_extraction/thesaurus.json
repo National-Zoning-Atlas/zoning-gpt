@@ -135,6 +135,9 @@
     "parking spaces required",
     "single family residence",
     "single family",
-    "per dwelling"
+    "single-family",
+    "per dwelling",
+    "per family dwelling unit",
+    "for each dwelling unit"
   ]
 }

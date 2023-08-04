@@ -212,7 +212,6 @@ async def extract_answer(
                     )
                 )
         case ExtractionMethod.MAP:
-
             async def worker(page):
                 return (
                     page,
