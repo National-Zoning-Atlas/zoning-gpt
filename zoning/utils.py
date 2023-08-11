@@ -1,5 +1,6 @@
 import asyncio
 import json
+from itertools import islice
 from functools import cache
 from pathlib import Path
 from typing import Any
@@ -18,6 +19,15 @@ def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
+
+def batched(iterable, n):
+    "Batch data into tuples of length n. The last batch may be shorter."
+    # batched('ABCDEFG', 3) --> ABC DEF G
+    if n < 1:
+        raise ValueError('n must be at least one')
+    it = iter(iterable)
+    while batch := tuple(islice(it, n)):
+        yield batch
 
 
 @cache

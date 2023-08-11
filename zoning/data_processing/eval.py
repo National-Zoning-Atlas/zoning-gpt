@@ -7,6 +7,11 @@ from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 
 from ..term_extraction.eval_results import clean_string_units
 from ..term_extraction.extract import District, ExtractionMethod, extract_answer
+from ..term_extraction.search import (
+    nearest_pages,
+    get_non_overlapping_chunks,
+    SearchMethod,
+)
 from ..term_extraction.semantic_comparison import semantic_comparison
 from ..utils import get_project_root
 
@@ -16,14 +21,21 @@ EVAL_METRICS_PATH = DATA_ROOT / "results" / "eval.yaml"
 EVAL_OUTPUT_PATH = DATA_ROOT / "results" / "eval.csv"
 
 
-async def compute_eval_result(town: str, district_name: str, term: str, row):
+async def compute_eval_result(
+    town: str,
+    district: District,
+    term: str,
+    row,
+    search_method: SearchMethod,
+    extraction_method: ExtractionMethod,
+):
+    pages = list(nearest_pages(town, district, term, search_method))
+
+    if search_method != SearchMethod.NO_SEARCH:
+        pages = get_non_overlapping_chunks(pages)[:6]
+
     outputs = await extract_answer(
-        town,
-        District(full_name=district_name, short_name=row.district_abb),
-        term,
-        6,
-        method=ExtractionMethod.MAP,
-        model_name="gpt-4",
+        pages, term, district, method=extraction_method, model_name="gpt-4"
     )
     gt_page = row[f"{term}_page_gt"]
     if pd.isna(gt_page):
@@ -44,7 +56,7 @@ async def compute_eval_result(town: str, district_name: str, term: str, row):
 
         yield {
             "town": town,
-            "district": district_name,
+            "district": district.full_name,
             "term": term,
             "expected": expected if not pd.isna(expected) else None,
             "expected_extended": row[f"{term}_gt_orig"],
@@ -103,7 +115,13 @@ def compare_results(
         return actual_normalized == expected
 
 
-async def evaluate_term(term: str, gt: pd.DataFrame, progress: Progress):
+async def evaluate_term(
+    term: str,
+    gt: pd.DataFrame,
+    progress: Progress,
+    search_method: SearchMethod,
+    extraction_method: ExtractionMethod,
+):
     eval_task = progress.add_task(f"Evaluating {term}", total=len(gt))
 
     # Generate results for the given term in parallel, showing progress along
@@ -112,7 +130,10 @@ async def evaluate_term(term: str, gt: pd.DataFrame, progress: Progress):
     for index, row in gt.iterrows():
         town, district = index
         progress.update(eval_task, description=f"Evaluating {term}, {town}, {district}")
-        async for result in compute_eval_result(town, district, term, row):
+        district = District(full_name=district, short_name=row.district_abb)
+        async for result in compute_eval_result(
+            town, district, term, row, search_method, extraction_method
+        ):
             results.append(result)
         progress.advance(eval_task)
     progress.update(eval_task, description=f"Evaluated {term}")
@@ -184,16 +205,17 @@ async def evaluate_term(term: str, gt: pd.DataFrame, progress: Progress):
 
 
 async def main():
-    # TODO: Reproduce evaluation on everything
-
     terms = [
         "min_lot_size",
-        "min_unit_size",
-        "max_height",
+        # "min_unit_size",
+        # "max_height",
         "max_lot_coverage",
-        "max_lot_coverage_pavement",
+        # "max_lot_coverage_pavement",
         "min_parking_spaces",
     ]  # update to list of terms you want to run
+
+    search_method = SearchMethod.NO_SEARCH
+    extract_method = ExtractionMethod.MAP
 
     metrics = {}
 
@@ -205,7 +227,7 @@ async def main():
             **{f"{tc}_gt": str for tc in terms},
             **{f"{tc}_page_gt": str for tc in terms},
         },
-        nrows=32,
+        nrows=5,
     )
 
     # Run evaluation against entire ground truth for each term and aggregate all
@@ -217,7 +239,9 @@ async def main():
     ) as progress:
         term_task = progress.add_task("Terms", total=len(terms))
         for i, term in enumerate(terms):
-            metrics[term], results_df = await evaluate_term(term, gt, progress)
+            metrics[term], results_df = await evaluate_term(
+                term, gt, progress, search_method, extract_method
+            )
             results_df.to_csv(
                 EVAL_OUTPUT_PATH,
                 index=False,

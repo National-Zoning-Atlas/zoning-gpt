@@ -3,6 +3,7 @@ from enum import Enum
 from functools import cache
 from pathlib import Path
 from typing import cast
+import warnings
 
 import datasets
 import numpy as np
@@ -14,6 +15,7 @@ from openai.embeddings_utils import get_embedding
 from pydantic import BaseModel
 
 from .types import District
+from ..utils import chunks
 
 
 @cache
@@ -39,6 +41,30 @@ def get_knn_lookup_tables(town: str) -> tuple[datasets.Dataset, pd.DataFrame]:
     result = ds.filter(lambda x: x["Town"] == town).add_faiss_index("embeddings")
     return result, df
 
+def fill_to_token_length(start_page, df, max_token_length):
+    """
+    Given a starting page in the document, add subsequent pages to the document
+    until the desired token length is achieved, or until no subsequent pages can
+    be found.
+    """
+    
+    enc = tiktoken.encoding_for_model("text-davinci-003")
+    page = start_page - 1
+    last_page = max(df.index)
+    text = ""
+    while len(enc.encode(text)) < max_token_length and page <= last_page:
+        page += 1
+        if page in df.index:
+            text += f"\nNEW PAGE {page - 1}\n" + df.loc[page]["Text"]
+
+    tokenized_text = enc.encode(text)
+
+    if page == start_page:
+        warnings.warn(f"Page {page} was {len(enc.decode(enc.encode(text))) - max_token_length} tokens longer than the specified max token length of {max_token_length} and will be truncated.")
+
+    return enc.decode(tokenized_text[:max_token_length])
+
+
 class PageSearchOutput(BaseModel):
     text: str
     page_number: int
@@ -48,8 +74,12 @@ class PageSearchOutput(BaseModel):
 
 
 class SearchMethod(str, Enum):
+    NO_SEARCH = "no_search"
+    """Don't do anything; just return all pages for this town's zoning document."""
     ELASTICSEARCH = "elasticsearch"
+    """Perform keyword-based search using ElasticSearch."""
     EMBEDDINGS_KNN = "embeddings_knn"
+    """Perform semantic search using embeddings."""
 
 
 def expand_term(term: str):
@@ -114,28 +144,28 @@ def nearest_pages(
                 )
                 for r in res
             )
+        case SearchMethod.NO_SEARCH:
+            ds, df = get_knn_lookup_tables(town)
+            for x in iter(ds):
+                yield PageSearchOutput(
+                    # TODO: Should we fill this to the maximum context length?
+                    # Or just run it on each chunk as-is?
+                    text=fill_to_token_length(x["Page"], df, 2000),
+                    page_number=x["Page"],
+                    score=0,
+                    highlight=[],
+                    query="",
+                )
         case SearchMethod.EMBEDDINGS_KNN:
             k = 6
             query = next(expand_term(term))
             query_embedding = np.array(get_embedding(query, "text-embedding-ada-002"))
             ds, df = get_knn_lookup_tables(town)
             result = ds.get_nearest_examples("embeddings", query_embedding, k)
-            # Add next 10 pages of context to the result, clipping the result to
-            # a maximum of 2000 tokens.
-            additional_context_pages = 10
-            max_chunk_size = 2000
-            enc = tiktoken.encoding_for_model("text-davinci-003")
-
             for i in range(k):
                 page = result.examples["Page"][i]
-                text = result.examples["Text"][i]
-                for j in range(1, additional_context_pages):
-                    if page + j not in df.index:
-                        continue
-
-                    text += f"\nNEW PAGE {page + j - 1}\n" + df.loc[page + j]["Text"]
                 yield PageSearchOutput(
-                    text=enc.decode(enc.encode(text)[:max_chunk_size]),
+                    text=fill_to_token_length(page, df, 2000),
                     page_number=page,
                     score=result.scores[i],
                     highlight=[],

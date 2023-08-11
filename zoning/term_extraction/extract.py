@@ -12,7 +12,7 @@ from pydantic import BaseModel, ValidationError
 from tenacity import retry, retry_if_exception_type, wait_random_exponential
 
 from ..utils import (
-    chunks,
+    batched,
     flatten,
     get_jinja_environment,
     get_project_root,
@@ -21,10 +21,7 @@ from ..utils import (
 )
 from .search import (
     PageSearchOutput,
-    get_non_overlapping_chunks,
-    nearest_pages,
     page_coverage,
-    SearchMethod,
 )
 from .types import District
 
@@ -163,20 +160,17 @@ def lookup_term_prompt(
 
 
 async def extract_answer(
-    town: str,
-    district: District,
+    pages: list[PageSearchOutput],
     term: str,
-    top_k_pages: int,
+    district: District,
     method: ExtractionMethod = ExtractionMethod.MAP,
     model_name: str = "text-davinci-003",
 ) -> list[LookupOutput]:
     """
-    Given a town name, a district in that town, and a term to search for, will
-    attempt to extract the value for the term from the zoning document that
-    corresponds to the town.
+    Given a term to search for, will attempt to extract the value for the term
+    from the provided pages.
     """
-    pages = list(nearest_pages(town, district, term, SearchMethod.EMBEDDINGS_KNN))
-    pages = get_non_overlapping_chunks(pages)[:top_k_pages]
+
 
     if len(pages) == 0:
         return []
@@ -200,7 +194,7 @@ async def extract_answer(
             # This is the length of the prompt before any template interpolation
             # TODO: Determine this automatically
             prompt_base_token_length = 256
-            for chunk in chunks(all_page, 8192 - prompt_base_token_length):
+            for chunk in batched(all_page, 8192 - prompt_base_token_length):
                 outputs.append(
                     LookupOutput(
                         output=await prompt(
