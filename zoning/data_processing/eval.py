@@ -20,74 +20,75 @@ DATA_ROOT = get_project_root() / "data"
 EVAL_METRICS_PATH = DATA_ROOT / "results" / "eval.yaml"
 EVAL_OUTPUT_PATH = DATA_ROOT / "results" / "eval.csv"
 
+TVal = TypeVar("TVal")
+
+
+def standardize_empty_val(val: TVal) -> TVal | None:
+    return None if pd.isna(val) else val
 
 async def compute_eval_result(
     town: str,
     district: District,
     term: str,
-    row,
+    ground_truth,
     search_method: SearchMethod,
     extraction_method: ExtractionMethod,
 ):
     pages = list(nearest_pages(town, district, term, search_method))
+    pages = get_non_overlapping_chunks(pages)
 
     if search_method != SearchMethod.NO_SEARCH:
-        pages = get_non_overlapping_chunks(pages)[:6]
+        # Unless we're explicitly running this on all pages, then we clip the
+        # number of pages to our top K value here. TODO: Do this in a better way
+        pages = pages[:6]
 
-    outputs = await extract_answer(
+    outputs = extract_answer(
         pages, term, district, method=extraction_method, model_name="gpt-4"
     )
-    gt_page = row[f"{term}_page_gt"]
+    gt_page = ground_truth[f"{term}_page_gt"]
     if pd.isna(gt_page):
         # No ground truth page
         gt_page = set()
     else:
         gt_page = set(map(int, str(gt_page).split(",")))
 
-    expected = row[f"{term}_gt"]
+    expected = standardize_empty_val(ground_truth[f"{term}_gt"])
 
-    for result in outputs:
+    async for result in outputs:
         searched_pages = {r.page_number for r in result.search_pages}
         searched_pages_expanded = set(result.search_pages_expanded)
 
-        extracted_pages = (
-            set(result.output.pages) if result.output is not None else set()
-        )
-
-        yield {
+        base_output = {
             "town": town,
             "district": district.full_name,
             "term": term,
-            "expected": expected if not pd.isna(expected) else None,
-            "expected_extended": row[f"{term}_gt_orig"],
-            "actual": result.output.answer if result.output is not None else None,
-            "confidence": result.output.confidence
-            if result.output is not None
-            else 0.0,
-            # For determining the correct page, we consider the page to be
-            # correct if the ground truth was also blank and GPT did not return
-            # an answer. Note that search always returns some page, so we ignore
-            # that result as long as GPT ignored it.
-            "correct_page_searched": int(
-                any(gt_page & searched_pages_expanded)
-                or (len(gt_page) == 0 and result.output is None)
-            ),
-            "correct_page_extracted": int(
-                any(gt_page & extracted_pages)
-                or (len(gt_page) == 0 and len(extracted_pages) == 0)
-            ),
             "gt_page": gt_page,
             "searched_pages": searched_pages,
             "searched_pages_expanded": searched_pages_expanded,
-            "extracted_pages": extracted_pages,
         }
 
+        if result.output is None:
+            yield {
+                **base_output,
+                # For determining the correct page, we consider the page to be
+                # correct if the ground truth was also blank and GPT did not return
+                # an answer. Note that search always returns some page, so we ignore
+                # that result as long as GPT ignored it.
+                "correct_page_searched": len(gt_page) == 0
+            }
+        else:
+            yield {
+                **base_output,
+                "rationale": result.output.rationale,
+                "extracted_text": result.output.extracted_text,
+                "actual": result.output.answer,
+                "expected": expected,
+                "expected_extended": ground_truth[f"{term}_gt_orig"],
+                "correct_page_searched": any(gt_page & searched_pages_expanded),   
+            }
 
-TVal = TypeVar("TVal")
 
 
-def standardize_empty_val(val: TVal) -> TVal | None:
-    return None if pd.isna(val) else val
 
 
 def compare_results(
@@ -172,7 +173,6 @@ async def evaluate_term(
         .agg(
             {
                 "correct_page_searched": "sum",
-                "correct_page_extracted": "sum",
                 "correct_answer": "sum",
             }
         )
@@ -183,18 +183,13 @@ async def evaluate_term(
     num_correct_page_searched = len(
         search_results_df.query("correct_page_searched > 0")
     )
-    num_correct_page_extracted = len(
-        search_results_df.query("correct_page_extracted > 0")
-    )
     num_correct_answer = len(search_results_df.query("correct_answer > 0"))
 
     return {
         "num_results": num_results,
         "num_correct_page_searched": num_correct_page_searched,
-        "num_correct_page_extracted": num_correct_page_extracted,
         "num_correct_answer": num_correct_answer,
         "page_search_recall": num_correct_page_searched / len(search_results_df),
-        "page_extract_recall": num_correct_page_extracted / len(search_results_df),
         # This is the answer accuracy conditional on the correct page having been looked up by ES
         "conditional_answer_accuracy": len(
             search_results_df.query("correct_page_searched > 0 & correct_answer > 0")

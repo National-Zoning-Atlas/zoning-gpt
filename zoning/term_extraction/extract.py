@@ -39,10 +39,9 @@ cache = dc.Cache(get_project_root() / ".diskcache")
 
 
 class PromptOutput(BaseModel):
-    answer: str
     extracted_text: list[str]
-    pages: list[int]
-    confidence: float
+    rationale: str
+    answer: str
 
 
 class LookupOutput(BaseModel):
@@ -165,26 +164,22 @@ async def extract_answer(
     district: District,
     method: ExtractionMethod = ExtractionMethod.MAP,
     model_name: str = "text-davinci-003",
-) -> list[LookupOutput]:
+):
     """
     Given a term to search for, will attempt to extract the value for the term
     from the provided pages.
     """
 
-
     if len(pages) == 0:
-        return []
+        return
 
-    outputs = []
     match method:
         case ExtractionMethod.NONE:
             for page in pages:
-                outputs.append(
-                    LookupOutput(
-                        output=None,
-                        search_pages=[page],
-                        search_pages_expanded=flatten(page_coverage([page])),
-                    )
+                yield LookupOutput(
+                    output=None,
+                    search_pages=[page],
+                    search_pages_expanded=flatten(page_coverage([page])),
                 )
         case ExtractionMethod.STUFF:
             # Stuff all pages into prompt, in order of page number
@@ -195,15 +190,13 @@ async def extract_answer(
             # TODO: Determine this automatically
             prompt_base_token_length = 256
             for chunk in batched(all_page, 8192 - prompt_base_token_length):
-                outputs.append(
-                    LookupOutput(
-                        output=await prompt(
-                            model_name,
-                            lookup_term_prompt(model_name, chunk, district, term),
-                        ),
-                        search_pages=pages,
-                        search_pages_expanded=flatten(page_coverage(pages)),
-                    )
+                yield LookupOutput(
+                    output=await prompt(
+                        model_name,
+                        lookup_term_prompt(model_name, chunk, district, term),
+                    ),
+                    search_pages=pages,
+                    search_pages_expanded=flatten(page_coverage(pages)),
                 )
         case ExtractionMethod.MAP:
             async def worker(page):
@@ -216,14 +209,8 @@ async def extract_answer(
                 )
 
             for page, result in await gather(*map(worker, pages)):
-                outputs.append(
-                    LookupOutput(
-                        output=result,
-                        search_pages=[page],
-                        search_pages_expanded=flatten(page_coverage([page])),
-                    )
+                yield LookupOutput(
+                    output=result,
+                    search_pages=[page],
+                    search_pages_expanded=flatten(page_coverage([page])),
                 )
-
-    return sorted(
-        outputs, key=lambda x: x.output.confidence if x.output else 0, reverse=True
-    )

@@ -13,16 +13,14 @@ answer as it pertains to single-family homes.
 
 # Schema
 {
-    "answer": str, // The value of {{term}} extracted from the text. Answer must include units and must be normalized, e.g. (sqr. ft. becomes sq ft)
     "extracted_text": list[str], // The verbatim text from which the result was extracted. Make sure to escape newlines.
-    "pages": list[int], // The pages that were used to generate the result. 
-    "confidence": float // The confidence value that you have in your answer. Must be between 0.0 and 1.0, inclusive. 1.0 means you are absolutely certain this is the correct answer, 0.0 means this is certainly the wrong answer. 0.5 would indicate that this answer could be correct, but it could apply to sub-districts, overlay districts, subdivisions, or something else.
+    "rationale": str, // A string containing a natural language explanation for the following answer
+    "answer": str // The value of {{term}} extracted from the text. Answer must include units and must be normalized, e.g. (sqr. ft. becomes sq ft)
 }
 
 # Examples
 
 Input:
-
 NEW PAGE 11
 
 {{zone_abbreviation}} Zone
@@ -30,11 +28,11 @@ NEW PAGE 11
 CELL (2, 1):
 Field
 CELL (2, 2):
-Value (square feet)
+Value
 CELL (3, 1):
 {{term}}
 CELL (3, 2):
-123456
+123456 sq ft
 CELL (4, 1):
 Apartment Area
 CELL (4, 2):
@@ -43,14 +41,12 @@ CELL (4, 2):
 
 Output:
 {
-    "answer": "123456 sq ft",
     "extracted_text": ["CELL (3, 2):\n123456 sq ft"],
-    "pages": [11],
-    "confidence": 1.0
+    "rationale": "The cell that corresponds to the value for {{term}} in this table has this answer.",
+    "answer": "123456"
 }
 
 Input:
-
 NEW PAGE 32
 
 Section 6.3 Industrial Area & Dimensional Requirements
@@ -137,7 +133,7 @@ CELL (4, 1):
 {{zone_abbreviation}}
 CELL (4, 2): 
 40,000
-sq. ft.
+sq. ft. 1
 CELL (4, 3): 
 150'
 CELL (4, 4): 
@@ -158,7 +154,7 @@ CELL (5, 1):
 {{zone_abbreviation}}
 CELL (5, 2): 
 60,000
-sq. ft.
+sq. ft. 2
 CELL (5, 3): 
 200'
 CELL (5, 4): 
@@ -178,26 +174,28 @@ CELL (5, 10):
 
 Output:
 {
-    "answer": "40,000 sq ft (if public water or sewer); 60,000 sq ft (otherwise)",
     "extracted_text": [
         "1 Public Sewer or Public Water",
         "2 Neither Public Sewer nor Public Water",
-        "CELL (6, 2): \n40,000\nsq. ft.",
-        "CELL (7, 2): \n60,000\nsq. ft."
+        "CELL (4, 2): \n40,000\nsq. ft.",
+        "CELL (5, 2): \n60,000\nsq. ft."
     ],
-    "pages": [32],
-    "confidence": 1.0
+    "rationale": "From this page we can infer that the value is conditional on the presence of a public sewer or water system, and there are two different values for the current zone, depending on that.",
+    "answer": "40,000 sq ft (if public water or sewer); 60,000 sq ft (otherwise)"
 }
 
 Input:
-
 NEW PAGE 66
 
-{{zone_abbreviation}} Zone — Active Senior Overlay
+{{zone_abbreviation}} Zone
 
 {{term}} is 123 sq ft, side length is 10 ft
 
 NEW PAGE 67
+
+{{zone_abbreviation}} Zone - Senior Active Overlay
+
+{{term}} is 1523 sq ft
 
 DKEWKWKDS Zone
 
@@ -205,14 +203,12 @@ DKEWKWKDS Zone
 
 Output:
 {
-    "answer": "123 sq ft",
     "extracted_text": ["{{term}} is 123 sq ft"],
-    "pages": [66, 67],
-    "confidence": 0.5
+    "rationale": "The section titled {{zone_abbreviation}} says the answer explicitly. We ignore sections that specify regulations for overlay districts within this district.",
+    "answer": "123 sq ft"
 }
 
 Input:
-
 Multi-family building
 
 Output:
