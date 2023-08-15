@@ -205,28 +205,20 @@ def include_context_around_phrase(phrase: str, document: str, n_tokens: int):
     return "".join((before, phrase, after))
 
 
-def template_answer(i, r):
-    context = include_context_around_phrase(
-        r.output.extracted_text[0],
-        "\n\n".join(p.text for p in r.search_pages),
-        TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER,
-    )
-
-    return f"""INDEX {i}
-Answer: {r.output.answer}
-Rationale: {r.output.rationale}
-Extracted Text: {r.output.extracted_text}
-Supporting Text:
-{context}"""
-
-
 async def tournament_reduce(
-    results: list[LookupOutput], term: str, district: District
-) -> LookupOutput | None:
-    if len(results) == 0:
-        return None
-    if len(results) == 1:
-        return results[0]
+    results: list[LookupOutput], term: str, district: District, k: int
+) -> list[LookupOutput]:
+    if len(results) <= k:
+        return results
+    
+    def template_answer(i, r):
+        context = include_context_around_phrase(
+            r.output.extracted_text[0],
+            "\n\n".join(p.text for p in r.search_pages),
+            TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER,
+        )
+
+        return f"INDEX {i}\nAnswer: {r.output.answer}\nRationale: {r.output.rationale}\nExtracted Text: {r.output.extracted_text}\nSupporting Text:\n{context}"
 
     winners = []
     for competitor_batch in batched(
@@ -236,8 +228,7 @@ async def tournament_reduce(
         input_prompt = tournament_reduce_tmpl.render(
             term=term,
             synonyms=", ".join(thesaurus.get(term, [])),
-            zone_name=district.full_name,
-            zone_abbreviation=district.short_name,
+            district=district,
             answers="\n\n===\n\n".join(
                 template_answer(i, r) for i, r in enumerate(competitor_batch)
             ),
@@ -261,7 +252,7 @@ async def tournament_reduce(
         winner = competitor_batch[index]
         winners.append(winner)
 
-    return await tournament_reduce(winners, term, district)
+    return await tournament_reduce(winners, term, district, k)
 
 
 async def extract_answer(
@@ -316,9 +307,8 @@ async def extract_answer(
                     results.append(r)
 
             # Then we reduce the answers to one in a tournament.
-            final_result = await tournament_reduce(results, term, district)
-            if final_result is not None:
-                yield final_result
+            for result in await tournament_reduce(results, term, district, 6):
+                yield result
         case ExtractionMethod.MAP:
 
             async def worker(page):

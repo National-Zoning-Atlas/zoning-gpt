@@ -202,10 +202,10 @@ async def evaluate_term(
 async def main():
     terms = [
         "min_lot_size",
-        # "min_unit_size",
-        # "max_height",
+        "min_unit_size",
+        "max_height",
         "max_lot_coverage",
-        # "max_lot_coverage_pavement",
+        "max_lot_coverage_pavement",
         "min_parking_spaces",
     ]  # update to list of terms you want to run
 
@@ -222,7 +222,7 @@ async def main():
             **{f"{tc}_gt": str for tc in terms},
             **{f"{tc}_page_gt": str for tc in terms},
         },
-        nrows=5,
+        nrows=30,
     )
 
     # Run evaluation against entire ground truth for each term and aggregate all
