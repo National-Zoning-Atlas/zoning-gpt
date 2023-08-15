@@ -15,7 +15,6 @@ from openai.embeddings_utils import get_embedding
 from pydantic import BaseModel
 
 from .types import District
-from ..utils import chunks
 
 
 @cache
@@ -103,6 +102,16 @@ def nearest_pages(
     method: SearchMethod = SearchMethod.ELASTICSEARCH,
 ):
     match method:
+        case SearchMethod.NO_SEARCH:
+            ds, df = get_knn_lookup_tables(town)
+            for x in iter(ds):
+                yield PageSearchOutput(
+                    text=fill_to_token_length(x["Page"], df, 1900),
+                    page_number=x["Page"],
+                    score=0,
+                    highlight=[],
+                    query="",
+                )
         case SearchMethod.ELASTICSEARCH:
             # Search in town
             s = Search(using=get_elasticsearch_client(), index=town)
@@ -144,18 +153,6 @@ def nearest_pages(
                 )
                 for r in res
             )
-        case SearchMethod.NO_SEARCH:
-            ds, df = get_knn_lookup_tables(town)
-            for x in iter(ds):
-                yield PageSearchOutput(
-                    # TODO: Should we fill this to the maximum context length?
-                    # Or just run it on each chunk as-is?
-                    text=fill_to_token_length(x["Page"], df, 2000),
-                    page_number=x["Page"],
-                    score=0,
-                    highlight=[],
-                    query="",
-                )
         case SearchMethod.EMBEDDINGS_KNN:
             k = 6
             query = next(expand_term(term))

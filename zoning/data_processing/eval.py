@@ -191,10 +191,10 @@ async def evaluate_term(
         "num_correct_answer": num_correct_answer,
         "page_search_recall": num_correct_page_searched / len(search_results_df),
         # This is the answer accuracy conditional on the correct page having been looked up by ES
-        "conditional_answer_accuracy": len(
+        "conditional_answer_accuracy": (len(
             search_results_df.query("correct_page_searched > 0 & correct_answer > 0")
         )
-        / num_correct_page_searched,
+        / num_correct_page_searched) if num_correct_page_searched != 0 else 0,
         "answer_accuracy": num_correct_answer / len(search_results_df),
     }, results_df
 
@@ -210,7 +210,7 @@ async def main():
     ]  # update to list of terms you want to run
 
     search_method = SearchMethod.NO_SEARCH
-    extract_method = ExtractionMethod.MAP
+    extract_method = ExtractionMethod.TOURNAMENT_REDUCE
 
     metrics = {}
 
