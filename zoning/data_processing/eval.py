@@ -1,19 +1,20 @@
-import asyncio
-from typing import TypeVar
+from typing import Annotated, Optional, TypeVar
 
 import pandas as pd
+import typer
 import yaml
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 
 from ..term_extraction.eval_results import clean_string_units
 from ..term_extraction.extract import District, ExtractionMethod, extract_answer
 from ..term_extraction.search import (
-    nearest_pages,
-    get_non_overlapping_chunks,
     SearchMethod,
+    get_non_overlapping_chunks,
+    nearest_pages,
 )
 from ..term_extraction.semantic_comparison import semantic_comparison
 from ..utils import get_project_root
+from .utils import AsyncTyper
 
 DATA_ROOT = get_project_root() / "data"
 
@@ -25,6 +26,7 @@ TVal = TypeVar("TVal")
 
 def standardize_empty_val(val: TVal) -> TVal | None:
     return None if pd.isna(val) else val
+
 
 async def compute_eval_result(
     town: str,
@@ -74,7 +76,7 @@ async def compute_eval_result(
                 # correct if the ground truth was also blank and GPT did not return
                 # an answer. Note that search always returns some page, so we ignore
                 # that result as long as GPT ignored it.
-                "correct_page_searched": len(gt_page) == 0
+                "correct_page_searched": len(gt_page) == 0,
             }
         else:
             yield {
@@ -84,11 +86,8 @@ async def compute_eval_result(
                 "actual": result.output.answer,
                 "expected": expected,
                 "expected_extended": ground_truth[f"{term}_gt_orig"],
-                "correct_page_searched": any(gt_page & searched_pages_expanded),   
+                "correct_page_searched": any(gt_page & searched_pages_expanded),
             }
-
-
-
 
 
 def compare_results(
@@ -191,27 +190,28 @@ async def evaluate_term(
         "num_correct_answer": num_correct_answer,
         "page_search_recall": num_correct_page_searched / len(search_results_df),
         # This is the answer accuracy conditional on the correct page having been looked up by ES
-        "conditional_answer_accuracy": (len(
-            search_results_df.query("correct_page_searched > 0 & correct_answer > 0")
+        "conditional_answer_accuracy": (
+            len(
+                search_results_df.query(
+                    "correct_page_searched > 0 & correct_answer > 0"
+                )
+            )
+            / num_correct_page_searched
         )
-        / num_correct_page_searched) if num_correct_page_searched != 0 else 0,
+        if num_correct_page_searched != 0
+        else 0,
         "answer_accuracy": num_correct_answer / len(search_results_df),
     }, results_df
 
 
-async def main():
-    terms = [
-        "min_lot_size",
-        "min_unit_size",
-        "max_height",
-        "max_lot_coverage",
-        "max_lot_coverage_pavement",
-        "min_parking_spaces",
-    ]  # update to list of terms you want to run
-
-    search_method = SearchMethod.NO_SEARCH
-    extract_method = ExtractionMethod.TOURNAMENT_REDUCE
-
+async def main(
+    search_method: Annotated[SearchMethod, typer.Option()],
+    extraction_method: Annotated[ExtractionMethod, typer.Option()],
+    terms: Annotated[list[str], typer.Option()],
+    # We must use Optional here because the "|" syntax can't be used by typer
+    # yet for some reason.
+    num_eval_rows: Annotated[Optional[int], typer.Option()] = None,
+):
     metrics = {}
 
     # Load Ground Truth
@@ -222,7 +222,7 @@ async def main():
             **{f"{tc}_gt": str for tc in terms},
             **{f"{tc}_page_gt": str for tc in terms},
         },
-        nrows=30,
+        nrows=num_eval_rows,
     )
 
     # Run evaluation against entire ground truth for each term and aggregate all
@@ -235,7 +235,7 @@ async def main():
         term_task = progress.add_task("Terms", total=len(terms))
         for i, term in enumerate(terms):
             metrics[term], results_df = await evaluate_term(
-                term, gt, progress, search_method, extract_method
+                term, gt, progress, search_method, extraction_method
             )
             results_df.to_csv(
                 EVAL_OUTPUT_PATH,
@@ -250,4 +250,6 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    app = AsyncTyper(add_completion=False)
+    app.command()(main)
+    app()

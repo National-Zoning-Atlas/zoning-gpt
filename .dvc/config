@@ -1,5 +1,7 @@
 [core]
     remote = cornell-aap-azure
     autostage = true
+[parsing]
+    list = append
 ['remote "cornell-aap-azure"']
     url = azure://zoning/dvc

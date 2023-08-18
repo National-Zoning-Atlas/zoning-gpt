@@ -43,7 +43,7 @@ stages:
     - zoning/data_processing/index_towns.py
     - data/hf_text_dataset
   evaluate:
-    cmd: python -m zoning.data_processing.eval
+    cmd: python -m zoning.data_processing.eval ${eval}
     deps:
     - zoning/data_processing/eval.py
     - templates/extraction_chat_completion.pmpt.tpl

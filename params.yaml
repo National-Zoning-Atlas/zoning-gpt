@@ -9,3 +9,25 @@ generate_dataset:
 # Whether or not to publish the resulting datasets to HuggingFace Hub. If False,
 # the dataset will only be saved locally.
 publish_datasets: true
+
+eval:
+  # The number of rows of ground truth to use for generating results. Lower this
+  # to reduce time and cost of evaluation. Rows are consumed in order, so a
+  # value of 10 implies that the first 10 rows of the ground truth are consumed.
+  num-eval-rows: 30
+  # The terms to run evaluation against. See `thesaurus.json` for a list of
+  # valid terms.
+  terms:
+    - "min_lot_size"
+    - "min_unit_size"
+    - "max_height"
+    - "max_lot_coverage"
+    - "max_lot_coverage_pavement"
+    - "min_parking_spaces"
+  # The search method to use for locating pages to run extraction on. See
+  # `search.py` for a list of valid search methods.
+  search-method: "no_search"
+  # The extraction method to use on located pages. See `extract.py` for a list
+  # of valid search methods.
+  extraction-method: "tournament_reduce"
+  

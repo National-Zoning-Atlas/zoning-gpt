@@ -87,7 +87,9 @@ stages:
       md5: cd3c4af8c8e19c9927e28912aaf7ced5
       size: 1580
   evaluate:
-    cmd: python -m zoning.data_processing.eval
+    cmd: python -m zoning.data_processing.eval --num-eval-rows 30 --terms min_lot_size
+      --terms min_unit_size --terms max_height --terms max_lot_coverage --terms max_lot_coverage_pavement
+      --terms min_parking_spaces --search-method no_search --extraction-method tournament_reduce
     deps:
     - path: templates/extraction_chat_completion.pmpt.tpl
       md5: 1a26f472c8a4889f0304b01f9732cfec
@@ -96,12 +98,12 @@ stages:
       md5: cdd9b0b79ac4ed02da5897315ccc15df
       size: 91
     - path: zoning/data_processing/eval.py
-      md5: b3babd63aca56352dc940991b5790e29
-      size: 8515
+      md5: 4b7a22668f22e38e6ff85487c0bc44b5
+      size: 8736
     outs:
     - path: data/results/eval.csv
-      md5: a48e8aa2eccbd34a73d1b22714e8cb84
-      size: 142984
+      md5: 2bf7b6e58e8f7a50c316a617625cc3a1
+      size: 143433
     - path: data/results/eval.yaml
-      md5: ec9e1d30a6205128ba00dd9e0a98b50d
+      md5: c070085b6f4cec23360d169daaca5fce
       size: 1271
