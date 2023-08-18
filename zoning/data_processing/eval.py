@@ -39,7 +39,7 @@ async def compute_eval_result(
     pages = search_for_term(town, district, term, search_method, k)
 
     outputs = extract_answer(
-        pages, term, district, method=extraction_method, model_name="gpt-4", k=k
+        pages, term, district, method=extraction_method, model_name="gpt-4", k=1
     )
     gt_page = ground_truth[f"{term}_page_gt"]
     if pd.isna(gt_page):
