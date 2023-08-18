@@ -24,7 +24,8 @@ repository has been tested only with Python 3.10.) To setup your development
 environment, run the following:
 
 ```bash
-pip install -r requirements.txt
+brew install pdm
+pdm install
 ```
 
 ## Download Existing Artifacts
@@ -35,13 +36,13 @@ string to this blob storage, and add it to your local DVC configuration using
 the following command:
 
 ```bash
-dvc remote modify --local cornell-aap-azure connection_string <YOUR CONNECTION STRING HERE>
+pdm run dvc remote modify --local cornell-aap-azure connection_string <YOUR CONNECTION STRING HERE>
 ```
 
 Once you have the DVC remote added, you can pull all existing pipeline data using:
 
 ```bash
-dvc pull
+pdm run dvc pull
 ```
 
 ## Generate/Update Artifacts
@@ -78,7 +79,7 @@ Once everything running, you can generate a full set of results using the
 following command:
 
 ```bash
-dvc repro
+pdm run dvc repro
 ```
 
 Depending on how many documents you provide, running this may take quite some
