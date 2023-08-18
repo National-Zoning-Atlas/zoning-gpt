@@ -62,7 +62,7 @@ class LookupOutput(BaseModel):
 
 
 class ExtractionMethod(str, Enum):
-    NONE = "search_only"
+    NONE = "none"
     STUFF = "stuff"
     MAP = "map"
     TOURNAMENT_REDUCE = "tournament_reduce"
@@ -261,10 +261,14 @@ async def extract_answer(
     district: District,
     method: ExtractionMethod,
     model_name: str,
+    k: int = 1,
 ) -> AsyncGenerator[LookupOutput, None]:
     """
     Given a term to search for, will attempt to extract the value for the term
     from the provided pages.
+
+    k is only used for extraction method TOURNAMENT_REDUCE, and specifies at
+    what number of results to stop the tournament.
     """
 
     if len(pages) == 0:
@@ -301,16 +305,15 @@ async def extract_answer(
             # We first map extraction across all pages.
             results = []
             async for r in extract_answer(
-                pages, term, district, ExtractionMethod.MAP, model_name
+                pages, term, district, ExtractionMethod.MAP, model_name, k
             ):
                 if r.output is not None:
                     results.append(r)
 
-            # Then we reduce the answers to one in a tournament.
-            for result in await tournament_reduce(results, term, district, 6):
+            # Then we reduce the answers until only k remain, using a tournament.
+            for result in await tournament_reduce(results, term, district, k):
                 yield result
         case ExtractionMethod.MAP:
-
             async def worker(page):
                 return (
                     page,

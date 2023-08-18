@@ -9,8 +9,7 @@ from ..term_extraction.eval_results import clean_string_units
 from ..term_extraction.extract import District, ExtractionMethod, extract_answer
 from ..term_extraction.search import (
     SearchMethod,
-    get_non_overlapping_chunks,
-    nearest_pages,
+    search_for_term,
 )
 from ..term_extraction.semantic_comparison import semantic_comparison
 from ..utils import get_project_root
@@ -35,17 +34,12 @@ async def compute_eval_result(
     ground_truth,
     search_method: SearchMethod,
     extraction_method: ExtractionMethod,
+    k: int,
 ):
-    pages = list(nearest_pages(town, district, term, search_method))
-    pages = get_non_overlapping_chunks(pages)
-
-    if search_method != SearchMethod.NO_SEARCH:
-        # Unless we're explicitly running this on all pages, then we clip the
-        # number of pages to our top K value here. TODO: Do this in a better way
-        pages = pages[:6]
+    pages = search_for_term(town, district, term, search_method, k)
 
     outputs = extract_answer(
-        pages, term, district, method=extraction_method, model_name="gpt-4"
+        pages, term, district, method=extraction_method, model_name="gpt-4", k=k
     )
     gt_page = ground_truth[f"{term}_page_gt"]
     if pd.isna(gt_page):
@@ -121,6 +115,7 @@ async def evaluate_term(
     progress: Progress,
     search_method: SearchMethod,
     extraction_method: ExtractionMethod,
+    k: int,
 ):
     eval_task = progress.add_task(f"Evaluating {term}", total=len(gt))
 
@@ -132,7 +127,7 @@ async def evaluate_term(
         progress.update(eval_task, description=f"Evaluating {term}, {town}, {district}")
         district = District(full_name=district, short_name=row.district_abb)
         async for result in compute_eval_result(
-            town, district, term, row, search_method, extraction_method
+            town, district, term, row, search_method, extraction_method, k
         ):
             results.append(result)
         progress.advance(eval_task)
@@ -189,7 +184,8 @@ async def evaluate_term(
         "num_correct_page_searched": num_correct_page_searched,
         "num_correct_answer": num_correct_answer,
         "page_search_recall": num_correct_page_searched / len(search_results_df),
-        # This is the answer accuracy conditional on the correct page having been looked up by ES
+        # This is the answer accuracy conditional on the correct page having
+        # been looked up by search
         "conditional_answer_accuracy": (
             len(
                 search_results_df.query(
@@ -208,6 +204,7 @@ async def main(
     search_method: Annotated[SearchMethod, typer.Option()],
     extraction_method: Annotated[ExtractionMethod, typer.Option()],
     terms: Annotated[list[str], typer.Option()],
+    k: Annotated[int, typer.Option()],
     # We must use Optional here because the "|" syntax can't be used by typer
     # yet for some reason.
     num_eval_rows: Annotated[Optional[int], typer.Option()] = None,
@@ -235,7 +232,7 @@ async def main(
         term_task = progress.add_task("Terms", total=len(terms))
         for i, term in enumerate(terms):
             metrics[term], results_df = await evaluate_term(
-                term, gt, progress, search_method, extraction_method
+                term, gt, progress, search_method, extraction_method, k
             )
             results_df.to_csv(
                 EVAL_OUTPUT_PATH,

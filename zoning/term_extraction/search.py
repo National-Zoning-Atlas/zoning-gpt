@@ -27,18 +27,18 @@ def get_thesaurus() -> dict[str, list[str]]:
     # Global thesaurus
     with Path(__file__).parent.joinpath("thesaurus.json").open(encoding="utf-8") as f:
         return json.load(f)
-    
+
+
 @cache
-def get_knn_lookup_tables(town: str) -> tuple[datasets.Dataset, pd.DataFrame]:
+def get_lookup_tables(town: str) -> tuple[datasets.Dataset, pd.DataFrame]:
     ds = cast(
         datasets.Dataset,
-        datasets.load_dataset(
-            "xyzNLP/nza-ct-zoning-codes-text", split="train+test"
-        ),
+        datasets.load_dataset("xyzNLP/nza-ct-zoning-codes-text", split="train+test"),
     )
     df = ds.to_pandas().set_index(["Town", "Page"]).loc[town]
-    result = ds.filter(lambda x: x["Town"] == town).add_faiss_index("embeddings")
+    result = ds.filter(lambda x: x["Town"] == town)
     return result, df
+
 
 def fill_to_token_length(start_page, df, max_token_length):
     """
@@ -46,7 +46,7 @@ def fill_to_token_length(start_page, df, max_token_length):
     until the desired token length is achieved, or until no subsequent pages can
     be found.
     """
-    
+
     enc = tiktoken.encoding_for_model("text-davinci-003")
     page = start_page - 1
     last_page = max(df.index)
@@ -59,7 +59,9 @@ def fill_to_token_length(start_page, df, max_token_length):
     tokenized_text = enc.encode(text)
 
     if page == start_page:
-        warnings.warn(f"Page {page} was {len(enc.decode(enc.encode(text))) - max_token_length} tokens longer than the specified max token length of {max_token_length} and will be truncated.")
+        warnings.warn(
+            f"Page {page} was {len(enc.decode(enc.encode(text))) - max_token_length} tokens longer than the specified max token length of {max_token_length} and will be truncated."
+        )
 
     return enc.decode(tokenized_text[:max_token_length])
 
@@ -72,6 +74,7 @@ class PageSearchOutput(BaseModel):
     query: str
 
 
+# TODO: Move these into their own classes
 class SearchMethod(str, Enum):
     NO_SEARCH = "no_search"
     """Don't do anything; just return all pages for this town's zoning document."""
@@ -95,79 +98,103 @@ def expand_term(term: str):
             yield query
 
 
-def nearest_pages(
+def no_search(town: str):
+    ds, df = get_lookup_tables(town)
+    for x in iter(ds):
+        yield PageSearchOutput(
+            text=fill_to_token_length(x["Page"], df, 1900),
+            page_number=x["Page"],
+            score=0,
+            highlight=[],
+            query="",
+        )
+
+
+def elasticsearch(town: str, district: District, term: str):
+    # Search in town
+    s = Search(using=get_elasticsearch_client(), index=town)
+
+    # Search for district
+    district_query = (
+        Q("match_phrase", Text=district.full_name)
+        | Q("match_phrase", Text=district.short_name)
+        | Q("match_phrase", Text=district.short_name.replace("-", ""))
+        | Q("match_phrase", Text=district.short_name.replace(".", ""))
+    )
+
+    term_query = Q(
+        "bool",
+        should=list(Q("match_phrase", Text=t) for t in expand_term(term)),
+        minimum_should_match=1,
+    )
+
+    dim_query = Q(
+        "bool",
+        should=list(
+            Q("match_phrase", Text=t) for t in expand_term(f"{term} dimensions")
+        ),
+        minimum_should_match=1,
+    )
+
+    s.query = district_query & term_query & dim_query
+
+    s = s.highlight("Text")
+    res = s.execute()
+
+    yield from (
+        PageSearchOutput(
+            text=r.Text,
+            page_number=r.Page,
+            highlight=list(r.meta.highlight.Text),
+            score=r.meta.score,
+            query=json.dumps(s.query.to_dict()),
+        )
+        for r in res
+    )
+
+
+def embeddings_knn_search(town: str, district: District, term: str, k: int):
+    assert k > 0, "`k` must be >0 to use KNN search"
+
+    query = next(expand_term(term)) + district.full_name + district.short_name
+    query_embedding = np.array(get_embedding(query, "text-embedding-ada-002"))
+    ds, df = get_lookup_tables(town)
+    ds.add_faiss_index("embeddings")
+
+    result = ds.get_nearest_examples("embeddings", query_embedding, k * 10)
+    for i in range(k):
+        page = result.examples["Page"][i]
+        yield PageSearchOutput(
+            text=fill_to_token_length(page, df, 2000),
+            page_number=page,
+            score=result.scores[i],
+            highlight=[],
+            query=query,
+        )
+
+
+def search_for_term(
     town: str,
     district: District,
     term: str,
-    method: SearchMethod = SearchMethod.ELASTICSEARCH,
+    method: SearchMethod,
+    k: int,
 ):
     match method:
         case SearchMethod.NO_SEARCH:
-            ds, df = get_knn_lookup_tables(town)
-            for x in iter(ds):
-                yield PageSearchOutput(
-                    text=fill_to_token_length(x["Page"], df, 1900),
-                    page_number=x["Page"],
-                    score=0,
-                    highlight=[],
-                    query="",
-                )
+            result_gen = no_search(town)
         case SearchMethod.ELASTICSEARCH:
-            # Search in town
-            s = Search(using=get_elasticsearch_client(), index=town)
-
-            # Search for district
-            district_query = (
-                Q("match_phrase", Text=district.full_name)
-                | Q("match_phrase", Text=district.short_name)
-                | Q("match_phrase", Text=district.short_name.replace("-", ""))
-                | Q("match_phrase", Text=district.short_name.replace(".", ""))
-            )
-
-            term_query = Q(
-                "bool",
-                should=list(Q("match_phrase", Text=t) for t in expand_term(term)),
-                minimum_should_match=1,
-            )
-
-            dim_query = Q(
-                "bool",
-                should=list(
-                    Q("match_phrase", Text=t) for t in expand_term(f"{term} dimensions")
-                ),
-                minimum_should_match=1,
-            )
-
-            s.query = district_query & term_query & dim_query
-
-            s = s.highlight("Text")
-            res = s.execute()
-
-            yield from (
-                PageSearchOutput(
-                    text=r.Text,
-                    page_number=r.Page,
-                    highlight=list(r.meta.highlight.Text),
-                    score=r.meta.score,
-                    query=json.dumps(s.query.to_dict()),
-                )
-                for r in res
-            )
+            result_gen = elasticsearch(town, district, term)
         case SearchMethod.EMBEDDINGS_KNN:
-            k = 6
-            query = next(expand_term(term))
-            query_embedding = np.array(get_embedding(query, "text-embedding-ada-002"))
-            ds, df = get_knn_lookup_tables(town)
-            result = ds.get_nearest_examples("embeddings", query_embedding, k)
-            for i in range(k):
-                page = result.examples["Page"][i]
-                yield PageSearchOutput(
-                    text=fill_to_token_length(page, df, 2000),
-                    page_number=page,
-                    score=result.scores[i],
-                    highlight=[],
-                    query=query,
-                )
+            # We grossly inflate the K we use for KNN to ensure that, even after
+            # removing all overlapping pages, we have at least k pages leftover
+            result_gen = embeddings_knn_search(town, district, term, k * 10)
+
+    results = get_non_overlapping_chunks(list(result_gen))
+    if k > 0:
+        return results[:k]
+    else:
+        return results
 
 
 def page_coverage(search_result: list[PageSearchOutput]) -> list[list[int]]:
