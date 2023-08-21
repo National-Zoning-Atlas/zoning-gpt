@@ -124,7 +124,7 @@ async def evaluate_term(
     progress.update(eval_task, description=f"Evaluated {term}")
 
     results_df = (
-        pl.from_dicts(results, schema_overrides={ "expected_extended": pl.Utf8 })
+        pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
         # Attempt to normalize LLM responses
         .with_columns(
             pl.col("actual").apply(clean_string_units).alias("actual_normalized"),
@@ -140,7 +140,14 @@ async def evaluate_term(
         .explode("actual_normalized")
         .explode("expected_normalized")
         .with_columns(
-            pl.struct(["actual", "actual_normalized", "expected_normalized", "expected_extended"])
+            pl.struct(
+                [
+                    "actual",
+                    "actual_normalized",
+                    "expected_normalized",
+                    "expected_extended",
+                ]
+            )
             .apply(
                 lambda s: compare_results(
                     s["actual_normalized"],
@@ -226,6 +233,19 @@ async def main(
                 results_df = new_results_df
 
             progress.advance(term_task)
+
+    # Compute metrics aggregated across terms
+    metrics["answer_accuracy"] = sum(
+        metrics[term]["answer_accuracy"] for term in terms
+    ) / len(terms)
+
+    metrics["page_search_recall"] = sum(
+        metrics[term]["page_search_recall"] for term in terms
+    ) / len(terms)
+
+    metrics["conditional_answer_accuracy"] = sum(
+        metrics[term]["conditional_answer_accuracy"] for term in terms
+    ) / len(terms)
 
     assert results_df is not None
 

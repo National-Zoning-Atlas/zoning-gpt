@@ -93,10 +93,10 @@ stages:
       md5: cd3c4af8c8e19c9927e28912aaf7ced5
       size: 1580
   evaluate:
-    cmd: python -m zoning.data_processing.eval --num-eval-rows 30 --terms min_lot_size
+    cmd: python -m zoning.data_processing.eval --num-eval-rows 10 --terms min_lot_size
       --terms min_unit_size --terms max_height --terms max_lot_coverage --terms max_lot_coverage_pavement
       --terms min_parking_spaces --search-method embeddings_knn --extraction-method
-      tournament_reduce --k 6
+      map --k 12
     deps:
     - path: templates/extraction_chat_completion.pmpt.tpl
       md5: 1a26f472c8a4889f0304b01f9732cfec
@@ -111,9 +111,9 @@ stages:
     outs:
     - path: data/results/eval.parquet
       hash: md5
-      md5: 8707f4f0cee5809302251c9f82d026d6
-      size: 14459
+      md5: 323067a7d7575b2f0b0e415d4bd154d9
+      size: 17281
     - path: data/results/eval.yaml
       hash: md5
-      md5: 1661da07250f9e8681f57d1ab0ff47c5
-      size: 1239
+      md5: 31af8ae9e8e330594562034845c92aa2
+      size: 1061
