@@ -55,16 +55,22 @@ async def compute_eval_result(
             "gt_page": list(gt_page),
             "searched_pages": list(searched_pages),
             "searched_pages_expanded": list(searched_pages_expanded),
+            "expected": expected,
+            "expected_extended": ground_truth[f"{term}_gt_orig"],
         }
 
         if result.output is None:
             yield {
                 **base_output,
+                "rationale": None,
+                "extracted_text": None,
+                "actual": None,
+
                 # For determining the correct page, we consider the page to be
                 # correct if the ground truth was also blank and GPT did not return
                 # an answer. Note that search always returns some page, so we ignore
                 # that result as long as GPT ignored it.
-                "correct_page_searched": len(gt_page) == 0,
+                "correct_page_searched": any(gt_page & searched_pages_expanded),
             }
         else:
             yield {
@@ -72,8 +78,6 @@ async def compute_eval_result(
                 "rationale": result.output.rationale,
                 "extracted_text": result.output.extracted_text,
                 "actual": result.output.answer,
-                "expected": expected,
-                "expected_extended": ground_truth[f"{term}_gt_orig"],
                 "correct_page_searched": any(gt_page & searched_pages_expanded),
             }
 

@@ -95,8 +95,8 @@ stages:
   evaluate:
     cmd: python -m zoning.data_processing.eval --num-eval-rows 10 --terms min_lot_size
       --terms min_unit_size --terms max_height --terms max_lot_coverage --terms max_lot_coverage_pavement
-      --terms min_parking_spaces --search-method embeddings_knn --extraction-method
-      map --k 12
+      --terms min_parking_spaces --search-method elasticsearch --extraction-method
+      map --k 6
     deps:
     - path: templates/extraction_chat_completion.pmpt.tpl
       md5: 1a26f472c8a4889f0304b01f9732cfec
@@ -106,14 +106,14 @@ stages:
       size: 91
     - path: zoning/data_processing/eval.py
       hash: md5
-      md5: 216d829afa0c302367cbeb652647ffdc
-      size: 8384
+      md5: 88e27afc9f970682728ae5c9fb3e13c5
+      size: 9059
     outs:
     - path: data/results/eval.parquet
       hash: md5
-      md5: 323067a7d7575b2f0b0e415d4bd154d9
-      size: 17281
+      md5: 7e1edb810f220a13c91f828a21165ec6
+      size: 10725
     - path: data/results/eval.yaml
       hash: md5
-      md5: 31af8ae9e8e330594562034845c92aa2
-      size: 1061
+      md5: d183a4d4bbcd847b0acaba3328b299ae
+      size: 1291
