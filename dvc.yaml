@@ -49,7 +49,7 @@ stages:
     - templates/extraction_chat_completion.pmpt.tpl
     - templates/extraction_completion.pmpt.tpl
     outs:
-    - data/results/eval.csv
+    - data/results/eval.parquet
     metrics:
     - data/results/eval.yaml:
         cache: true

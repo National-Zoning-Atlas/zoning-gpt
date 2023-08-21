@@ -188,7 +188,7 @@ def search_for_term(
         case SearchMethod.EMBEDDINGS_KNN:
             # We grossly inflate the K we use for KNN to ensure that, even after
             # removing all overlapping pages, we have at least k pages leftover
-            result_gen = embeddings_knn_search(town, district, term, k * 10)
+            result_gen = embeddings_knn_search(town, district, term, k * 5)
 
     results = get_non_overlapping_chunks(list(result_gen))
     if k > 0:

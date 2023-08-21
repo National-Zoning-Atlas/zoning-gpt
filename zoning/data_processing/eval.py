@@ -1,6 +1,6 @@
-from typing import Annotated, Optional, TypeVar
+from typing import Annotated, Any, Optional
 
-import pandas as pd
+import polars as pl
 import typer
 import yaml
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
@@ -18,20 +18,14 @@ from .utils import AsyncTyper
 DATA_ROOT = get_project_root() / "data"
 
 EVAL_METRICS_PATH = DATA_ROOT / "results" / "eval.yaml"
-EVAL_OUTPUT_PATH = DATA_ROOT / "results" / "eval.csv"
-
-TVal = TypeVar("TVal")
-
-
-def standardize_empty_val(val: TVal) -> TVal | None:
-    return None if pd.isna(val) else val
+EVAL_OUTPUT_PATH = DATA_ROOT / "results" / "eval.parquet"
 
 
 async def compute_eval_result(
     town: str,
     district: District,
     term: str,
-    ground_truth,
+    ground_truth: dict[str, Any],
     search_method: SearchMethod,
     extraction_method: ExtractionMethod,
     k: int,
@@ -42,13 +36,13 @@ async def compute_eval_result(
         pages, term, district, method=extraction_method, model_name="gpt-4", k=1
     )
     gt_page = ground_truth[f"{term}_page_gt"]
-    if pd.isna(gt_page):
+    if gt_page is None:
         # No ground truth page
         gt_page = set()
     else:
         gt_page = set(map(int, str(gt_page).split(",")))
 
-    expected = standardize_empty_val(ground_truth[f"{term}_gt"])
+    expected = ground_truth[f"{term}_gt"]
 
     async for result in outputs:
         searched_pages = {r.page_number for r in result.search_pages}
@@ -58,9 +52,9 @@ async def compute_eval_result(
             "town": town,
             "district": district.full_name,
             "term": term,
-            "gt_page": gt_page,
-            "searched_pages": searched_pages,
-            "searched_pages_expanded": searched_pages_expanded,
+            "gt_page": list(gt_page),
+            "searched_pages": list(searched_pages),
+            "searched_pages_expanded": list(searched_pages_expanded),
         }
 
         if result.output is None:
@@ -90,12 +84,6 @@ def compare_results(
     expected: str | None,
     expected_extended: str | None,
 ) -> bool:
-    # Normalize responses to None if they are any pandas empty value.
-    actual_raw = standardize_empty_val(actual_raw)
-    actual_normalized = standardize_empty_val(actual_normalized)
-    expected = standardize_empty_val(expected)
-    expected_extended = standardize_empty_val(expected_extended)
-
     if actual_raw is not None and expected is None and expected_extended is not None:
         # If no normalized expected answer exists, but an extended one does,
         # then compare the un-normalized answer from the LLM with our extended
@@ -111,7 +99,7 @@ def compare_results(
 
 async def evaluate_term(
     term: str,
-    gt: pd.DataFrame,
+    gt: pl.DataFrame,
     progress: Progress,
     search_method: SearchMethod,
     extraction_method: ExtractionMethod,
@@ -122,10 +110,12 @@ async def evaluate_term(
     # Generate results for the given term in parallel, showing progress along
     # the way.
     results = []
-    for index, row in gt.iterrows():
-        town, district = index
-        progress.update(eval_task, description=f"Evaluating {term}, {town}, {district}")
-        district = District(full_name=district, short_name=row.district_abb)
+    for row in gt.iter_rows(named=True):
+        town = row["town"]
+        district = District(full_name=row["district"], short_name=row["district_abb"])
+        progress.update(
+            eval_task, description=f"Evaluating {term}, {town}, {district.full_name}"
+        )
         async for result in compute_eval_result(
             town, district, term, row, search_method, extraction_method, k
         ):
@@ -133,51 +123,47 @@ async def evaluate_term(
         progress.advance(eval_task)
     progress.update(eval_task, description=f"Evaluated {term}")
 
-    results_df = pd.DataFrame(results)
-
-    # Attempt to normalize LLM responses
-    # Explode all values so that we have one row per expected-actual-value pair.
     results_df = (
-        results_df.assign(
-            actual_normalized=results_df.actual.apply(clean_string_units),
-            expected_normalized=results_df.expected.apply(
+        pl.from_dicts(results, schema_overrides={ "expected_extended": pl.Utf8 })
+        # Attempt to normalize LLM responses
+        .with_columns(
+            pl.col("actual").apply(clean_string_units).alias("actual_normalized"),
+            pl.col("expected")
+            .apply(
                 lambda s: [float(f.strip()) for f in s.split(",")]
                 if s is not None
                 else []
-            ),
+            )
+            .alias("expected_normalized"),
         )
+        # Explode all values so that we have one row per expected-actual-value pair.
         .explode("actual_normalized")
         .explode("expected_normalized")
-    )
-    results_df = results_df.assign(
-        correct_answer=results_df.apply(
-            lambda row: compare_results(
-                row.actual_normalized,
-                row.actual,
-                row.expected_normalized,
-                row.expected_extended,
-            ),
-            axis=1,
+        .with_columns(
+            pl.struct(["actual", "actual_normalized", "expected_normalized", "expected_extended"])
+            .apply(
+                lambda s: compare_results(
+                    s["actual_normalized"],
+                    s["actual"],
+                    s["expected_normalized"],
+                    s["expected_extended"],
+                )
+            )
+            .alias("correct_answer")
         )
     )
 
     # groupby to calculate search page recall
-    search_results_df = (
-        results_df.groupby(by=["town", "district"])
-        .agg(
-            {
-                "correct_page_searched": "sum",
-                "correct_answer": "sum",
-            }
-        )
-        .reset_index()
+    search_results_df = results_df.groupby(pl.col("town", "district")).agg(
+        pl.col("correct_page_searched").sum(),
+        pl.col("correct_answer").sum(),
     )
 
     num_results = len(results_df)
     num_correct_page_searched = len(
-        search_results_df.query("correct_page_searched > 0")
+        search_results_df.filter(pl.col("correct_page_searched") > 0)
     )
-    num_correct_answer = len(search_results_df.query("correct_answer > 0"))
+    num_correct_answer = len(search_results_df.filter(pl.col("correct_answer") > 0))
 
     return {
         "num_results": num_results,
@@ -188,8 +174,9 @@ async def evaluate_term(
         # been looked up by search
         "conditional_answer_accuracy": (
             len(
-                search_results_df.query(
-                    "correct_page_searched > 0 & correct_answer > 0"
+                search_results_df.filter(
+                    pl.all_horizontal(pl.col("correct_page_searched", "correct_answer"))
+                    > 0
                 )
             )
             / num_correct_page_searched
@@ -212,16 +199,15 @@ async def main(
     metrics = {}
 
     # Load Ground Truth
-    gt = pd.read_csv(
+    gt = pl.read_csv(
         DATA_ROOT / "ground_truth.csv",
-        index_col=["town", "district"],
-        dtype={
-            **{f"{tc}_gt": str for tc in terms},
-            **{f"{tc}_page_gt": str for tc in terms},
+        dtypes={
+            **{f"{tc}_gt": pl.Utf8 for tc in terms},
+            **{f"{tc}_page_gt": pl.Utf8 for tc in terms},
         },
-        nrows=num_eval_rows,
+        n_rows=num_eval_rows,
     )
-
+    results_df = None
     # Run evaluation against entire ground truth for each term and aggregate all
     # results into one object.
     with Progress(
@@ -230,17 +216,20 @@ async def main(
         TimeElapsedColumn(),
     ) as progress:
         term_task = progress.add_task("Terms", total=len(terms))
-        for i, term in enumerate(terms):
-            metrics[term], results_df = await evaluate_term(
+        for term in terms:
+            metrics[term], new_results_df = await evaluate_term(
                 term, gt, progress, search_method, extraction_method, k
             )
-            results_df.to_csv(
-                EVAL_OUTPUT_PATH,
-                index=False,
-                mode="w" if i == 0 else "a",
-                header=i == 0,
-            )
+            if results_df is not None:
+                results_df = pl.concat((results_df, new_results_df))
+            else:
+                results_df = new_results_df
+
             progress.advance(term_task)
+
+    assert results_df is not None
+
+    results_df.write_parquet(EVAL_OUTPUT_PATH)
 
     with EVAL_METRICS_PATH.open("w", encoding="utf-8") as f:
         yaml.dump(metrics, f)

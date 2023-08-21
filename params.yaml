@@ -26,7 +26,7 @@ eval:
     - "min_parking_spaces"
   # The search method to use for locating pages to run extraction on. See
   # `search.py` for a list of valid search methods.
-  search-method: "elasticsearch"
+  search-method: "embeddings_knn"
   # The extraction method to use on located pages. See `extract.py` for a list
   # of valid search methods.
   extraction-method: "tournament_reduce"
