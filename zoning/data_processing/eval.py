@@ -1,3 +1,4 @@
+import asyncio
 from typing import Annotated, Any, Optional
 
 import polars as pl
@@ -6,12 +7,13 @@ import yaml
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 
 from ..term_extraction.eval_results import clean_string_units
-from ..term_extraction.extract import District, ExtractionMethod, extract_answer
+from ..term_extraction.extract import ExtractionMethod, extract_answer
 from ..term_extraction.search import (
     SearchMethod,
     search_for_term,
 )
 from ..term_extraction.semantic_comparison import semantic_comparison
+from ..term_extraction.types import District
 from ..utils import get_project_root
 from .utils import AsyncTyper
 
@@ -31,10 +33,10 @@ async def compute_eval_result(
     k: int,
 ):
     pages = search_for_term(town, district, term, search_method, k)
-
     outputs = extract_answer(
         pages, term, district, method=extraction_method, model_name="gpt-4", k=1
     )
+
     gt_page = ground_truth[f"{term}_page_gt"]
     if gt_page is None:
         # No ground truth page
@@ -65,12 +67,11 @@ async def compute_eval_result(
                 "rationale": None,
                 "extracted_text": None,
                 "actual": None,
-
                 # For determining the correct page, we consider the page to be
                 # correct if the ground truth was also blank and GPT did not return
                 # an answer. Note that search always returns some page, so we ignore
                 # that result as long as GPT ignored it.
-                "correct_page_searched": any(gt_page & searched_pages_expanded),
+                "correct_page_searched": expected is None,
             }
         else:
             yield {

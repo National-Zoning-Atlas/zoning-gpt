@@ -5,8 +5,8 @@ import fitz
 from PIL import Image, ImageDraw
 import streamlit as st
 
-from zoning.term_extraction.search import nearest_pages
-from zoning.term_extraction.extract import extract_size
+from zoning.term_extraction.search import search_for_term
+from zoning.term_extraction.extract import extract_answer
 from zoning.utils import get_project_root
 
 @st.cache_data
@@ -88,14 +88,14 @@ def main():
 
         term = st.text_input("Search Term", "min lot size")
         
-        pages = nearest_pages(town["Town"], district, term)
+        pages = search_for_term(town["Town"], district, term)
 
         page_num = st.select_slider(
             f"Page ({len(pages)} total)", options=[page_num for _, page_num, _ in pages]
         )
         next(r[0] for r in pages if r[1] == page_num)
 
-        results = extract_size(town["Town"], district, term, 5)
+        results = extract_answer(town["Town"], district, term, 5)
 
         st.header("Answer")
         st.table(results)

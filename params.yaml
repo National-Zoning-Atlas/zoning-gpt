@@ -27,7 +27,7 @@ eval:
   search-method: embeddings_knn
   # The extraction method to use on located pages. See `extract.py` for a list
   # of valid search methods.
-  extraction-method: map
+  extraction-method: tournament_reduce
   # The number of results to consider when evaluating extraction accuracy and
   # page search recall. e.g., k=6 implies that an extraction is correct if any
   # of the top 6 results contain the correct answer.

@@ -3,7 +3,7 @@ import json
 from itertools import islice
 from functools import cache
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable, TypeVar
 
 import yaml
 from git.repo import Repo
@@ -11,16 +11,17 @@ from jinja2 import Environment, FileSystemLoader
 from joblib import Memory
 
 
-def flatten(l):
-    return [item for sublist in l for item in sublist]
+T = TypeVar("T")
 
+def flatten(l: Iterable[Iterable[T]]) -> list[T]:
+    return [item for sublist in l for item in sublist]
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
 
-def batched(iterable, n):
+def batched(iterable: Iterable[T], n: int) -> Iterable[tuple[T, ...]]:
     "Batch data into tuples of length n. The last batch may be shorter."
     # batched('ABCDEFG', 3) --> ABC DEF G
     if n < 1:

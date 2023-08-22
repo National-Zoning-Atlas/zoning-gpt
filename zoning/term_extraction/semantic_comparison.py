@@ -25,6 +25,8 @@ cache = dc.Cache(get_project_root() / ".diskcache")
     wait=wait_random_exponential(multiplier=1, max=60),
 )
 def semantic_comparison(expected: str, actual: str) -> bool:
+    # TODO: Is there a way to share this implementation with our generic prompt
+    # function?
     resp = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         temperature=0.0, # We want these responses to be deterministic
