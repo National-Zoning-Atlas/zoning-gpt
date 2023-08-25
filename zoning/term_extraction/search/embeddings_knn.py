@@ -27,12 +27,11 @@ class EmbeddingsKNNSearcher(Searcher):
         result = filtered_ds.get_nearest_examples(
             "embeddings", query_embedding, self.k * 10
         )
-        for i in range(self.k):
-            page = result.examples["Page"][i]
+        for page, score in zip(result.examples["Page"], result.scores):
             yield PageSearchOutput(
                 text=fill_to_token_length(page, self.df.loc[town], 2000),
                 page_number=page,
-                score=result.scores[i],
+                score=score,
                 highlight=[],
                 query=query,
             )

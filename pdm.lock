@@ -6,7 +6,7 @@ groups = ["default", "dev"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:9525f75efb5f43651972f7daea413d3c0b4d0c636bff85168b2ce0c804c6b8a1"
+content_hash = "sha256:db861478276f3d731273ab5737546e112c3b9e597f18c0e8db4910912e6c3afb"
 
 [[package]]
 name = "adlfs"
@@ -924,6 +924,15 @@ files = [
 ]
 
 [[package]]
+name = "fastjsonschema"
+version = "2.18.0"
+summary = "Fastest Python implementation of JSON schema"
+files = [
+    {file = "fastjsonschema-2.18.0-py3-none-any.whl", hash = "sha256:128039912a11a807068a7c87d0da36660afbfd7202780db26c4aa7153cfdc799"},
+    {file = "fastjsonschema-2.18.0.tar.gz", hash = "sha256:e820349dd16f806e4bd1467a138dced9def4bc7d6213a34295272a6cac95b5bd"},
+]
+
+[[package]]
 name = "filelock"
 version = "3.12.2"
 requires_python = ">=3.7"
@@ -1612,6 +1621,22 @@ summary = "Type system extensions for programs checked with the mypy type checke
 files = [
     {file = "mypy_extensions-1.0.0-py3-none-any.whl", hash = "sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d"},
     {file = "mypy_extensions-1.0.0.tar.gz", hash = "sha256:75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782"},
+]
+
+[[package]]
+name = "nbformat"
+version = "5.9.2"
+requires_python = ">=3.8"
+summary = "The Jupyter Notebook format"
+dependencies = [
+    "fastjsonschema",
+    "jsonschema>=2.6",
+    "jupyter-core",
+    "traitlets>=5.1",
+]
+files = [
+    {file = "nbformat-5.9.2-py3-none-any.whl", hash = "sha256:1c5172d786a41b82bcfd0c23f9e6b6f072e8fb49c39250219e4acfff1efe89e9"},
+    {file = "nbformat-5.9.2.tar.gz", hash = "sha256:5f98b5ba1997dff175e77e0c17d5c10a96eaed2cbd1de3533d1fc35d5e111192"},
 ]
 
 [[package]]
