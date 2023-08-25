@@ -88,6 +88,28 @@ When processing is complete, evaluation metrics will be available in
 `data/results/eval.yaml` and the actual generated responses will be available in
 `data/results/eval.csv`.
 
+## Running experiments
+
+To run experiments, we recommend using DVC Experiments, which this repository is
+setup for.
+
+To run an experiment that changes hyperparameters, you can run something like:
+
+```python
+pdm run dvc exp run -S eval.search-method=elasticsearch -S eval.extraction-method=map -S eval.k=12 evaluate --force
+```
+
+This will run evaluation with your hyperparameters set to the desired values and
+log the results to DVC's experiments tracker. When you have an experiment that you want to commit, run the following commands:
+
+```base
+pdm run dvc apply <experiment-name> # Apply your experiment results to the working tree
+git add --update # Add all tracked files that changed to the git index
+git commit -m "<your-commit-message>" # Commit
+pdm run dvc push # Push DVC-tracked changes to Azure
+git push # Push Git-tracked changes to Github
+```
+
 ## Architecture
 
 TODO
