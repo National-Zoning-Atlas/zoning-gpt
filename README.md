@@ -23,7 +23,7 @@ evaluation pipeline. Dependencies are managed using `pip`. (Note that this
 repository has been tested only with Python 3.10.) To setup your development
 environment, run the following:
 
-```bash
+```sh
 brew install pdm
 pdm install
 ```
@@ -35,13 +35,13 @@ to our Azure Blob Storage. You will need to obtain a credentialed connection
 string to this blob storage, and add it to your local DVC configuration using
 the following command:
 
-```bash
+```sh
 pdm run dvc remote modify --local cornell-aap-azure connection_string <YOUR CONNECTION STRING HERE>
 ```
 
 Once you have the DVC remote added, you can pull all existing pipeline data using:
 
-```bash
+```sh
 pdm run dvc pull
 ```
 
@@ -52,14 +52,14 @@ results, you can place any number of PDF documents at `data/orig-documents`.
 
 You will need an OpenAI API key available in your environment.
 
-```bash
+```sh
 export OPENAI_API_KEY=<YOUR API KEY HERE>
 ```
 
 Your environment will also need to have credentials to an AWS IAM identity with
 permissions to use AWS Textract and read/write access to an S3 bucket.
 
-```bash
+```sh
 export AWS_DEFAULT_PROFILE=***
 # OR
 export AWS_ACCESS_KEY_ID=***
@@ -78,7 +78,7 @@ instructions to run a local cluster
 Once everything running, you can generate a full set of results using the
 following command:
 
-```bash
+```sh
 pdm run dvc repro
 ```
 
@@ -102,12 +102,26 @@ pdm run dvc exp run -S eval.search-method=elasticsearch -S eval.extraction-metho
 This will run evaluation with your hyperparameters set to the desired values and
 log the results to DVC's experiments tracker. When you have an experiment that you want to commit, run the following commands:
 
-```base
+```sh
 pdm run dvc apply <experiment-name> # Apply your experiment results to the working tree
 git add --update # Add all tracked files that changed to the git index
 git commit -m "<your-commit-message>" # Commit
 pdm run dvc push # Push DVC-tracked changes to Azure
 git push # Push Git-tracked changes to Github
+```
+
+Tracking experiments methodically in this way ensures that we don't lose track
+of good or interesting results, and helps with reproducing them down the road.
+
+It also lets us perform data science on experiment results to better understand
+trends of results. See `maxdumas/exp_analysis.ipynb` for a basic example of
+this.
+
+To output all experiment results as a csv for analysis using Pandas, Polars,
+etc. you can run a command like:
+
+```sh
+pdm run dvc exp show --csv -A > exps.csv
 ```
 
 ## Architecture
