@@ -4,4 +4,4 @@
 [parsing]
     list = append
 ['remote "cornell-aap-azure"']
-    url = azure://zoning/dvc
+    url = azure://zoning/dvc_2
