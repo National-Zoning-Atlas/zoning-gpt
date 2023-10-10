@@ -1,6 +1,6 @@
 import asyncio
 from typing import Annotated, Any, Optional
-
+import pandas as pd
 import polars as pl
 import typer
 import yaml
@@ -31,10 +31,12 @@ async def compute_eval_result(
     search_method: SearchMethod,
     extraction_method: ExtractionMethod,
     k: int,
+    tournament_k: int
 ):
     pages = search_for_term(town, district, term, search_method, k)
     outputs = extract_answer(
-        pages, term, district, method=extraction_method, model_name="gpt-4", k=1
+        pages, term, district, method=extraction_method, model_name="gpt-4",
+        tournament_k=tournament_k
     )
 
     gt_page = ground_truth[f"{term}_page_gt"]
@@ -45,8 +47,10 @@ async def compute_eval_result(
         gt_page = set(map(int, str(gt_page).split(",")))
 
     expected = ground_truth[f"{term}_gt"]
+    is_empty = True
 
     async for result in outputs:
+        is_empty = False
         searched_pages = {r.page_number for r in result.search_pages}
         searched_pages_expanded = set(result.search_pages_expanded)
 
@@ -82,6 +86,21 @@ async def compute_eval_result(
                 "correct_page_searched": any(gt_page & searched_pages_expanded),
             }
 
+    if is_empty:
+        yield {
+            "town": town,
+            "district": district.full_name,
+            "term": term,
+            "gt_page": list(gt_page),
+            "searched_pages": None,
+            "searched_pages_expanded": None,
+            "expected": expected,
+            "expected_extended": ground_truth[f"{term}_gt_orig"],
+            "rationale": None,
+            "extracted_text": None,
+            "actual": None,
+            "correct_page_searched": expected is None,
+        }
 
 def compare_results(
     actual_normalized: float | None,
@@ -109,12 +128,14 @@ async def evaluate_term(
     search_method: SearchMethod,
     extraction_method: ExtractionMethod,
     k: int,
+    tournament_k: int
 ):
     eval_task = progress.add_task(f"Evaluating {term}", total=len(gt))
 
     # Generate results for the given term in parallel, showing progress along
     # the way.
     results = []
+    row_count = 0
     for row in gt.iter_rows(named=True):
         town = row["town"]
         district = District(full_name=row["district"], short_name=row["district_abb"])
@@ -122,10 +143,12 @@ async def evaluate_term(
             eval_task, description=f"Evaluating {term}, {town}, {district.full_name}"
         )
         async for result in compute_eval_result(
-            town, district, term, row, search_method, extraction_method, k
+            town, district, term, row, search_method, extraction_method,
+            k, tournament_k
         ):
             results.append(result)
         progress.advance(eval_task)
+        row_count += 1
     progress.update(eval_task, description=f"Evaluated {term}")
 
     results_df = (
@@ -137,7 +160,8 @@ async def evaluate_term(
             .apply(
                 lambda s: [float(f.strip()) for f in s.split(",")]
                 if s is not None
-                else []
+                else [],
+                skip_nulls=False
             )
             .alias("expected_normalized"),
         )
@@ -179,8 +203,11 @@ async def evaluate_term(
 
     return {
         "num_results": num_results,
+        "num_row_processed": len(search_results_df),
+        "num_row_input": row_count,
         "num_correct_page_searched": num_correct_page_searched,
         "num_correct_answer": num_correct_answer,
+        "row_processed": len(search_results_df) / row_count,
         "page_search_recall": num_correct_page_searched / len(search_results_df),
         # This is the answer accuracy conditional on the correct page having
         # been looked up by search
@@ -196,6 +223,12 @@ async def evaluate_term(
         if num_correct_page_searched != 0
         else 0,
         "answer_accuracy": num_correct_answer / len(search_results_df),
+        "accuracy": (len(
+                search_results_df.filter(
+                    pl.all_horizontal(pl.col("correct_page_searched", "correct_answer"))
+                    > 0
+                )
+            ) / len(search_results_df))
     }, results_df
 
 
@@ -207,7 +240,10 @@ async def main(
     # We must use Optional here because the "|" syntax can't be used by typer
     # yet for some reason.
     num_eval_rows: Annotated[Optional[int], typer.Option()] = None,
+    tournament_k: Annotated[int, typer.Option()] = 1,
 ):
+
+
     metrics = {}
 
     # Load Ground Truth
@@ -230,7 +266,8 @@ async def main(
         term_task = progress.add_task("Terms", total=len(terms))
         for term in terms:
             metrics[term], new_results_df = await evaluate_term(
-                term, gt, progress, search_method, extraction_method, k
+                term, gt, progress, search_method, extraction_method,
+                k, tournament_k
             )
             if results_df is not None:
                 results_df = pl.concat((results_df, new_results_df))
@@ -252,6 +289,14 @@ async def main(
         metrics[term]["conditional_answer_accuracy"] for term in terms
     ) / len(terms)
 
+    metrics["accuracy"] = sum(
+        metrics[term]["accuracy"] for term in terms
+    ) / len(terms)
+
+    metrics["row_processed"] = sum(
+        metrics[term]["row_processed"] for term in terms
+    ) / len(terms)
+
     assert results_df is not None
 
     results_df.write_parquet(EVAL_OUTPUT_PATH)
@@ -259,8 +304,18 @@ async def main(
     with EVAL_METRICS_PATH.open("w", encoding="utf-8") as f:
         yaml.dump(metrics, f)
 
+    SNAPSHOT_PATH = str(search_method) + "_" + str(extraction_method) + "_" + str(k) + "_" + str(tournament_k) + ".csv"
+    SNAPSHOT_METRICS_PATH = str(search_method) + "_" + str(extraction_method) + "_" + str(k) + "_" + str(tournament_k) + ".yaml"
+    df = pd.read_parquet(EVAL_OUTPUT_PATH, engine='pyarrow')
+    df.to_csv(SNAPSHOT_PATH, index=False)
+
+    with open(SNAPSHOT_METRICS_PATH, "w") as file:
+        yaml.dump(metrics, file)
+
 
 if __name__ == "__main__":
     app = AsyncTyper(add_completion=False)
     app.command()(main)
     app()
+
+

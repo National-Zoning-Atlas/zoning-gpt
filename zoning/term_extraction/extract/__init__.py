@@ -22,7 +22,7 @@ async def extract_answer(
     district: District,
     method: ExtractionMethod,
     model_name: str,
-    k: int = 1,
+    tournament_k: int = 1,
 ) -> AsyncGenerator[LookupOutput, None]:
     """
     Given a term to search for, will attempt to extract the value for the term
@@ -42,7 +42,7 @@ async def extract_answer(
         case ExtractionMethod.STUFF:
             extractor = StuffExtractor(model_name)
         case ExtractionMethod.TOURNAMENT_REDUCE:
-            extractor = TournamentReduceExtractor(model_name, k)
+            extractor = TournamentReduceExtractor(model_name, tournament_k)
         case ExtractionMethod.MAP:
             extractor = MapExtractor(model_name)
 
