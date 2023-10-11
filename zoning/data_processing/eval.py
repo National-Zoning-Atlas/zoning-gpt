@@ -88,6 +88,7 @@ async def compute_eval_result(
                 "correct_page_searched": any(gt_page & searched_pages_expanded),
             }
 
+    # Handle case when elastic search return 0 results
     if is_empty:
         yield {
             "town": town,
@@ -306,6 +307,8 @@ async def main(
     with EVAL_METRICS_PATH.open("w", encoding="utf-8") as f:
         yaml.dump(metrics, f)
 
+
+    # Save snapshot locally
     SNAPSHOT_PATH = str(search_method) + "_" + str(extraction_method) + "_" + str(k) + "_" + str(tournament_k) + ".csv"
     SNAPSHOT_METRICS_PATH = str(search_method) + "_" + str(extraction_method) + "_" + str(k) + "_" + str(tournament_k) + ".yaml"
     df = pd.read_parquet(EVAL_OUTPUT_PATH, engine='pyarrow')

@@ -86,5 +86,6 @@ class TournamentReduceExtractor(MapExtractor):
         for result in await tournament_reduce(results, term, district, self.k):
             yield result
 
+        # Ensure that we yield one empty result to handle case when the expected output is None
         if len(empty_results) != 0:
             yield empty_results[0]
