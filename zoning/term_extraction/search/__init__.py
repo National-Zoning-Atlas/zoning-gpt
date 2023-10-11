@@ -29,7 +29,7 @@ def search_for_term(
         case SearchMethod.NONE:
             searcher = DummySearcher()
         case SearchMethod.ELASTICSEARCH:
-            searcher = ElasticSearcher()
+            searcher = ElasticSearcher(k)
         case SearchMethod.EMBEDDINGS_KNN:
             # We grossly inflate the K we use for KNN to ensure that, even after
             # removing all overlapping pages, we have at least k pages leftover
