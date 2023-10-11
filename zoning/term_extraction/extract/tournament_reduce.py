@@ -10,7 +10,8 @@ from .utils import include_context_around_phrase
 TOURNAMENT_REDUCE_MAX_ANSWERS_PER_STAGE = 4
 TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER = 500
 
-tournament_reduce_tmpl = get_jinja_environment().get_template("tournament.pmpt.tpl")
+#tournament_reduce_tmpl = get_jinja_environment().get_template("tournament.pmpt.tpl")
+tournament_reduce_tmpl = get_jinja_environment().get_template("tournament_allow_none.pmpt.tpl")
 
 
 async def tournament_reduce(
@@ -47,7 +48,7 @@ async def tournament_reduce(
         text = await prompt(
             "gpt-4", [{"role": "user", "content": input_prompt}], max_tokens=1
         )
-        if text is None:
+        if text is None or int(text) == -1:
             warnings.warn("No winner was present for a round in a tournament reduce.")
             continue
 
@@ -75,8 +76,15 @@ class TournamentReduceExtractor(MapExtractor):
     ):
         # We first map extraction across all pages.
         results = []
+        empty_results = []
         async for r in super().extract(pages, district, term):
             if r.output is not None:
                 results.append(r)
+            else:
+                empty_results.append(r)
+                
         for result in await tournament_reduce(results, term, district, self.k):
             yield result
+
+        if len(empty_results) != 0:
+            yield empty_results[0]

@@ -53,6 +53,7 @@ async def compute_eval_result(
         is_empty = False
         searched_pages = {r.page_number for r in result.search_pages}
         searched_pages_expanded = set(result.search_pages_expanded)
+        is_correct_page_searched = any(gt_page & searched_pages_expanded)
 
         base_output = {
             "town": town,
@@ -75,7 +76,8 @@ async def compute_eval_result(
                 # correct if the ground truth was also blank and GPT did not return
                 # an answer. Note that search always returns some page, so we ignore
                 # that result as long as GPT ignored it.
-                "correct_page_searched": expected is None,
+                "correct_page_searched": expected is None or
+                is_correct_page_searched,
             }
         else:
             yield {
