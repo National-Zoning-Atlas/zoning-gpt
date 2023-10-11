@@ -7,7 +7,7 @@ This module ensures the OpenAI key is loaded at the start of the application.
 import os
 import openai
 from dotenv import load_dotenv
-from utils import get_project_root
+from .utils import get_project_root
 
 # Get the absolute path to the .env file
 dotenv_path = os.path.join(get_project_root(), ".env")
