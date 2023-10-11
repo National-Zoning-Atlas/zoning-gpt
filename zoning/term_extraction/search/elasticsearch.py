@@ -9,8 +9,9 @@ from .utils import expand_term
 
 
 class ElasticSearcher(Searcher):
-    def __init__(self) -> None:
+    def __init__(self, k: int) -> None:
         self.client = Elasticsearch("http://localhost:9200")  # default client
+        self.k = k 
 
     def search(self, town: str, district: District, term: str):
         # Search in town
@@ -39,8 +40,11 @@ class ElasticSearcher(Searcher):
         )
 
         s.query = district_query & term_query & dim_query
-
+        # ensure that we have a maximum of k results 
+        s = s.extra(size=self.k) 
+        
         s = s.highlight("Text")
+        
         res = s.execute()
 
         yield from (
