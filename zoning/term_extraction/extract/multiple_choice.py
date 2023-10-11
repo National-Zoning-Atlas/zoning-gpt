@@ -16,7 +16,7 @@ multiple_choice_tmpl = get_jinja_environment().get_template("multiple_choice.pmp
 async def multiple_choice(
     results: list[LookupOutput], term: str, district: District, k: int
 ) -> list[LookupOutput]:
-    if len(results) <= k:
+    if len(results) <= 1:
         return results
 
     def template_answer(i, r):
@@ -30,12 +30,13 @@ async def multiple_choice(
 
     thesaurus = get_thesaurus()
     winners = []
+
     # make batch size k so that all k results are passed in at once
     for competitor_batch in batched(
         (r for r in results if r.output is not None),
         k,
     ):
-    
+        print("ES gave back " + str(len(competitor_batch)) + ", k is " + str(k))
         input_prompt = multiple_choice_tmpl.render(
             term=term,
             synonyms=", ".join(thesaurus.get(term, [])),
@@ -59,7 +60,10 @@ async def multiple_choice(
                 "Failed to parse index from tournament reduce response. Response was: {text}."
             )
             continue
-
+        if int(index) == -1:
+            warnings.warn("GPT chose answer: None of the above.")
+            continue
+        
         winner = competitor_batch[index]
         winners.append(winner)
 

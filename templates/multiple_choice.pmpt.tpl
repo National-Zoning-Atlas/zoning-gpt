@@ -12,8 +12,9 @@ is output the index of the best answer, as supported by the text. For
 {{term}} in residential districts, we are only interested in the answer as it
 pertains to single-family homes.
 
-Output MUST be a single integer, the 0-based index that selects the best answer
-from the list below. Do not provide any explanation.
+Output MUST be either a single integer (representing the 0-based index that selects the best answer
+from the list below), or the integer -1 (representing that none of the answers are correct). 
+Do not provide any explanation.
 
 # Answers to choose from
 
