@@ -36,7 +36,7 @@ async def multiple_choice(
         (r for r in results if r.output is not None),
         k,
     ):
-        print("ES gave back " + str(len(competitor_batch)) + ", k is " + str(k))
+        
         input_prompt = multiple_choice_tmpl.render(
             term=term,
             synonyms=", ".join(thesaurus.get(term, [])),
@@ -80,8 +80,14 @@ class MultipleChoiceExtractor(MapExtractor):
     ):
         # We first map extraction across all pages.
         results = []
+        empty_results = []
         async for r in super().extract(pages, district, term):
             if r.output is not None:
                 results.append(r)
+            else:
+                empty_results.append(r)
         for result in await multiple_choice(results, term, district, self.k):
             yield result
+
+        if len(empty_results) != 0:
+            yield empty_results[0]
