@@ -7,6 +7,7 @@ from .dummy import DummyExtractor
 from .map import MapExtractor
 from .stuff import StuffExtractor
 from .tournament_reduce import TournamentReduceExtractor
+from .multiple_choice import MultipleChoiceExtractor
 
 
 class ExtractionMethod(str, Enum):
@@ -14,6 +15,7 @@ class ExtractionMethod(str, Enum):
     STUFF = "stuff"
     MAP = "map"
     TOURNAMENT_REDUCE = "tournament_reduce"
+    MULTIPLE_CHOICE = "multiple_choice"
 
 
 async def extract_answer(
@@ -43,6 +45,8 @@ async def extract_answer(
             extractor = StuffExtractor(model_name)
         case ExtractionMethod.TOURNAMENT_REDUCE:
             extractor = TournamentReduceExtractor(model_name, k)
+        case ExtractionMethod.MULTIPLE_CHOICE:
+            extractor = MultipleChoiceExtractor(model_name, k)
         case ExtractionMethod.MAP:
             extractor = MapExtractor(model_name)
 

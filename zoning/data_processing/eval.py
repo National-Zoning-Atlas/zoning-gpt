@@ -34,8 +34,7 @@ async def compute_eval_result(
 ):
     pages = search_for_term(town, district, term, search_method, k)
     outputs = extract_answer(
-        pages, term, district, method=extraction_method, model_name="gpt-4", k=1
-    )
+        pages, term, district, method=extraction_method, model_name="gpt-4", k=k)
 
     gt_page = ground_truth[f"{term}_page_gt"]
     if gt_page is None:
@@ -46,7 +45,7 @@ async def compute_eval_result(
 
     expected = ground_truth[f"{term}_gt"]
 
-    async for result in outputs:
+    async for result in outputs:    
         searched_pages = {r.page_number for r in result.search_pages}
         searched_pages_expanded = set(result.search_pages_expanded)
 
