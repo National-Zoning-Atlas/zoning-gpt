@@ -29,6 +29,7 @@ dependencies = [
     "polars>=0.18.15",
     "ipykernel>=6.25.1",
     "nbformat>=5.9.2",
+    "pylint>=3.0.1",
 ]
 requires-python = ">=3.11"
 name = "zoning-gpt"
