@@ -10,8 +10,8 @@ from .utils import include_context_around_phrase
 TOURNAMENT_REDUCE_MAX_ANSWERS_PER_STAGE = 4
 TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER = 500
 
-#tournament_reduce_tmpl = get_jinja_environment().get_template("tournament.pmpt.tpl")
-tournament_reduce_tmpl = get_jinja_environment().get_template("tournament_allow_none.pmpt.tpl")
+tournament_reduce_tmpl = get_jinja_environment().get_template("tournament.pmpt.tpl")
+#tournament_reduce_tmpl = get_jinja_environment().get_template("tournament_allow_none.pmpt.tpl")
 
 
 async def tournament_reduce(
@@ -48,7 +48,7 @@ async def tournament_reduce(
         text = await prompt(
             "gpt-4", [{"role": "user", "content": input_prompt}], max_tokens=1
         )
-        if text is None or int(text) == -1:
+        if text is None or text == "NO_ANSWER":
             warnings.warn("No winner was present for a round in a tournament reduce.")
             continue
 

@@ -13,7 +13,7 @@ is output the index of the best answer, as supported by the text. For
 pertains to single-family homes.
 
 Output MUST be a single integer, the 0-based index that selects the best answer
-from the list below. Do not provide any explanation and return -1 if there's no
+from the list below. Do not provide any explanation and return NO_ANSWER if there's no
 good answer.
 
 # Answers to choose from

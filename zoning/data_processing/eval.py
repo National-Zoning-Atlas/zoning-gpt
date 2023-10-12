@@ -138,7 +138,7 @@ async def evaluate_term(
     # Generate results for the given term in parallel, showing progress along
     # the way.
     results = []
-    row_count = 0
+    row_count = len(gt)
     for row in gt.iter_rows(named=True):
         town = row["town"]
         district = District(full_name=row["district"], short_name=row["district_abb"])
@@ -151,7 +151,6 @@ async def evaluate_term(
         ):
             results.append(result)
         progress.advance(eval_task)
-        row_count += 1
     progress.update(eval_task, description=f"Evaluated {term}")
 
     results_df = (
@@ -280,6 +279,11 @@ async def main(
             progress.advance(term_task)
 
     # Compute metrics aggregated across terms
+
+    # Page Recall: #Correct Page / #Unique town
+    # Answer Accuracy: #Correct Answer / #Unique town
+    # Conditional Accuracy: #(Correct Page & Correct Answer)/ #Correct page
+    # Accuracy: #(Correct Page & Correct Answer) / #Unique town
     metrics["answer_accuracy"] = sum(
         metrics[term]["answer_accuracy"] for term in terms
     ) / len(terms)

@@ -38,7 +38,7 @@ class ElasticSearcher(Searcher):
             minimum_should_match=1,
         )
 
-        s.query = district_query & term_query & dim_query
+        s.query = (district_query & term_query & dim_query)
 
         s = s.highlight("Text")
         res = s.execute()
