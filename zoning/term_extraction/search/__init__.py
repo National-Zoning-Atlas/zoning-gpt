@@ -46,6 +46,7 @@ def search_for_term(
             embedding_searcher = EmbeddingsKNNSearcher(k * 5)
             es_result = execute_search(es_searcher, town, district, term, k)
             embedding_result = execute_search(embedding_searcher, town, district, term, k)
+            # TODO: this may return duplicate results. Could be good to filter them to reduce cost
             return es_result + embedding_result
 
 def execute_search(
