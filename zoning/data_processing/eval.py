@@ -33,7 +33,9 @@ async def compute_eval_result(
     k: int,
     tournament_k: int
 ):
-    pages = search_for_term(town, district, term, search_method, k)
+    es_pages = search_for_term(town, district, term, "elasticsearch", k) 
+    embedding_pages = search_for_term(town, district, term, search_method, k)
+    pages = es_pages + embedding_pages
     outputs = extract_answer(
         pages, term, district, method=extraction_method, model_name="gpt-4",
         tournament_k=tournament_k
