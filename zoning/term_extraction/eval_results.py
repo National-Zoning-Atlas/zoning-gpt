@@ -47,7 +47,9 @@ def extract_fraction_decimal(text):
     else:
         return 0.0  # TODO: Is this correct? @ek542
 
-split_regex = re.compile(r"\s+(?:or|and)\s+")
+# captures x and y, x or y, x; y
+split_regex = re.compile(r"\s*(?: or| and|;)\s+")
+# parses numbers with decimals and commas 
 parsing_regex = re.compile(r"(?:\d{4,}|\d{1,3}(?:,\d{3})*)(?:\.\d+)?")
 
 def parse_token(token: str):
