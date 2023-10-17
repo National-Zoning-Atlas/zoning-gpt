@@ -22,6 +22,7 @@ interested in the answer as it pertains to single-family homes.
     "answer": str // The value of {{term}} extracted from the text. Answer must include units and must be normalized, e.g. (sqr. ft. becomes sq ft)
 }
 
+Here are several examples that you can use as references.
 # Examples
 
 Input:
@@ -210,6 +211,33 @@ Output:
     "extracted_text": ["{{term}} is 123 sq ft"],
     "rationale": "The section titled {{zone_abbreviation}} says the answer explicitly. We ignore sections that specify regulations for overlay districts within this district.",
     "answer": "123 sq ft"
+}
+
+Input:
+NEW PAGE 47
+
+specified in Schedule A. The total floor area of all buildings and other structures on any lot, excluding basements, shall not exceed the percentage of the lot as specified in Schedule A.
+
+7.6 Minimum Floor Area - Dwelling: Each dwelling shall have a minimum floor area on the ground floor as specified in Schedule A.
+
+7.7 Corner Lots: On any corner lot, the required minimum street setback specified in Schedule A shall be applied to each street line.
+
+SCHEDULE A
+AREA, LOCATION AND BULK STANDARDS Line Standards Districts
+A
+B
+C
+
+{{term}} (in square feet)
+8,400
+5,500
+6,300
+
+Output:
+{
+    "extracted_text": ["{{term}} is 8,400 sq ft", "{{term}} is 5,500 sq ft", "{{term}} is 6,300 sq ft"],
+    "rationale": "The section {{term}} or its close synonyms says the answer explicitly.",
+    "answer": "8,400 sq ft; 5,500 sq ft; 6,300 sq ft"
 }
 
 Input:
