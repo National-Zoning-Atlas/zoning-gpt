@@ -54,6 +54,7 @@ async def compute_eval_result(
         searched_pages = {r.page_number for r in result.search_pages}
         searched_pages_expanded = set(result.search_pages_expanded)
         is_correct_page_searched = any(gt_page & searched_pages_expanded)
+        expected_extended = ground_truth[f"{term}_gt_orig"]
 
         base_output = {
             "town": town,
@@ -63,7 +64,7 @@ async def compute_eval_result(
             "searched_pages": list(searched_pages),
             "searched_pages_expanded": list(searched_pages_expanded),
             "expected": expected,
-            "expected_extended": ground_truth[f"{term}_gt_orig"],
+            "expected_extended": expected_extended,
         }
 
         if result.output is None:
@@ -76,8 +77,9 @@ async def compute_eval_result(
                 # correct if the ground truth was also blank and GPT did not return
                 # an answer. Note that search always returns some page, so we ignore
                 # that result as long as GPT ignored it.
-                "correct_page_searched": expected is None or
-                is_correct_page_searched,
+                "correct_page_searched": (expected is None and
+                                          expected_extended is None)
+                                          or is_correct_page_searched,
             }
         else:
             yield {
@@ -197,6 +199,17 @@ async def evaluate_term(
         pl.col("correct_answer").sum(),
     )
 
+    # filter entries that have correct page searched and answered
+    filtered_accuracy_df = results_df.filter((pl.col("correct_page_searched") == True)
+                                             & (pl.col("correct_answer") == True))
+
+    # groupby to calculate accuracy
+    aggregated_accuracy_df = filtered_accuracy_df.groupby(
+        pl.col("town", "district")).agg(
+        pl.col("correct_page_searched").sum(), 
+        pl.col("correct_answer").sum()
+    )
+
     num_results = len(results_df)
     num_correct_page_searched = len(
         search_results_df.filter(pl.col("correct_page_searched") > 0)
@@ -214,23 +227,12 @@ async def evaluate_term(
         # This is the answer accuracy conditional on the correct page having
         # been looked up by search
         "conditional_answer_accuracy": (
-            len(
-                search_results_df.filter(
-                    pl.all_horizontal(pl.col("correct_page_searched", "correct_answer"))
-                    > 0
-                )
-            )
-            / num_correct_page_searched
+            len(aggregated_accuracy_df) / num_correct_page_searched
         )
         if num_correct_page_searched != 0
         else 0,
         "answer_accuracy": num_correct_answer / len(search_results_df),
-        "accuracy": (len(
-                search_results_df.filter(
-                    pl.all_horizontal(pl.col("correct_page_searched", "correct_answer"))
-                    > 0
-                )
-            ) / len(search_results_df))
+        "accuracy": (len(aggregated_accuracy_df) / len(search_results_df))
     }, results_df
 
 
