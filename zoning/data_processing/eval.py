@@ -200,11 +200,11 @@ async def evaluate_term(
     )
 
     # filter entries that have correct page searched and answered
-    filtered_accuracy_df = results_df.filter((pl.col("correct_page_searched") == True)
+    filtered_answer_page_df = results_df.filter((pl.col("correct_page_searched") == True)
                                              & (pl.col("correct_answer") == True))
 
     # groupby to calculate accuracy
-    aggregated_accuracy_df = filtered_accuracy_df.groupby(
+    agg_answer_page_df = filtered_answer_page_df.groupby(
         pl.col("town", "district")).agg(
         pl.col("correct_page_searched").sum(), 
         pl.col("correct_answer").sum()
@@ -227,12 +227,12 @@ async def evaluate_term(
         # This is the answer accuracy conditional on the correct page having
         # been looked up by search
         "conditional_answer_accuracy": (
-            len(aggregated_accuracy_df) / num_correct_page_searched
+            len(agg_answer_page_df) / num_correct_page_searched
         )
         if num_correct_page_searched != 0
         else 0,
         "answer_accuracy": num_correct_answer / len(search_results_df),
-        "accuracy": (len(aggregated_accuracy_df) / len(search_results_df))
+        "answer_page_accuracy": (len(agg_answer_page_df) / len(search_results_df))
     }, results_df
 
 
@@ -298,8 +298,8 @@ async def main(
         metrics[term]["conditional_answer_accuracy"] for term in terms
     ) / len(terms)
 
-    metrics["accuracy"] = sum(
-        metrics[term]["accuracy"] for term in terms
+    metrics["answer_page_accuracy"] = sum(
+        metrics[term]["answer_page_accuracy"] for term in terms
     ) / len(terms)
 
     metrics["row_processed"] = sum(
