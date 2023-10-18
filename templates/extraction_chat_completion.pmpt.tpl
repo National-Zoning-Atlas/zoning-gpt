@@ -22,6 +22,7 @@ interested in the answer as it pertains to single-family homes.
     "answer": str // The value of {{term}} extracted from the text. Answer must include units and must be normalized, e.g. (sqr. ft. becomes sq ft)
 }
 
+Here are several examples that you can use as references.
 # Examples
 
 Input:
@@ -211,6 +212,65 @@ Output:
     "rationale": "The section titled {{zone_abbreviation}} says the answer explicitly. We ignore sections that specify regulations for overlay districts within this district.",
     "answer": "123 sq ft"
 }
+
+Input:
+NEW PAGE 47
+
+specified in Schedule A. The total floor area of all buildings and other structures on any lot, excluding basements, shall not exceed the percentage of the lot as specified in Schedule A.
+
+7.6 Minimum Floor Area - Dwelling: Each dwelling shall have a minimum floor area on the ground floor as specified in Schedule A.
+
+7.7 Corner Lots: On any corner lot, the required minimum street setback specified in Schedule A shall be applied to each street line.
+
+SCHEDULE A
+AREA, LOCATION AND BULK STANDARDS Line Standards Districts
+A
+B
+C
+
+{{term}} (in square feet)
+8,400
+5,500
+6,300
+
+Output:
+{
+    "extracted_text": ["6,300"],
+    "rationale": "The section {{term}} or its close synonyms says the answer explicitly.",
+    "answer": "6,300 sq ft"
+}
+
+
+Input:
+NEW PAGE 84
+
+SECTION 9A - Housing Opportunity Development (This Section Repealed - August 15, 2014)
+SECTION 9B - Housing Opportunity Development District (Effective July 1, 2014)
+
+Housing Opportunity Development:
+9B.1 Intent and Purpose:
+This Housing Opportunity Development ("HOD") District is intended to increase in the Town of Bethany the supply of housing that is within the economic means of moderate income households. The HOD District is a separate and independent zoning district and shall replace, not supplement, the existing zoning district of any property to which it is applied.
+
+9B.2 Permitted Uses:
+Principal Uses: Residential homes with a maximum of three dwelling units per building as part of a Housing Opportunity Development.
+Accessory Uses:
+Accessory buildings, structures, and uses.
+Agricultural or farming uses.
+Common or community buildings for residents and guests (not for residential purposes or temporary/transient occupancy).
+
+9B.3 Eligible Areas:
+Criteria for HOD Application:
+The total combined property shall be at least (30) acres in size.
+Frontage on Old Amity Road and Meyers Road.
+Owned by the same person or entity for at least three years prior to application.
+
+Output:
+{
+    "extracted_text": [The total combined property shall be at least (30) acres in size.],
+    "rationale": "The section state the {{term}}",
+    "answer": "30 acres"
+}
+
 
 Input:
 Multi-family building
