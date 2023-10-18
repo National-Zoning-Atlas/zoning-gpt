@@ -235,10 +235,42 @@ C
 
 Output:
 {
-    "extracted_text": ["{{term}} is 8,400 sq ft", "{{term}} is 5,500 sq ft", "{{term}} is 6,300 sq ft"],
+    "extracted_text": ["6,300"],
     "rationale": "The section {{term}} or its close synonyms says the answer explicitly.",
-    "answer": "8,400 sq ft; 5,500 sq ft; 6,300 sq ft"
+    "answer": "6,300 sq ft"
 }
+
+
+Input:
+NEW PAGE 84
+
+SECTION 9A - Housing Opportunity Development (This Section Repealed - August 15, 2014)
+SECTION 9B - Housing Opportunity Development District (Effective July 1, 2014)
+
+Housing Opportunity Development:
+9B.1 Intent and Purpose:
+This Housing Opportunity Development ("HOD") District is intended to increase in the Town of Bethany the supply of housing that is within the economic means of moderate income households. The HOD District is a separate and independent zoning district and shall replace, not supplement, the existing zoning district of any property to which it is applied.
+
+9B.2 Permitted Uses:
+Principal Uses: Residential homes with a maximum of three dwelling units per building as part of a Housing Opportunity Development.
+Accessory Uses:
+Accessory buildings, structures, and uses.
+Agricultural or farming uses.
+Common or community buildings for residents and guests (not for residential purposes or temporary/transient occupancy).
+
+9B.3 Eligible Areas:
+Criteria for HOD Application:
+The total combined property shall be at least (30) acres in size.
+Frontage on Old Amity Road and Meyers Road.
+Owned by the same person or entity for at least three years prior to application.
+
+Output:
+{
+    "extracted_text": [The total combined property shall be at least (30) acres in size.],
+    "rationale": "The section state the {{term}}",
+    "answer": "30 acres"
+}
+
 
 Input:
 Multi-family building
