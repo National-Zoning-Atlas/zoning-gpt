@@ -21,6 +21,8 @@ DATA_ROOT = get_project_root() / "data"
 
 EVAL_METRICS_PATH = DATA_ROOT / "results" / "eval.yaml"
 EVAL_OUTPUT_PATH = DATA_ROOT / "results" / "eval.parquet"
+SNAPSHOTS_DIR = DATA_ROOT / "results" / "snapshots"
+SNAPSHOTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 async def compute_eval_result(
@@ -31,12 +33,16 @@ async def compute_eval_result(
     search_method: SearchMethod,
     extraction_method: ExtractionMethod,
     k: int,
-    tournament_k: int
+    tournament_k: int,
 ):
     pages = search_for_term(town, district, term, search_method, k)
     outputs = extract_answer(
-        pages, term, district, method=extraction_method, model_name="gpt-4",
-        tournament_k=tournament_k
+        pages,
+        term,
+        district,
+        method=extraction_method,
+        model_name="gpt-4",
+        tournament_k=tournament_k,
     )
 
     gt_page = ground_truth[f"{term}_page_gt"]
@@ -77,9 +83,10 @@ async def compute_eval_result(
                 # correct if the ground truth was also blank and GPT did not return
                 # an answer. Note that search always returns some page, so we ignore
                 # that result as long as GPT ignored it.
-                "correct_page_searched": (expected is None and
-                                          expected_extended is None)
-                                          or is_correct_page_searched,
+                "correct_page_searched": (
+                    expected is None and expected_extended is None
+                )
+                or is_correct_page_searched,
             }
         else:
             yield {
@@ -107,6 +114,7 @@ async def compute_eval_result(
             "correct_page_searched": expected is None,
         }
 
+
 def compare_results(
     actual_normalized: float | None,
     actual_raw: str | None,
@@ -133,7 +141,7 @@ async def evaluate_term(
     search_method: SearchMethod,
     extraction_method: ExtractionMethod,
     k: int,
-    tournament_k: int
+    tournament_k: int,
 ):
     eval_task = progress.add_task(f"Evaluating {term}", total=len(gt))
 
@@ -148,8 +156,7 @@ async def evaluate_term(
             eval_task, description=f"Evaluating {term}, {town}, {district.full_name}"
         )
         async for result in compute_eval_result(
-            town, district, term, row, search_method, extraction_method,
-            k, tournament_k
+            town, district, term, row, search_method, extraction_method, k, tournament_k
         ):
             results.append(result)
         progress.advance(eval_task)
@@ -165,7 +172,7 @@ async def evaluate_term(
                 lambda s: [float(f.strip()) for f in s.split(",")]
                 if s is not None
                 else [],
-                skip_nulls=False
+                skip_nulls=False,
             )
             .alias("expected_normalized"),
         )
@@ -200,15 +207,14 @@ async def evaluate_term(
     )
 
     # filter entries that have correct page searched and answered
-    filtered_answer_page_df = results_df.filter((pl.col("correct_page_searched") == True)
-                                             & (pl.col("correct_answer") == True))
+    filtered_answer_page_df = results_df.filter(
+        (pl.col("correct_page_searched") == True) & (pl.col("correct_answer") == True)
+    )
 
     # groupby to calculate accuracy
     agg_answer_page_df = filtered_answer_page_df.groupby(
-        pl.col("town", "district")).agg(
-        pl.col("correct_page_searched").sum(), 
-        pl.col("correct_answer").sum()
-    )
+        pl.col("town", "district")
+    ).agg(pl.col("correct_page_searched").sum(), pl.col("correct_answer").sum())
 
     num_results = len(results_df)
     num_correct_page_searched = len(
@@ -232,7 +238,7 @@ async def evaluate_term(
         if num_correct_page_searched != 0
         else 0,
         "answer_accuracy": num_correct_answer / len(search_results_df),
-        "answer_page_accuracy": (len(agg_answer_page_df) / len(search_results_df))
+        "answer_page_accuracy": (len(agg_answer_page_df) / len(search_results_df)),
     }, results_df
 
 
@@ -246,8 +252,6 @@ async def main(
     num_eval_rows: Annotated[Optional[int], typer.Option()] = None,
     tournament_k: Annotated[int, typer.Option()] = 1,
 ):
-
-
     metrics = {}
 
     # Load Ground Truth
@@ -270,8 +274,7 @@ async def main(
         term_task = progress.add_task("Terms", total=len(terms))
         for term in terms:
             metrics[term], new_results_df = await evaluate_term(
-                term, gt, progress, search_method, extraction_method,
-                k, tournament_k
+                term, gt, progress, search_method, extraction_method, k, tournament_k
             )
             if results_df is not None:
                 results_df = pl.concat((results_df, new_results_df))
@@ -309,15 +312,15 @@ async def main(
     assert results_df is not None
 
     results_df.write_parquet(EVAL_OUTPUT_PATH)
-
     with EVAL_METRICS_PATH.open("w", encoding="utf-8") as f:
         yaml.dump(metrics, f)
 
-
     # Save snapshot locally
-    SNAPSHOT_PATH = str(search_method) + "_" + str(extraction_method) + "_" + str(k) + "_" + str(tournament_k) + ".csv"
-    SNAPSHOT_METRICS_PATH = str(search_method) + "_" + str(extraction_method) + "_" + str(k) + "_" + str(tournament_k) + ".yaml"
-    df = pd.read_parquet(EVAL_OUTPUT_PATH, engine='pyarrow')
+    snapshot_name = f"search-{search_method}_{extraction_method}_k={k}_tournament-k={tournament_k}_districts={num_eval_rows}"
+    SNAPSHOT_PATH = SNAPSHOTS_DIR / f"{snapshot_name}.csv"
+    SNAPSHOT_METRICS_PATH = SNAPSHOTS_DIR / f"{snapshot_name}.yaml"
+
+    df = pd.read_parquet(EVAL_OUTPUT_PATH, engine="pyarrow")
     df.to_csv(SNAPSHOT_PATH, index=False)
 
     with open(SNAPSHOT_METRICS_PATH, "w") as file:
@@ -328,5 +331,3 @@ if __name__ == "__main__":
     app = AsyncTyper(add_completion=False)
     app.command()(main)
     app()
-
-
