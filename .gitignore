@@ -3,6 +3,10 @@
 .vscode/
 .vscode/*
 
+# files
+nza-ct-zoning-codes-text/
+nza-ct-zoning-codes-text/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
