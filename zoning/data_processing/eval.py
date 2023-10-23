@@ -13,9 +13,12 @@ from ..term_extraction.search import (
     search_for_term,
 )
 from ..term_extraction.semantic_comparison import semantic_comparison
-from ..term_extraction.types import District
+from ..term_extraction.types import District, LookupOutput
 from ..utils import get_project_root
 from .utils import AsyncTyper
+
+from ..term_extraction.extract import TournamentTester 
+import pickle
 
 DATA_ROOT = get_project_root() / "data"
 
@@ -31,81 +34,154 @@ async def compute_eval_result(
     search_method: SearchMethod,
     extraction_method: ExtractionMethod,
     k: int,
-    tournament_k: int
+    tournament_k: int,
+    outputs: list[LookupOutput]=None
 ):
-    pages = search_for_term(town, district, term, search_method, k)
-    outputs = extract_answer(
-        pages, term, district, method=extraction_method, model_name="gpt-4",
-        tournament_k=tournament_k
-    )
+    if not outputs:
+        pages = search_for_term(town, district, term, search_method, k)
+        outputs = extract_answer(
+            pages, term, district, method=extraction_method, model_name="gpt-4",
+            tournament_k=tournament_k
+        )
 
-    gt_page = ground_truth[f"{term}_page_gt"]
-    if gt_page is None:
-        # No ground truth page
-        gt_page = set()
-    else:
-        gt_page = set(map(int, str(gt_page).split(",")))
+        gt_page = ground_truth[f"{term}_page_gt"]
+        if gt_page is None:
+            # No ground truth page
+            gt_page = set()
+        else:
+            gt_page = set(map(int, str(gt_page).split(",")))
 
-    expected = ground_truth[f"{term}_gt"]
-    is_empty = True
+        expected = ground_truth[f"{term}_gt"]
+        is_empty = True
+        
+        async for result in outputs:
+            is_empty = False
+            searched_pages = {r.page_number for r in result.search_pages}
+            searched_pages_expanded = set(result.search_pages_expanded)
+            is_correct_page_searched = any(gt_page & searched_pages_expanded)
+            expected_extended = ground_truth[f"{term}_gt_orig"]
 
-    async for result in outputs:
-        is_empty = False
-        searched_pages = {r.page_number for r in result.search_pages}
-        searched_pages_expanded = set(result.search_pages_expanded)
-        is_correct_page_searched = any(gt_page & searched_pages_expanded)
-        expected_extended = ground_truth[f"{term}_gt_orig"]
+            base_output = {
+                "town": town,
+                "district": district.full_name,
+                "term": term,
+                "gt_page": list(gt_page),
+                "searched_pages": list(searched_pages),
+                "searched_pages_expanded": list(searched_pages_expanded),
+                "expected": expected,
+                "expected_extended": expected_extended,
+                "pickled_result": pickle.dumps(result),
+            }
 
-        base_output = {
-            "town": town,
-            "district": district.full_name,
-            "term": term,
-            "gt_page": list(gt_page),
-            "searched_pages": list(searched_pages),
-            "searched_pages_expanded": list(searched_pages_expanded),
-            "expected": expected,
-            "expected_extended": expected_extended,
-        }
+            if result.output is None:
+                yield {
+                    **base_output,
+                    "rationale": None,
+                    "extracted_text": None,
+                    "actual": None,
+                    # For determining the correct page, we consider the page to be
+                    # correct if the ground truth was also blank and GPT did not return
+                    # an answer. Note that search always returns some page, so we ignore
+                    # that result as long as GPT ignored it.
+                    "correct_page_searched": (expected is None and
+                                            expected_extended is None)
+                                            or is_correct_page_searched,
+                }
+            else:
+                yield {
+                    **base_output,
+                    "rationale": result.output.rationale,
+                    "extracted_text": result.output.extracted_text,
+                    "actual": result.output.answer,
+                    "correct_page_searched": any(gt_page & searched_pages_expanded),
+                }
 
-        if result.output is None:
+        # Handle case when elastic search return 0 results
+        if is_empty:
             yield {
-                **base_output,
+                "town": town,
+                "district": district.full_name,
+                "term": term,
+                "gt_page": list(gt_page),
+                "searched_pages": None,
+                "searched_pages_expanded": None,
+                "expected": expected,
+                "expected_extended": ground_truth[f"{term}_gt_orig"],
                 "rationale": None,
                 "extracted_text": None,
                 "actual": None,
-                # For determining the correct page, we consider the page to be
-                # correct if the ground truth was also blank and GPT did not return
-                # an answer. Note that search always returns some page, so we ignore
-                # that result as long as GPT ignored it.
-                "correct_page_searched": (expected is None and
-                                          expected_extended is None)
-                                          or is_correct_page_searched,
+                "correct_page_searched": expected is None,
             }
+    else:
+        gt_page = ground_truth[f"{term}_page_gt"]
+        if gt_page is None:
+            # No ground truth page
+            gt_page = set()
         else:
-            yield {
-                **base_output,
-                "rationale": result.output.rationale,
-                "extracted_text": result.output.extracted_text,
-                "actual": result.output.answer,
-                "correct_page_searched": any(gt_page & searched_pages_expanded),
+            gt_page = set(map(int, str(gt_page).split(",")))
+
+        expected = ground_truth[f"{term}_gt"]
+        is_empty = True
+        
+        for x in outputs[0]:
+            result = x[0]
+            is_empty = False
+            searched_pages = {r.page_number for r in result.search_pages}
+            searched_pages_expanded = set(result.search_pages_expanded)
+            is_correct_page_searched = any(gt_page & searched_pages_expanded)
+            expected_extended = ground_truth[f"{term}_gt_orig"]
+
+            base_output = {
+                "town": town,
+                "district": district.full_name,
+                "term": term,
+                "gt_page": list(gt_page),
+                "searched_pages": list(searched_pages),
+                "searched_pages_expanded": list(searched_pages_expanded),
+                "expected": expected,
+                "expected_extended": expected_extended,
+                "pickled_result": pickle.dumps(result),
             }
 
-    # Handle case when elastic search return 0 results
-    if is_empty:
-        yield {
-            "town": town,
-            "district": district.full_name,
-            "term": term,
-            "gt_page": list(gt_page),
-            "searched_pages": None,
-            "searched_pages_expanded": None,
-            "expected": expected,
-            "expected_extended": ground_truth[f"{term}_gt_orig"],
-            "rationale": None,
-            "extracted_text": None,
-            "actual": None,
-            "correct_page_searched": expected is None,
-        }
+            if result.output is None:
+                yield {
+                    **base_output,
+                    "rationale": None,
+                    "extracted_text": None,
+                    "actual": None,
+                    # For determining the correct page, we consider the page to be
+                    # correct if the ground truth was also blank and GPT did not return
+                    # an answer. Note that search always returns some page, so we ignore
+                    # that result as long as GPT ignored it.
+                    "correct_page_searched": (expected is None and
+                                            expected_extended is None)
+                                            or is_correct_page_searched,
+                }
+            else:
+                yield {
+                    **base_output,
+                    "rationale": result.output.rationale,
+                    "extracted_text": result.output.extracted_text,
+                    "actual": result.output.answer,
+                    "correct_page_searched": any(gt_page & searched_pages_expanded),
+                }
+
+        # Handle case when elastic search return 0 results
+        if is_empty:
+            yield {
+                "town": town,
+                "district": district.full_name,
+                "term": term,
+                "gt_page": list(gt_page),
+                "searched_pages": None,
+                "searched_pages_expanded": None,
+                "expected": expected,
+                "expected_extended": ground_truth[f"{term}_gt_orig"],
+                "rationale": None,
+                "extracted_text": None,
+                "actual": None,
+                "correct_page_searched": expected is None,
+            }
 
 def compare_results(
     actual_normalized: float | None,
@@ -198,10 +274,59 @@ async def evaluate_term(
         pl.col("correct_page_searched").sum(),
         pl.col("correct_answer").sum(),
     )
-
+ 
     # filter entries that have correct page searched and answered
+    # THIS IS THE DF WITH THE RIGHT ANSWERS IN IT -- USE THIS BEOFRE CALLING TOURNAMNET EXPERIMENT? 
     filtered_answer_page_df = results_df.filter((pl.col("correct_page_searched") == True)
                                              & (pl.col("correct_answer") == True))
+    
+    """MY NEW CODE"""
+    # for each row in ground truth (like it does earlier in the code), we can call a new tournament experiment function 
+    eval_task = progress.add_task(f"Reducing {term}", total=len(gt))
+
+    # Generate results for the given term in parallel, showing progress along
+    # the way.
+    results = []
+    row_count = len(gt)
+    #go through each ground truth 
+    for row in gt.iter_rows(named=True):
+        town = row["town"]
+        district = District(full_name=row["district"], short_name=row["district_abb"])
+        progress.update(
+            eval_task, description=f"Reducing {term}, {town}, {district.full_name}"
+        )
+        correct = filtered_answer_page_df.filter((pl.col("town") == town) &
+                                                (pl.col("district") == row["district"]) & 
+                                                (pl.col("term") == term))
+        all_answers = results_df.filter((pl.col("town") == town) &
+                                        (pl.col("district") == row["district"]) & 
+                                        (pl.col("term") == term))
+        temp_results = []
+        if len(correct) > 0: # if it's andover LOL or if gpt didn't find a right answer for that town
+            tournament_test = TournamentTester("gpt-4", tournament_k)
+            # need to get list of outputs and correct answer into proper "lookup output format"
+            # maybe i do that inside the extract funciton though -- might be less changes made to the eval method 
+            result, indices = await tournament_test.extract(correct, all_answers, district, term)
+            temp_results.append(result)
+            print(str(town), str(district.full_name), "total", str(sum([int(i[0]) for i in indices])), "indices", str(indices))
+
+        # TODO: need to get my results into the right format to be evaluated. see the compute_eval_result code (but i don't want to 
+        # call the search or extract part ya know)
+        async for result in compute_eval_result(
+            town, district, term, row, search_method, extraction_method, k, tournament_k, temp_results
+        ):
+            
+            # replace this function call with the code for my tournament experiment 
+            # async for result in compute_eval_result(
+            #     town, district, term, row, search_method, extraction_method,
+            #     k, tournament_k
+            # ):
+            results.append(result)
+            print("appended result")
+        progress.advance(eval_task)
+    progress.update(eval_task, description=f"Evaluated {term}")
+
+    """"""
 
     # groupby to calculate accuracy
     agg_answer_page_df = filtered_answer_page_df.groupby(

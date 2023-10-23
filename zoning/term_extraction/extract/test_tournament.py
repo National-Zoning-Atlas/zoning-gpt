@@ -4,11 +4,12 @@ import pickle
 from ...prompting import prompt
 from ...utils import batched, get_jinja_environment
 from ..thesaurus import get_thesaurus
-from ..types import District, LookupOutput, PageSearchOutput
+from ..types import District, LookupOutput, PageSearchOutput, ExtractionOutput
 from .map import MapExtractor
 from .utils import include_context_around_phrase
 
 from typing import Any
+import polars as pl
 
 TOURNAMENT_REDUCE_MAX_ANSWERS_PER_STAGE = 4
 TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER = 500
@@ -48,7 +49,7 @@ async def tournament_reduce(
             ),
         )
 
-        with open("tournament_prompts.txt", "a") as f:
+        with open("10-22-tournament_prompts.txt", "a") as f:
             f.write(input_prompt)
             f.write("\n")
         text = await prompt(
@@ -80,19 +81,30 @@ class TournamentTester(MapExtractor):
         super().__init__(model_name)
         self.k = k
 
-    async def extract(
-        self, gpt_answers: list[LookupOutput], district: District, term: str, correct_answer: LookupOutput
-    ):
+    async def extract(self, correct_answers: Any, all_answers: Any, district: District, term: str):
+        # correct answers is polars datafram, all answers is polars dataframe 
+        # self, gpt_answers: list[LookupOutput], district: District, term: str, correct_answer: LookupOutput
         winners = []
         winner_indices = []
-        for answer in gpt_answers: 
-            # winner between gpt answer and true answer
-            winner, winner_index = await tournament_reduce(correct=correct_answer, incorrect=answer, term=term, district=district, k=self.k)
-            winners.append(winner)
-            winner_indices.append(winner_index)
+        # not sure why theres multiple correct answers but for now just pick one 
+        correct_pickle = correct_answers.select("pickled_result")[0].item()
+        correct_object = pickle.loads(correct_pickle)
+
+        for row in range(len(all_answers)):
+            curr_pickle = all_answers.select("pickled_result")[row].item() 
+            curr_object = pickle.loads(curr_pickle)
+            # if the answer has an output at all #TODO: check which ones don't and why
+            if curr_object.output and correct_object.output:
+                # dont need to compare two of the same answer value
+                if curr_object.output.answer == correct_object.output.answer:
+                    continue
+                # winner between gpt answer and true answer
+                winner, winner_index = await tournament_reduce(correct=correct_object, incorrect=curr_object, term=term, district=district, k=self.k)
+                winners.append(winner)
+                winner_indices.append(winner_index)
         
         print(winner_indices)
-        return winner_indices
+        return winners, winner_indices
     # maybe here i can use expected and i can go for every result in outputs 
     # for each result in outputs, call my test_tournament on that result and the ground truth 
     # for each of those results, we can just count the number of times that the ground truth index is given back 
