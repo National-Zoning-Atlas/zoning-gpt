@@ -17,7 +17,7 @@ from ..term_extraction.types import District, LookupOutput
 from ..utils import get_project_root
 from .utils import AsyncTyper
 
-from ..term_extraction.extract import TournamentTester 
+from ..term_extraction.extract.test_tournament import TournamentTester 
 import pickle
 
 DATA_ROOT = get_project_root() / "data"
@@ -189,6 +189,8 @@ def compare_results(
     expected: str | None,
     expected_extended: str | None,
 ) -> bool:
+    if expected is None and expected_extended is None:
+        return True
     if actual_raw is not None and expected is None and expected_extended is not None:
         # If no normalized expected answer exists, but an extended one does,
         # then compare the un-normalized answer from the LLM with our extended
@@ -276,7 +278,6 @@ async def evaluate_term(
     )
  
     # filter entries that have correct page searched and answered
-    # THIS IS THE DF WITH THE RIGHT ANSWERS IN IT -- USE THIS BEOFRE CALLING TOURNAMNET EXPERIMENT? 
     filtered_answer_page_df = results_df.filter((pl.col("correct_page_searched") == True)
                                              & (pl.col("correct_answer") == True))
     
@@ -295,6 +296,7 @@ async def evaluate_term(
         progress.update(
             eval_task, description=f"Reducing {term}, {town}, {district.full_name}"
         )
+        # using the filtered_answer_page df (df with all rows where correct answer was found AND correct page was searched)
         correct = filtered_answer_page_df.filter((pl.col("town") == town) &
                                                 (pl.col("district") == row["district"]) & 
                                                 (pl.col("term") == term))
@@ -315,17 +317,48 @@ async def evaluate_term(
         async for result in compute_eval_result(
             town, district, term, row, search_method, extraction_method, k, tournament_k, temp_results
         ):
-            
-            # replace this function call with the code for my tournament experiment 
-            # async for result in compute_eval_result(
-            #     town, district, term, row, search_method, extraction_method,
-            #     k, tournament_k
-            # ):
             results.append(result)
             print("appended result")
         progress.advance(eval_task)
     progress.update(eval_task, description=f"Evaluated {term}")
-
+    
+    results_df = (
+        pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
+        # Attempt to normalize LLM responses
+        .with_columns(
+            pl.col("actual").apply(clean_string_units).alias("actual_normalized"),
+            pl.col("expected")
+            .apply(
+                lambda s: [float(f.strip()) for f in s.split(",")]
+                if s is not None
+                else [],
+                skip_nulls=False
+            )
+            .alias("expected_normalized"),
+        )
+        # Explode all values so that we have one row per expected-actual-value pair.
+        .explode("actual_normalized")
+        .explode("expected_normalized")
+        .with_columns(
+            pl.struct(
+                [
+                    "actual",
+                    "actual_normalized",
+                    "expected_normalized",
+                    "expected_extended",
+                ]
+            )
+            .apply(
+                lambda s: compare_results(
+                    s["actual_normalized"],
+                    s["actual"],
+                    s["expected_normalized"],
+                    s["expected_extended"],
+                )
+            )
+            .alias("correct_answer")
+        )
+    )
     """"""
 
     # groupby to calculate accuracy

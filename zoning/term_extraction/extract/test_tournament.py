@@ -71,9 +71,7 @@ async def tournament_reduce(
         winner_indices.append(index)
         winners.append(winner)
 
-    return winners, winner_indices
-
-    # return await tournament_reduce(winners, term, district, k)
+    return winners, winner_indices, input_prompt
 
 
 class TournamentTester(MapExtractor):
@@ -83,7 +81,6 @@ class TournamentTester(MapExtractor):
 
     async def extract(self, correct_answers: Any, all_answers: Any, district: District, term: str):
         # correct answers is polars datafram, all answers is polars dataframe 
-        # self, gpt_answers: list[LookupOutput], district: District, term: str, correct_answer: LookupOutput
         winners = []
         winner_indices = []
         # not sure why theres multiple correct answers but for now just pick one 
@@ -99,47 +96,12 @@ class TournamentTester(MapExtractor):
                 if curr_object.output.answer == correct_object.output.answer:
                     continue
                 # winner between gpt answer and true answer
-                winner, winner_index = await tournament_reduce(correct=correct_object, incorrect=curr_object, term=term, district=district, k=self.k)
+                winner, winner_index, input_prompt = await tournament_reduce(correct=correct_object, incorrect=curr_object, term=term, district=district, k=self.k)
                 winners.append(winner)
+                if winner_index[0] == 1:
+                    print("wrong!")
+                    
                 winner_indices.append(winner_index)
         
         print(winner_indices)
         return winners, winner_indices
-    # maybe here i can use expected and i can go for every result in outputs 
-    # for each result in outputs, call my test_tournament on that result and the ground truth 
-    # for each of those results, we can just count the number of times that the ground truth index is given back 
-        # # We first map extraction across all pages.
-        # results = []
-        # empty_results = []
-        # async for r in super().extract(pages, district, term):
-        #     if r.output is not None:
-        #         results.append(r)
-        #     else:
-        #         empty_results.append(r)
-
-        # # save snapshot of the map results so that you can avoid running map stuff 
-        # with open("map_results.dat", "wb") as f:
-        #     pickle.dump(results, f)
-
-        # with open("map_results.dat", "rb") as f:
-        #     results = pickle.load(f)
-        
-        # print("NUMBER OF RESULTS:", str(len(results)))
-
-        # counter = 0
-        # for result in results:
-        #     counter += 1
-        #     # print("RESULT NUMBER: ", counter, result)
-        #     yield result
-
-        # SNAPSHOT_PATH = str(search_method) + "_" + str(extraction_method) + "_" + str(k) + "_" + str(tournament_k) + ".csv"
-        # SNAPSHOT_METRICS_PATH = str(search_method) + "_" + str(extraction_method) + "_" + str(k) + "_" + str(tournament_k) + ".yaml"
-        # df = pd.read_parquet(EVAL_OUTPUT_PATH, engine='pyarrow')
-        # df.to_csv(SNAPSHOT_PATH, index=False)
-        
-        # for result in await tournament_reduce(results, term, district, self.k):
-        #     yield result
-
-        # # Ensure that we yield one empty result to handle case when the expected output is None
-        # if len(empty_results) != 0:
-        #     yield empty_results[0]
