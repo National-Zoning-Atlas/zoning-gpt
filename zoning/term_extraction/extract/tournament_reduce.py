@@ -30,41 +30,42 @@ async def tournament_reduce(
         return f"INDEX {i}\nAnswer: {r.output.answer}\nRationale: {r.output.rationale}\nExtracted Text: {r.output.extracted_text}\nSupporting Text:\n{context}"
 
     thesaurus = get_thesaurus()
-
-    winners = []
-    for competitor_batch in batched(
-        (r for r in results if r.output is not None),
-        TOURNAMENT_REDUCE_MAX_ANSWERS_PER_STAGE,
-    ):
-        input_prompt = tournament_reduce_tmpl.render(
-            term=term,
-            synonyms=", ".join(thesaurus.get(term, [])),
-            district=district,
-            answers="\n\n===\n\n".join(
-                template_answer(i, r) for i, r in enumerate(competitor_batch)
-            ),
-        )
-
-        text = await prompt(
-            "gpt-4", [{"role": "user", "content": input_prompt}], max_tokens=1
-        )
-        if text is None or text == "NO_ANSWER":
-            warnings.warn("No winner was present for a round in a tournament reduce.")
-            continue
-
-        try:
-            index = int(text)
-        except ValueError:
-            warnings.warn(
-                "Failed to parse index from tournament reduce response. Response was: {text}."
+    # start first first item as initial comparison point 
+    current_winner_index = 0
+    # compare the current best answer to each other answer in results 
+    for i in range(1, len(results)):
+        # create prompt out of current pair for comparison 
+        for competitor_batch in batched((r for r in (results[current_winner_index], results[i]) if r.output is not None), 2):
+            input_prompt = tournament_reduce_tmpl.render(
+                term=term,
+                synonyms=", ".join(thesaurus.get(term, [])),
+                district=district,
+                answers="\n\n===\n\n".join(
+                    template_answer(i, r) for i, r in enumerate(competitor_batch)
+                ),
             )
-            continue
+            text = await prompt(
+                "gpt-4", [{"role": "user", "content": input_prompt}], max_tokens=1
+            )
 
-        winner = competitor_batch[index]
-        winners.append(winner)
+            if text is None or text == "NO_ANSWER":
+                warnings.warn("No winner was present for a round in a tournament reduce.")
+                continue
 
-    return await tournament_reduce(winners, term, district, k)
-
+            try:
+                index = int(text)
+            except ValueError:
+                warnings.warn(
+                    "Failed to parse index from tournament reduce response. Response was: {text}."
+                )
+                continue
+            # extract best answer from gpt result 
+            if index == 1:
+                # this means it chose option 2 which was the ith result 
+                current_winner_index = i
+            
+    winner = results[current_winner_index]
+    return [winner] 
 
 class TournamentReduceExtractor(MapExtractor):
     def __init__(self, model_name: str, k: int):
