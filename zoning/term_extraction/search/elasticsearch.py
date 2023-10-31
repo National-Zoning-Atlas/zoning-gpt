@@ -19,7 +19,8 @@ class ElasticSearcher(Searcher):
         s = Search(using=self.client, index=town)
 
 
-        # Boost factor
+        # Boost factor: Increasing the boost value will make documents matching this query to be ranked higher
+        # Reference to Fuzzy: https://blog.mikemccandless.com/2011/03/lucenes-fuzzyquery-is-100-times-faster.html
         boost_value = 1.0
 
         exact_district_query = (
@@ -29,7 +30,7 @@ class ElasticSearcher(Searcher):
             | Q("match_phrase", Text={"query": district.short_name.replace(".", ""), "boost": boost_value})
         )
 
-        fuzzy_district_query = Q("match", Text={"query": district.full_name, "fuzziness": "AUTO"})
+        fuzzy_district_query = Q("match", Text={"query": district.short_name, "fuzziness": "AUTO"})
 
         if self.is_fuzzy:
             district_query = Q("bool", should=[exact_district_query, fuzzy_district_query])
