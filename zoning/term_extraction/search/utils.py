@@ -1,6 +1,7 @@
 import warnings
 from functools import cache
 from typing import cast
+from collections import Counter
 
 import datasets
 import pandas as pd
@@ -91,3 +92,30 @@ def get_non_overlapping_chunks(
             non_overlapping_indices.append(index)
             non_overlapping_chunks.append(search_result[i])
     return non_overlapping_chunks
+
+
+def naived_reranking(
+    search_result_list: list[list[PageSearchOutput]]
+) -> list[PageSearchOutput]:
+    flattened_search_results = []
+    page_search_dict = {}
+
+    for search_result_sublist in search_result_list:
+        for search_result in search_result_sublist:
+            flattened_search_results.append(search_result)
+
+            if search_result.page_number not in page_search_dict:
+                page_search_dict[search_result.page_number] = search_result
+                print(str(search_result.page_number) + ",")
+
+        print("---")
+
+
+    page_counts = Counter(search_result.page_number for search_result in flattened_search_results)
+    sorted_pages = sorted(page_counts.keys(), key=lambda x: page_counts[x], reverse=True)
+
+    res = []
+    for page in sorted_pages:
+        res.append(page_search_dict[page])
+        print(str(page) + ",")
+    return res
