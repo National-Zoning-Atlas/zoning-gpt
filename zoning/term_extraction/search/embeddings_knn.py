@@ -25,7 +25,7 @@ class EmbeddingsKNNSearcher(Searcher):
         filtered_ds.add_faiss_index("embeddings")
 
         result = filtered_ds.get_nearest_examples(
-            "embeddings", query_embedding, self.k * 10
+            "embeddings", query_embedding, self.k
         )
         for page, score in zip(result.examples["Page"], result.scores):
             yield PageSearchOutput(

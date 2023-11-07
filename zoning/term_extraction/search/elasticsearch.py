@@ -9,7 +9,7 @@ from .utils import expand_term
 
 
 class ElasticSearcher(Searcher):
-    def __init__(self, k: int, is_fuzzy = False) -> None:
+    def __init__(self, k: int, is_fuzzy: bool = False) -> None:
         self.client = Elasticsearch("http://localhost:9200")  # default client
         self.k = k 
         self.is_fuzzy = is_fuzzy
@@ -30,8 +30,10 @@ class ElasticSearcher(Searcher):
             | Q("match_phrase", Text={"query": district.short_name.replace(".", ""), "boost": boost_value})
         )
 
-        fuzzy_district_query = Q("match", Text={"query": district.short_name, "fuzziness": "AUTO"})
-
+        fuzzy_district_query = (Q("match", Text={"query": district.short_name, "fuzziness": "AUTO"})
+                                | Q("match", Text={"query": district.full_name, "fuzziness": "AUTO"})
+        )
+        
         if self.is_fuzzy:
             district_query = Q("bool", should=[exact_district_query, fuzzy_district_query])
         else:
