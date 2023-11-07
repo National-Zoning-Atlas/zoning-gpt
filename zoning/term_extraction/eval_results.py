@@ -47,9 +47,12 @@ def extract_fraction_decimal(text):
     else:
         return 0.0  # TODO: Is this correct? @ek542
 
-# captures x and y, x or y, x; y, x (y)
-# split_regex = re.compile(r"\s*(?: or| and|;)\s+")
-split_regex = re.compile(r"(.+?)\s(?:\(|or|and)\s(.+?)|(.*?)\sor\s(.*?)|(.*?)\sand\s(.*?)|(.*?)\s\((.*?)\)")
+or_form = "(.*?)\sor\s(.*?)" # captures text before/after "or"
+and_form = "(.*?)\sand\s(.*?)" # captures text before/after "and"
+paren_form = "(.*?)\s\((.*?)\)" # captures text before/after and inside "()"
+semicolon_form = "(.*?)\s*\;\s*(.*?)" # captures text before/after ";"
+split_regex = re.compile(f"{or_form}|{and_form}|{paren_form}|{semicolon_form}")
+# split_regex = re.compile(r"(.+?)\s(?:\(|or|and)\s(.+?)|(.*?)\sor\s(.*?)|(.*?)\sand\s(.*?)|(.*?)\s\((.*?)\)")
 # parses numbers with decimals and commas 
 parsing_regex = re.compile(r"(?:\d{4,}|\d{1,3}(?:,\d{3})*)(?:\.\d+)?")
 
