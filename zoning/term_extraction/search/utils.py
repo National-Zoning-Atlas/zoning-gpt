@@ -94,7 +94,7 @@ def get_non_overlapping_chunks(
     return non_overlapping_chunks
 
 
-def naived_reranking(
+def naive_reranking(
     search_result_list: list[list[PageSearchOutput]]
 ) -> list[PageSearchOutput]:
     flattened_search_results = []
