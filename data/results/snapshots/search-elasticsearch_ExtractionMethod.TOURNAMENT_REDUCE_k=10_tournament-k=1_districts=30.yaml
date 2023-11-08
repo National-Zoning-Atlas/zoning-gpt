@@ -1,16 +1,16 @@
 answer_accuracy: 0.9
-answer_page_accuracy: 0.8
+answer_page_accuracy: 0.8333333333333334
 conditional_answer_accuracy: 1.0
 min_lot_size:
   answer_accuracy: 0.9
-  answer_page_accuracy: 0.8
+  answer_page_accuracy: 0.8333333333333334
   conditional_answer_accuracy: 1.0
   num_correct_answer: 27
-  num_correct_page_searched: 24
-  num_results: 49
+  num_correct_page_searched: 25
+  num_results: 50
   num_row_input: 30
   num_row_processed: 30
-  page_search_recall: 0.8
+  page_search_recall: 0.8333333333333334
   row_processed: 1.0
-page_search_recall: 0.8
+page_search_recall: 0.8333333333333334
 row_processed: 1.0
