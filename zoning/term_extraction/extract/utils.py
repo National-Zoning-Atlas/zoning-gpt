@@ -4,6 +4,7 @@ import csv
 import datetime
 import itertools
 from zoning.utils import get_project_root
+import re
 
 import rich
 import tiktoken
@@ -81,6 +82,24 @@ def log_to_csv(
         )
 
 
+def find_regex_matched_phrase(original_phrase: str, document: str):
+    """
+    Find a regex matched phrase in the document that corresponds to the original phrase
+    with variations in whitespace and characters between segments of the sentence.
+    """
+    # Escape special characters in the original phrase
+    escaped_phrase = re.escape(original_phrase.split("\n")[0])
+
+    # Create a regex pattern to match the variations of the target sentence
+    pattern = rf"{escaped_phrase}\s*\(?\s*CELL\s*\d*\(?\d*,?\s*\d*\)?\)?\s*:\s*\n\d+"
+
+    # Search for the pattern in the document
+    match = re.search(pattern, document)
+
+    # Return the matched phrase or the original phrase if no match is found
+    return match.group(0) if match else original_phrase
+
+
 def include_context_around_phrase(
     phrase: str, document: str, n_tokens: int, term: str, district: District, town: str
 ):
@@ -97,14 +116,30 @@ def include_context_around_phrase(
     occurrence = occurrences_map.get(occurrences_count, "found-multiple-times")
 
     surrounding_tokens = n_tokens // 2
+    before = ""
+    after = ""
 
     if occurrence == "not-found":
-        warnings.warn(f"Phrase {phrase} was not in the supplied document: {document}")
         # If the phrase wasn't supplied, as a fallback just return the middle
         # 2000 tokens of the document
+        new_phrase = find_regex_matched_phrase(phrase, document)
 
-        middle = len(document) // 2
-        before, after = document[:middle], document[-middle:]
+        if new_phrase not in document:
+            warnings.warn(
+                f"Phrase {phrase} was not in the supplied. document: {document}"
+            )
+            middle = len(document) // 2
+            before, after = document[:middle], document[-middle:]
+        else:
+            return include_context_around_phrase(
+                phrase=new_phrase,
+                document=document,
+                n_tokens=n_tokens,
+                term=term,
+                district=district,
+                town=town,
+            )
+
     elif occurrence == "found-once":
         before, after = occurrences_list[0], occurrences_list[1]
     else:
@@ -113,8 +148,8 @@ def include_context_around_phrase(
         phrase_token_length = len(enc.encode(phrase))
         surrounding_tokens = (n_tokens - phrase_token_length) // 2
 
-    before = enc.decode(enc.encode(before)[-surrounding_tokens:])
-    after = enc.decode(enc.encode(after)[:surrounding_tokens])
+    before_context = enc.decode(enc.encode(before)[-surrounding_tokens:])
+    after_context = enc.decode(enc.encode(after)[:surrounding_tokens])
 
     log_to_csv(
         phrase=phrase,
@@ -128,7 +163,7 @@ def include_context_around_phrase(
         term=term,
     )
 
-    return "".join((before, phrase, after))
+    return "".join((before_context, phrase, after_context))
 
 
 extraction_chat_completion_tmpl = get_jinja_environment().get_template(
