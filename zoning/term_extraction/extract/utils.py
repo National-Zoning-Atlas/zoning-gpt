@@ -1,5 +1,9 @@
 import json
 import warnings
+import csv
+import datetime
+import itertools
+from zoning.utils import get_project_root
 
 import rich
 import tiktoken
@@ -9,23 +13,98 @@ from ...prompting import prompt
 from ...utils import (
     get_jinja_environment,
 )
+from typing import List, Tuple, Optional
 from ..thesaurus import get_thesaurus
-from ..types import District, ExtractionOutput
+from ..types import District, ExtractionOutput, RelevantContext
 
 
-def include_context_around_phrase(phrase: str, document: str, n_tokens: int):
+def log_to_csv(
+    phrase: str,
+    document: str,
+    n_tokens: int,
+    occurrence: str,
+    before_context: str,
+    after_context: str,
+    town: str,
+    district: District,
+    term: str,
+):
+    sanitized_phrase = phrase.replace(" ", "-")
+    sanitized_district_fn = district.full_name.replace(" ", "-")
+    sanitized_district_sn = district.short_name.replace(" ", "-")
+    now = datetime.datetime.now()
+
+    filename = f"timestamp={now.strftime('%Y-%m-%d_%H-%M')}_town={town}_district={sanitized_district_fn}_term={term}_phrase={sanitized_phrase[:25]}_tokens={n_tokens}_occurrence={occurrence}.csv"
+
+    root_directory = get_project_root()
+    sub_folder_path = (
+        root_directory / "data" / "logs" / "included_context_phrases" / occurrence
+    )
+    sub_folder_path.mkdir(parents=True, exist_ok=True)
+    csv_file_path = sub_folder_path / filename
+
+    if not csv_file_path.exists():
+        with open(csv_file_path, "w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(
+                [
+                    "phrase",
+                    "town",
+                    "district.full_name",
+                    "district.short_name",
+                    "term",
+                    "n_tokens",
+                    "occurrence",
+                    "before-context",
+                    "after-context",
+                    "document",
+                    "timestamp",
+                ]
+            )
+
+    with open(csv_file_path, "a", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(
+            [
+                phrase,
+                town,
+                sanitized_district_fn,
+                sanitized_district_sn,
+                term,
+                n_tokens,
+                occurrence,
+                before_context,
+                after_context,
+                document,
+                datetime.datetime.now().strftime("%Y-%m-%d_%H-%M"),
+            ]
+        )
+
+
+def include_context_around_phrase(
+    phrase: str, document: str, n_tokens: int, term: str, district: District, town: str
+):
     """
     n_tokens: the total number of tokens that should be included in the response
     """
     enc = tiktoken.encoding_for_model("text-davinci-003")
 
-    if phrase not in document:
+    occurrences = document.split(phrase)
+    # create an occurences dict to map the index of document.split(phrase) to the case
+    ocurrences_map = {1: "not-found", 2: "found-once", 3: "found-multiple-times"}
+    occurrences = ocurrences_map[len(occurrences)]
+
+    if ocurrences_map[occurrences] == "not-found":
         warnings.warn(f"Phrase {phrase} was not in the supplied document: {document}")
         # If the phrase wasn't supplied, as a fallback just return the middle
         # 2000 tokens of the document
         surrounding_tokens = n_tokens // 2
         middle = len(document) // 2
         before, after = document[:middle], document[-middle:]
+        occurrence = "not-found"
+    elif ocurrences_map[occurrences]:
+        before, after = occurrences
+        occurrence = "found-once"
     else:
         phrase_token_length = len(enc.encode(phrase))
         surrounding_tokens = (n_tokens - phrase_token_length) // 2
@@ -33,14 +112,22 @@ def include_context_around_phrase(phrase: str, document: str, n_tokens: int):
         # Find the index of the phrase in the document
         # Split the document at that index
         split = document.split(phrase)
-        if len(split) != 2:
-            warnings.warn(f"Phrase {phrase} was found more than once in the document.")
-            before, after = split[0], "".join(split[1:])
-        else:
-            before, after = split
+        warnings.warn(f"Phrase {phrase} was found more than once in the document.")
+        before, after = split[0], "".join(split[1:])
+        occurrence = "found-multiple-times"
 
     before = enc.decode(enc.encode(before)[-surrounding_tokens:])
     after = enc.decode(enc.encode(after)[:surrounding_tokens])
+
+    log_to_csv(
+        phrase,
+        document,
+        n_tokens,
+        occurrence,
+        town,
+        district,
+        term,
+    )
 
     return "".join((before, phrase, after))
 

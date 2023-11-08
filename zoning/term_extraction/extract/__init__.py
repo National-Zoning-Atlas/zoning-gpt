@@ -46,7 +46,7 @@ async def extract_answer(
         case ExtractionMethod.TOURNAMENT_REDUCE:
             extractor = TournamentReduceExtractor(model_name, tournament_k)
         case ExtractionMethod.MULTIPLE_CHOICE:
-            extractor = MultipleChoiceExtractor(model_name, tournament_k )
+            extractor = MultipleChoiceExtractor(model_name, tournament_k)
         case ExtractionMethod.MAP:
             extractor = MapExtractor(model_name)
 

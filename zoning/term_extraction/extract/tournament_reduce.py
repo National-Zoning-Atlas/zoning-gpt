@@ -56,6 +56,7 @@ async def tournament_reduce(
                 term=term,
                 synonyms=", ".join(thesaurus.get(term, [])),
                 district=district,
+                town=town,
                 answers="\n\n===\n\n".join(
                     template_answer(i, r) for i, r in enumerate(competitor_batch)
                 ),
