@@ -89,44 +89,43 @@ def include_context_around_phrase(
     """
     enc = tiktoken.encoding_for_model("text-davinci-003")
 
-    occurrences = document.split(phrase)
-    # create an occurences dict to map the index of document.split(phrase) to the case
-    ocurrences_map = {1: "not-found", 2: "found-once", 3: "found-multiple-times"}
-    occurrences = ocurrences_map[len(occurrences)]
+    occurrences_list = document.split(phrase)
+    occurrences_count = len(occurrences_list)
+    # Create an occurrences dict to map the count to the case
+    occurrences_map = {1: "not-found", 2: "found-once"}
+    # occurrences_map using occurrences_count as the key and defaulting to "found-multiple-times" if higher
+    occurrence = occurrences_map.get(occurrences_count, "found-multiple-times")
 
-    if ocurrences_map[occurrences] == "not-found":
+    surrounding_tokens = n_tokens // 2
+
+    if occurrence == "not-found":
         warnings.warn(f"Phrase {phrase} was not in the supplied document: {document}")
         # If the phrase wasn't supplied, as a fallback just return the middle
         # 2000 tokens of the document
-        surrounding_tokens = n_tokens // 2
+
         middle = len(document) // 2
         before, after = document[:middle], document[-middle:]
-        occurrence = "not-found"
-    elif ocurrences_map[occurrences]:
-        before, after = occurrences
-        occurrence = "found-once"
+    elif occurrence == "found-once":
+        before, after = occurrences_list[0], occurrences_list[1]
     else:
+        warnings.warn(f"Phrase {phrase} was found more than once in the document.")
+        before, after = occurrences_list[0], "".join(occurrences_list[1:])
         phrase_token_length = len(enc.encode(phrase))
         surrounding_tokens = (n_tokens - phrase_token_length) // 2
-
-        # Find the index of the phrase in the document
-        # Split the document at that index
-        split = document.split(phrase)
-        warnings.warn(f"Phrase {phrase} was found more than once in the document.")
-        before, after = split[0], "".join(split[1:])
-        occurrence = "found-multiple-times"
 
     before = enc.decode(enc.encode(before)[-surrounding_tokens:])
     after = enc.decode(enc.encode(after)[:surrounding_tokens])
 
     log_to_csv(
-        phrase,
-        document,
-        n_tokens,
-        occurrence,
-        town,
-        district,
-        term,
+        phrase=phrase,
+        document=document,
+        n_tokens=n_tokens,
+        occurrence=occurrence,  # this should be the string "not-found", "found-once", or "found-multiple-times"
+        before_context=before,
+        after_context=after,
+        town=town,
+        district=district,  # make sure this is the District object that has full_name and short_name
+        term=term,
     )
 
     return "".join((before, phrase, after))

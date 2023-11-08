@@ -37,9 +37,10 @@ async def compute_eval_result(
 ):
     pages = search_for_term(town, district, term, search_method, k)
     outputs = extract_answer(
-        pages,
-        term,
-        district,
+        pages=pages,
+        term=term,
+        town=town,
+        district=district,
         method=extraction_method,
         model_name="gpt-4",
         tournament_k=tournament_k,
