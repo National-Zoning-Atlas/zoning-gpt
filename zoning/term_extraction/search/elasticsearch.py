@@ -10,11 +10,12 @@ from .utils import expand_term
 
 class ElasticSearcher(Searcher):
     def __init__(self, k: int, is_district_fuzzy: bool = False,
-                 is_term_fuzzy: bool = False) -> None:
+                 is_term_fuzzy: bool = False, label: str = "") -> None:
         self.client = Elasticsearch("http://localhost:9200")  # default client
         self.k = k 
         self.is_district_fuzzy = is_district_fuzzy
         self.is_term_fuzzy = is_term_fuzzy
+        self.label = label
 
     def search(self, town: str, district: District, term: str):
         # Search in town
@@ -82,6 +83,7 @@ class ElasticSearcher(Searcher):
                 page_number=r.Page,
                 highlight=list(r.meta.highlight.Text),
                 score=r.meta.score,
+                log={"label": self.label},
                 query=json.dumps(s.query.to_dict()),
             )
             for r in res

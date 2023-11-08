@@ -9,11 +9,12 @@ from .utils import expand_term, fill_to_token_length, get_lookup_tables
 
 
 class EmbeddingsKNNSearcher(Searcher):
-    def __init__(self, k: int):
+    def __init__(self, k: int, label: str = ""):
         assert k > 0, "`k` must be >0 to use KNN search"
 
         self.k = k
         self.ds, self.df = get_lookup_tables()
+        self.label = label
 
     def search(
         self, town: str, district: District, term: str
@@ -32,6 +33,7 @@ class EmbeddingsKNNSearcher(Searcher):
                 text=fill_to_token_length(page, self.df.loc[town], 2000),
                 page_number=page,
                 score=score,
+                log={"label": self.label},
                 highlight=[],
                 query=query,
             )
