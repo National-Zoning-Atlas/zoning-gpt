@@ -93,6 +93,21 @@ def get_non_overlapping_chunks(
             non_overlapping_chunks.append(search_result[i])
     return non_overlapping_chunks
 
+def get_top_k_chunks(
+    search_result: list[PageSearchOutput], k: int
+) -> list[PageSearchOutput]:
+    output = get_non_overlapping_chunks(search_result)
+    output_indices_set = set([r.page_number for r in output])
+
+    for res in search_result:
+        if len(output) >= k:
+            break
+        if res.page_number not in output_indices_set:
+            output.append(res)
+            output_indices_set.add(res.page_number)
+
+    return output
+
 
 def naive_reranking(
     search_result_list: list[list[PageSearchOutput]]
