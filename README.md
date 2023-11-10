@@ -70,6 +70,12 @@ export AWS_ACCESS_KEY_ID=***
 export AWS_SECRET_ACCESS_KEY=***
 ```
 
+Before running elastic search, make sure to install the relevant dependencies on your .venv // pdm
+```
+source .venv/bin/activate
+pdm install
+```
+
 You will need to update `params.yaml` to point to your S3 bucket. This bucket
 will be used to store your documents so that Textract can run OCR on them. Chang
 the `orig_document_s3_bucket` field to be your bucket name.
