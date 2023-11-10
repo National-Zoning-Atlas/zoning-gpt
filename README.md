@@ -70,6 +70,48 @@ export AWS_ACCESS_KEY_ID=***
 export AWS_SECRET_ACCESS_KEY=***
 ```
 
+or, you can have it all in a .env file and setup the AWS login via their [CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-authentication-user.html)
+```
+OPENAI_API_KEY=***
+AWS_DEFAULT_PROFILE=***
+AWS_DEFAULT_REGION=***
+```
+
+We also need to run the eval function as a module. In `.vscode` create a file nammed `launch.json` with the following configuration.:
+```
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Module",
+      "type": "python",
+      "request": "launch",
+      "module": "zoning.data_processing.eval",
+      "justMyCode": true,
+      "args": [
+        "--num-eval-rows",
+        "30",
+        "--terms",
+        "min_lot_size",
+        "--search-method",
+        "elastic_and_embeddings",
+        "--extraction-method",
+        "map",
+        "--k",
+        "10",
+        "--tournament-k",
+        "1"
+      ]
+    }
+  ]
+}
+```
+
+
+
 Before running elastic search, make sure to install the relevant dependencies on your .venv // pdm
 ```
 source .venv/bin/activate
