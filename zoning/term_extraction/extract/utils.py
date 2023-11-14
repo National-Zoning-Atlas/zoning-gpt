@@ -82,7 +82,7 @@ def log_to_csv(
         )
 
 
-def find_regex_matched_phrase(original_phrase: str, document: str):
+def find_regex_matched_phrase_cell(original_phrase: str, document: str):
     """
     Find a regex matched phrase in the document that corresponds to the original phrase
     with variations in whitespace and characters between segments of the sentence.
@@ -98,6 +98,33 @@ def find_regex_matched_phrase(original_phrase: str, document: str):
 
     # Return the matched phrase or the original phrase if no match is found
     return match.group(0) if match else original_phrase
+
+
+# def find_regex_matched_phrase_multiple_returns(original_phrase: str, document: str):
+#     """
+#     Find a regex matched phrase in the document that corresponds to the original phrase,
+#     accounting for multiple \n that might be ignored and need to be returned, and variations in whitespace.
+#     """
+#     # Escape special characters in the original phrase and create a regex pattern
+#     # that allows for any whitespace (including newlines) between each part of the phrase
+#     pattern = re.escape(original_phrase)
+#     pattern = pattern.replace(r"\ ", r"\s*").replace(r"\\n", r"(\\n|\s)+")
+
+#     # Search for the pattern in the document, allowing '.' to match newlines with re.DOTALL
+#     match = re.search(pattern, document, re.DOTALL)
+
+#     # If a match is found, reconstruct the phrase with the original line breaks and whitespace
+#     if match:
+#         matched_text = match.group(0)
+#         # Normalize the matched text by collapsing multiple spaces and newlines into single spaces
+#         normalized_text = re.sub(r"\s+", " ", matched_text)
+#         # Reconstruct the phrase with the original line breaks
+#         reconstructed_phrase = original_phrase.replace(" ", r"\s*").replace(
+#             "\n", r"(\\n|\s)+"
+#         )
+#         return re.sub(reconstructed_phrase, normalized_text, original_phrase)
+#     else:
+#         return original_phrase
 
 
 def include_context_around_phrase(
@@ -122,7 +149,8 @@ def include_context_around_phrase(
     if occurrence == "not-found":
         # If the phrase wasn't supplied, as a fallback just return the middle
         # 2000 tokens of the document
-        new_phrase = find_regex_matched_phrase(phrase, document)
+        # filtered_phrase = find_regex_matched_phrase_multiple_returns(phrase, document)
+        new_phrase = find_regex_matched_phrase_cell(phrase, document)
 
         if new_phrase not in document:
             warnings.warn(
@@ -144,6 +172,7 @@ def include_context_around_phrase(
         before, after = occurrences_list[0], occurrences_list[1]
     else:
         warnings.warn(f"Phrase {phrase} was found more than once in the document.")
+        # can be improved
         before, after = occurrences_list[0], "".join(occurrences_list[1:])
         phrase_token_length = len(enc.encode(phrase))
         surrounding_tokens = (n_tokens - phrase_token_length) // 2
