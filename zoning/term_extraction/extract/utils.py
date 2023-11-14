@@ -66,7 +66,7 @@ def parse_extraction_output(text: str | None) -> ExtractionOutput | None:
         return None
 
     try:
-        # text = text[7:-4]
+        # TODO: this is something that came with new gpt update. This is a bandaid solution that i'll look into later
         if text[:7] == "```json":
             text = text[7:-4]
         json_body = json.loads(text)
@@ -137,6 +137,5 @@ async def run_extraction_prompt(
             model_name,
             lookup_extraction_prompt(model_name, contents, district, term),
             max_tokens=384,
-            # response_format={"type": "json_object" }
         )
     )

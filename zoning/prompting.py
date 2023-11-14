@@ -52,7 +52,6 @@ async def prompt(
                 resp = await openai.ChatCompletion.acreate(
                     **base_params,
                     messages=input_prompt,
-                    # response_format={ "type": "json_object" },
                 )
                 top_choice = resp.choices[0]  # type: ignore
                 return top_choice.message.content
@@ -60,7 +59,6 @@ async def prompt(
                 resp = await openai.ChatCompletion.acreate(
                     **base_params,
                     messages=input_prompt,
-                    # response_format={ "type": "json_object" },
                 )
                 top_choice = resp.choices[0]  # type: ignore
                 return top_choice.message.content
