@@ -18,6 +18,8 @@ the NZA team expand the reach of its atlas.
 
 ## Setup
 
+First of all, clone the [repository](https://github.com/National-Zoning-Atlas/zoning-gpt) and `cd` into it.
+
 This repository contains a number of experiments, as well as an automated
 evaluation pipeline. Dependencies are managed using `pip`. (Note that this
 repository has been tested only with Python 3.10.) To setup your development
@@ -38,6 +40,8 @@ the following command:
 ```sh
 pdm run dvc remote modify --local cornell-aap-azure connection_string <YOUR CONNECTION STRING HERE>
 ```
+
+Request the `Connection String` from Angky, Jan, Justin or Ruslana.
 
 Once you have the DVC remote added, you can pull all existing pipeline data using:
 
@@ -64,6 +68,54 @@ export AWS_DEFAULT_PROFILE=***
 # OR
 export AWS_ACCESS_KEY_ID=***
 export AWS_SECRET_ACCESS_KEY=***
+```
+
+or, you can have it all in a .env file and setup the AWS login via their [CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-authentication-user.html)
+```
+OPENAI_API_KEY=***
+AWS_DEFAULT_PROFILE=***
+AWS_DEFAULT_REGION=***
+```
+
+We also need to run the eval function as a module. In `.vscode` create a file nammed `launch.json` with the following configuration.:
+```
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Module",
+      "type": "python",
+      "request": "launch",
+      "module": "zoning.data_processing.eval",
+      "justMyCode": true,
+      "args": [
+        "--num-eval-rows",
+        "30",
+        "--terms",
+        "min_lot_size",
+        "--search-method",
+        "elastic_and_embeddings",
+        "--extraction-method",
+        "map",
+        "--k",
+        "10",
+        "--tournament-k",
+        "1"
+      ]
+    }
+  ]
+}
+```
+
+
+
+Before running elastic search, make sure to install the relevant dependencies on your .venv // pdm
+```
+source .venv/bin/activate
+pdm install
 ```
 
 You will need to update `params.yaml` to point to your S3 bucket. This bucket
@@ -93,10 +145,15 @@ When processing is complete, evaluation metrics will be available in
 To run experiments, we recommend using DVC Experiments, which this repository is
 setup for.
 
-To run an experiment that changes hyperparameters, you can run something like:
+To run an experiment you can do the following: 
+```
+pdm run python -m zoning.data_processing.eval --num-eval-rows 30 --terms min_lot_size --search-method elasticsearch --extraction-method tournament_reduce --k 10
+```
+
+In order to run an experiment that changes hyperparameters and forces the run instead of caching , you can run something like:
 
 ```python
-pdm run dvc exp run -S eval.search-method=elasticsearch -S eval.extraction-method=map -S eval.k=12 evaluate --force
+pdm run dvc exp run -S eval.search-method=elasticsearch -S eval.extraction-method=tournament_reduce -S eval.k=12 evaluate --force
 ```
 
 This will run evaluation with your hyperparameters set to the desired values and

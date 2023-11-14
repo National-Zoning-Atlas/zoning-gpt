@@ -9,10 +9,13 @@ from .utils import expand_term
 
 
 class ElasticSearcher(Searcher):
-    def __init__(self, k: int, is_fuzzy: bool = False) -> None:
+    def __init__(self, k: int, is_district_fuzzy: bool = False,
+                 is_term_fuzzy: bool = False, label: str = "") -> None:
         self.client = Elasticsearch("http://localhost:9200")  # default client
         self.k = k 
-        self.is_fuzzy = is_fuzzy
+        self.is_district_fuzzy = is_district_fuzzy
+        self.is_term_fuzzy = is_term_fuzzy
+        self.label = label
 
     def search(self, town: str, district: District, term: str):
         # Search in town
@@ -34,16 +37,29 @@ class ElasticSearcher(Searcher):
                                 | Q("match", Text={"query": district.full_name, "fuzziness": "AUTO"})
         )
         
-        if self.is_fuzzy:
+        if self.is_district_fuzzy:
             district_query = Q("bool", should=[exact_district_query, fuzzy_district_query])
         else:
             district_query = exact_district_query
 
-        term_query = Q(
+        exact_term_query = Q(
             "bool",
             should=list(Q("match_phrase", Text=t) for t in expand_term(term)),
             minimum_should_match=1,
         )
+
+        if self.is_term_fuzzy:
+            term_query = Q(
+                "bool",
+                should=[
+                    Q("match_phrase", Text=t) for t in expand_term(term)
+                ] + [
+                    Q("match", Text={"query": t, "fuzziness": "AUTO"}) for t in expand_term(term)
+                ],
+                minimum_should_match=1,
+            )
+        else:
+            term_query = exact_term_query
 
         dim_query = Q(
             "bool",
@@ -67,6 +83,7 @@ class ElasticSearcher(Searcher):
                 page_number=r.Page,
                 highlight=list(r.meta.highlight.Text),
                 score=r.meta.score,
+                log={"label": self.label},
                 query=json.dumps(s.query.to_dict()),
             )
             for r in res

@@ -61,6 +61,7 @@ async def compute_eval_result(
         searched_pages_expanded = set(result.search_pages_expanded)
         is_correct_page_searched = any(gt_page & searched_pages_expanded)
         expected_extended = ground_truth[f"{term}_gt_orig"]
+        label = result.search_pages[0].log["label"]
 
         base_output = {
             "town": town,
@@ -71,6 +72,7 @@ async def compute_eval_result(
             "searched_pages_expanded": list(searched_pages_expanded),
             "expected": expected,
             "expected_extended": expected_extended,
+            "label": label,
         }
 
         if result.output is None:
