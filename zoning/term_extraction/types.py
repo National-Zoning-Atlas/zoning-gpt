@@ -10,6 +10,7 @@ class PageSearchOutput(BaseModel):
     highlight: list[str]
     score: float
     query: str
+    log: dict[str, str]
 
 class ExtractionOutput(BaseModel):
     extracted_text: list[str]
