@@ -12,7 +12,7 @@ from ..term_extraction.search import (
     SearchMethod,
     search_for_term,
 )
-from ..term_extraction.semantic_comparison import semantic_comparison
+from ..term_extraction.semantic_comparison import semantic_comparison, parse_answer
 from ..term_extraction.types import District
 from ..utils import get_project_root
 from .utils import AsyncTyper
@@ -41,7 +41,8 @@ async def compute_eval_result(
         term,
         district,
         method=extraction_method,
-        model_name="gpt-4",
+        # model_name="gpt-4",
+        model_name="gpt-4-1106-preview",
         tournament_k=tournament_k,
     )
 

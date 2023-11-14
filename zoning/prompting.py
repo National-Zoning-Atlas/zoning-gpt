@@ -7,6 +7,8 @@ from tenacity import retry, retry_if_exception_type, wait_random_exponential
 
 from .utils import cached, get_project_root, limit_global_concurrency
 
+from datetime import datetime
+
 cache = dc.Cache(get_project_root() / ".diskcache")
 
 
@@ -29,6 +31,7 @@ async def prompt(
     model_name: str,
     input_prompt: str | list[dict[str, str]],
     max_tokens=256,
+    response_format=None,
 ) -> str | None:
     base_params = {
         "model": model_name,
@@ -49,6 +52,15 @@ async def prompt(
                 resp = await openai.ChatCompletion.acreate(
                     **base_params,
                     messages=input_prompt,
+                    # response_format={ "type": "json_object" },
+                )
+                top_choice = resp.choices[0]  # type: ignore
+                return top_choice.message.content
+            case "gpt-4-1106-preview":
+                resp = await openai.ChatCompletion.acreate(
+                    **base_params,
+                    messages=input_prompt,
+                    # response_format={ "type": "json_object" },
                 )
                 top_choice = resp.choices[0]  # type: ignore
                 return top_choice.message.content

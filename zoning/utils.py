@@ -87,6 +87,10 @@ def cached(cache, keyfunc):
         if asyncio.iscoroutinefunction(func):
             async def async_wrapper(*args, **kwargs):
                 key = keyfunc(*args, **kwargs)
+                # if "gpt-4-1106-preview" in key:
+                #     result = await func(*args, **kwargs)
+                #     cache[key] = result
+                #     return result
                 if key in cache:
                     return cache[key]
                 else:
