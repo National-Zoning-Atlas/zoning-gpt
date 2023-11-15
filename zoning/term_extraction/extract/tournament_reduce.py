@@ -17,7 +17,7 @@ tournament_reduce_tmpl = get_jinja_environment().get_template("tournament_allow_
 
 async def tournament_reduce(
     results: list[LookupOutput], term: str, district: District, k: int
-) -> list[LookupOutput]:
+) -> int:
     if len(results) <= k:
         return results
 
@@ -45,8 +45,9 @@ async def tournament_reduce(
                     template_answer(i, r) for i, r in enumerate(competitor_batch)
                 ),
             )
+
             text = await prompt(
-                "gpt-4", [{"role": "user", "content": input_prompt}], max_tokens=1
+                "gpt-4-1106-preview", [{"role": "user", "content": input_prompt}], max_tokens=1
             )
 
             if text is None or text == "NO_ANSWER":
@@ -57,16 +58,21 @@ async def tournament_reduce(
                 index = int(text)
             except ValueError:
                 warnings.warn(
-                    "Failed to parse index from tournament reduce response. Response was: {text}."
+                    f"Failed to parse index from tournament reduce response. Response was: {text}."
                 )
                 continue
             # extract best answer from gpt result 
+            if index == -1:
+                current_winner_index = -1
             if index == 1:
                 # this means it chose option 2 which was the ith result 
                 current_winner_index = i
             
+    if current_winner_index == -1:
+        warnings.warn("GPT chose neither answer.")
+        return current_winner_index
     winner = results[current_winner_index]
-    return [winner] 
+    return current_winner_index
 
 class TournamentReduceExtractor(MapExtractor):
     def __init__(self, model_name: str, k: int):
@@ -74,7 +80,25 @@ class TournamentReduceExtractor(MapExtractor):
         self.k = k
 
     async def extract(
-        self, pages: list[PageSearchOutput], district: District, term: str
+        self, pages: list[LookupOutput], district: District, term: str
+    ):
+        results = pages
+        print("PAGES", len(pages))
+        for result in await tournament_reduce(results, term, district, self.k):
+            yield result
+
+        # # Ensure that we yield one empty result to handle case when the expected output is None
+        # if len(empty_results) != 0:
+        #     yield empty_results[0]
+        
+
+class TestTournamentReduceExtractor(MapExtractor):
+    def __init__(self, model_name: str, k: int):
+        super().__init__(model_name)
+        self.k = k
+
+    async def extract(
+        self, results: list[LookupOutput], district: District, term: str
     ):
         # We first map extraction across all pages.
         results = []
@@ -87,8 +111,32 @@ class TournamentReduceExtractor(MapExtractor):
             else:
                 empty_results.append(r)
                 
-        with open("map_results_11_14_0.dat", "wb") as f:
-            pickle.dump({district.short_name: results}, f)
+        # Load existing data if the file already exists
+        try:
+            with open("./ryurtyn/map_results_11_14_0.dat", "rb") as f:
+                existing_data = pickle.load(f)
+        except FileNotFoundError:
+            existing_data = {}  # If the file doesn't exist, initialize an empty dictionary
+
+        try:
+            with open("./ryurtyn/districts_11_14_0.dat", "rb") as f:
+                existing_data_district = pickle.load(f)
+        except FileNotFoundError:
+            existing_data_district = {} 
+        # Assuming district.short_name and results are defined somewhere in your code
+        new_data = {district.short_name: map_pickle}
+        new_data_district = {district.short_name: district}
+
+        # Merge the existing data with the new data
+        existing_data.update(new_data)
+        existing_data_district.update(new_data_district)
+
+        # Write the updated data back to the file
+        with open("./ryurtyn/map_results_11_14_0.dat", "wb") as f:
+            pickle.dump(existing_data, f)
+
+        with open("./ryurtyn/districts_11_14_0.dat", "wb") as f:
+            pickle.dump(existing_data_district, f)
 
         # for result in await tournament_reduce(results, term, district, self.k):
         #     yield result

@@ -87,22 +87,23 @@ def cached(cache, keyfunc):
         if asyncio.iscoroutinefunction(func):
             async def async_wrapper(*args, **kwargs):
                 key = keyfunc(*args, **kwargs)
-                if key in cache:
-                    return cache[key]
-                else:
-                    result = await func(*args, **kwargs)
-                    cache[key] = result
-                    return result
+                
+                # if key in cache:
+                #     return cache[key]
+                # else:
+                result = await func(*args, **kwargs)
+                cache[key] = result
+                return result
             return async_wrapper
         else:
             def wrapper(*args, **kwargs):
                 key = keyfunc(*args, **kwargs)
-                if key in cache:
-                    return cache[key]
-                else:
-                    result = func(*args, **kwargs)
-                    cache[key] = result
-                    return result
+                # if key in cache:
+                #     return cache[key]
+                # else:
+                result = func(*args, **kwargs)
+                cache[key] = result
+                return result
             return wrapper
     return decorator
     
