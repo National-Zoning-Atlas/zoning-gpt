@@ -90,8 +90,8 @@ class TournamentReduceExtractor(MapExtractor):
         with open("map_results_11_14_0.dat", "wb") as f:
             pickle.dump({district.short_name: results}, f)
 
-        for result in await tournament_reduce(results, term, district, self.k):
-            yield result
+        # for result in await tournament_reduce(results, term, district, self.k):
+        #     yield result
 
         # Ensure that we yield one empty result to handle case when the expected output is None
         if len(empty_results) != 0:
