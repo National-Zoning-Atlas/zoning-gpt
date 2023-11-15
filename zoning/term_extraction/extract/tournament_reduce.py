@@ -82,7 +82,7 @@ class TournamentReduceExtractor(MapExtractor):
         map_pickle = []
         async for r in super().extract(pages, district, term):
             map_pickle.append(r)
-            if r.output is not None:
+            if (r.output is not None) and r.output.extracted_text:
                 results.append(r)
             else:
                 empty_results.append(r)

@@ -57,14 +57,18 @@ TEMPLATE_MAPPING = {
     "text-davinci-003": extraction_completion_tmpl,
     "gpt-3.5-turbo": extraction_chat_completion_tmpl,
     "gpt-4": extraction_chat_completion_tmpl,
+    "gpt-4-1106-preview": extraction_chat_completion_tmpl,
 }
 
 
 def parse_extraction_output(text: str | None) -> ExtractionOutput | None:
-    if text is None:
+    if text is None or text == "null":
         return None
 
     try:
+        # TODO: this is something that came with new gpt update. This is a bandaid solution that i'll look into later
+        if text[:7] == "```json":
+            text = text[7:-4]
         json_body = json.loads(text)
         if json_body is None:
             # The model is allowed to return null if it cannot find the answer,
@@ -90,6 +94,22 @@ def lookup_extraction_prompt(
                 zone_abbreviation=district.short_name,
             )
         case "gpt-3.5-turbo" | "gpt-4":
+            return [
+                {
+                    "role": "system",
+                    "content": TEMPLATE_MAPPING[model_name].render(
+                        term=term,
+                        synonyms=", ".join(get_thesaurus().get(term, [])),
+                        zone_name=district.full_name,
+                        zone_abbreviation=district.short_name,
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": f"Input: \n\n {page_text}\n\n Output:",
+                },
+            ]
+        case "gpt-4-1106-preview":
             return [
                 {
                     "role": "system",
