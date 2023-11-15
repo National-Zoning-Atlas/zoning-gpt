@@ -19,6 +19,12 @@ from ..thesaurus import get_thesaurus
 from ..types import District, ExtractionOutput, RelevantContext
 
 
+def sanitize_for_filename(input_str, max_length=255):
+    # Remove special characters and limit length
+    sanitized = re.sub(r'[\\/*?:"<>|\n]', "", input_str)
+    return sanitized[:max_length]
+
+
 def log_to_csv(
     phrase: str,
     document: str,
@@ -30,23 +36,41 @@ def log_to_csv(
     district: District,
     term: str,
 ):
-    sanitized_phrase = phrase.replace(" ", "-")
-    sanitized_district_fn = district.full_name.replace(" ", "-")
-    sanitized_district_sn = district.short_name.replace(" ", "-")
+    sanitized_phrase = sanitize_for_filename(phrase.replace(" ", "-"), 50)
+    sanitized_district_fn = sanitize_for_filename(
+        district.full_name.replace(" ", "-"), 50
+    )
+    sanitized_district_sn = sanitize_for_filename(
+        district.short_name.replace(" ", "-"), 50
+    )
+    sanitized_town = sanitize_for_filename(town, 50)
+    sanitized_term = sanitize_for_filename(term, 50)
     now = datetime.datetime.now()
 
-    filename = f"timestamp={now.strftime('%Y-%m-%d_%H-%M')}_town={town}_district={sanitized_district_fn}_term={term}_phrase={sanitized_phrase[:25]}_tokens={n_tokens}_occurrence={occurrence}.csv"
+    filename = f"timestamp={now.strftime('%Y-%m-%d_%H-%M')}_town={sanitized_town}_district={sanitized_district_fn}_term={sanitized_term}_phrase={sanitized_phrase}_tokens={n_tokens}_occurrence={occurrence}.csv"
+
+    filename = sanitize_for_filename(filename, 255)
 
     root_directory = get_project_root()
     sub_folder_path = (
         root_directory / "data" / "logs" / "included_context_phrases" / occurrence
     )
+
+    # Ensure the sub-folder exists
     sub_folder_path.mkdir(parents=True, exist_ok=True)
     csv_file_path = sub_folder_path / filename
 
-    if not csv_file_path.exists():
-        with open(csv_file_path, "w", newline="") as file:
-            writer = csv.writer(file)
+    # Check if the file exists and create it with headers if it does not
+    file_exists = csv_file_path.exists()
+    # Construct the full path for the CSV file
+
+    mode = "a" if file_exists else "w"
+
+    with open(csv_file_path, mode, newline="") as file:
+        writer = csv.writer(file)
+
+        # Write header only if the file did not exist
+        if not file_exists:
             writer.writerow(
                 [
                     "phrase",
@@ -63,8 +87,7 @@ def log_to_csv(
                 ]
             )
 
-    with open(csv_file_path, "a", newline="") as file:
-        writer = csv.writer(file)
+        # Write the data row
         writer.writerow(
             [
                 phrase,
