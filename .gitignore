@@ -6,7 +6,10 @@
 # files
 nza-ct-zoning-codes-text/
 nza-ct-zoning-codes-text/*
-data/results/*
+data/results/snapshots/*
+
+#data/logs
+data/logs/included_context_phrases/*/timestamp*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

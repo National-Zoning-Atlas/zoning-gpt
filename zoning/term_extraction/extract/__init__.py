@@ -21,6 +21,7 @@ class ExtractionMethod(str, Enum):
 async def extract_answer(
     pages: list[PageSearchOutput],
     term: str,
+    town: str,
     district: District,
     method: ExtractionMethod,
     model_name: str,
@@ -46,9 +47,9 @@ async def extract_answer(
         case ExtractionMethod.TOURNAMENT_REDUCE:
             extractor = TournamentReduceExtractor(model_name, tournament_k)
         case ExtractionMethod.MULTIPLE_CHOICE:
-            extractor = MultipleChoiceExtractor(model_name, tournament_k )
+            extractor = MultipleChoiceExtractor(model_name, tournament_k)
         case ExtractionMethod.MAP:
             extractor = MapExtractor(model_name)
 
-    async for result in extractor.extract(pages, district, term):
+    async for result in extractor.extract(pages, district, term, town):
         yield result

@@ -17,7 +17,7 @@ interested in the answer as it pertains to single-family homes.
 
 # Schema
 {
-    "extracted_text": list[str], // The verbatim text from which the result was extracted. ONLY USE VALUES EXTRACTED DIRECTLY FROM THE TEXT.
+    "extracted_text": list[str], // The verbatim text from which the result was extracted. ONLY USE VALUES EXTRACTED DIRECTLY FROM THE TEXT. Make sure to include "\n" and any type of special characters.
     "rationale": str, // A string containing a natural language explanation for the following answer
     "answer": str // The value of {{term}} extracted from the text. Answer must include units and must be normalized, e.g. (sqr. ft. becomes sq ft)
 }
