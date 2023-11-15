@@ -42,7 +42,8 @@ async def compute_eval_result(
         town=town,
         district=district,
         method=extraction_method,
-        model_name="gpt-4",
+        # model_name="gpt-4",
+        model_name="gpt-4-1106-preview",
         tournament_k=tournament_k,
     )
 
