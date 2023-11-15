@@ -52,6 +52,13 @@ async def prompt(
                 )
                 top_choice = resp.choices[0]  # type: ignore
                 return top_choice.message.content
+            case "gpt-4-1106-preview":
+                resp = await openai.ChatCompletion.acreate(
+                    **base_params,
+                    messages=input_prompt,
+                )
+                top_choice = resp.choices[0]  # type: ignore
+                return top_choice.message.content
             case _:
                 raise ValueError(f"Unknown model name: {model_name}")
     except openai.error.InvalidRequestError as exc:
