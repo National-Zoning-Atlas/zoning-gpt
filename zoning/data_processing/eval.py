@@ -131,7 +131,8 @@ def compare_results(
 
         # TODO: If this returns true, then what we actually want to return to
         # the user is the raw answer, not the normalized one.
-        return semantic_comparison(expected_extended, actual_raw) or semantic_comparison(expected_extended_normalized, actual_raw)
+        # expected_extended_normalized is not none if expected_extended is not none
+        return semantic_comparison(expected_extended, actual_raw) or actual_normalized == expected_extended_normalized
     else:
         # The correct answer is something simple (or nothing)
         return actual_normalized == expected
