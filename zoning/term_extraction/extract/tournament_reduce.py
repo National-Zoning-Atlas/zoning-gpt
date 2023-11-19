@@ -83,7 +83,6 @@ class TournamentReduceExtractor(MapExtractor):
         self, pages: list[LookupOutput], district: District, term: str
     ):
         results = pages
-        print("PAGES", len(pages))
         for result in await tournament_reduce(results, term, district, self.k):
             yield result
 
