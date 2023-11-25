@@ -36,7 +36,6 @@ async def multiple_choice(
         (r for r in results if r.output is not None),
         k,
     ):
-        
         input_prompt = multiple_choice_tmpl.render(
             term=term,
             synonyms=", ".join(thesaurus.get(term, [])),
@@ -63,7 +62,7 @@ async def multiple_choice(
         if int(index) == -1:
             warnings.warn("GPT chose answer: None of the above.")
             continue
-        
+
         winner = competitor_batch[index]
         winners.append(winner)
 
@@ -76,12 +75,12 @@ class MultipleChoiceExtractor(MapExtractor):
         self.k = k
 
     async def extract(
-        self, pages: list[PageSearchOutput], district: District, term: str
+        self, pages: list[PageSearchOutput], district: District, term: str, town: str
     ):
         # We first map extraction across all pages.
         results = []
         empty_results = []
-        async for r in super().extract(pages, district, term):
+        async for r in super().extract(pages, district, term, town):
             if r.output is not None:
                 results.append(r)
             else:

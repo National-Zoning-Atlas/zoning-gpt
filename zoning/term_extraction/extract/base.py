@@ -7,6 +7,6 @@ from ..types import District, PageSearchOutput, LookupOutput
 class Extractor(ABC):
     @abstractmethod
     async def extract(
-        self, pages: list[PageSearchOutput], district: District, term: str
+        self, pages: list[PageSearchOutput], district: District, term: str, town: str
     ) -> AsyncGenerator[LookupOutput, None]:
         pass
