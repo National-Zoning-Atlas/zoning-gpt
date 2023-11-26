@@ -91,9 +91,9 @@ def cached(cache, keyfunc):
                 if key in cache:
                     return cache[key]
                 else:
-                result = await func(*args, **kwargs)
-                cache[key] = result
-                return result
+                    result = await func(*args, **kwargs)
+                    cache[key] = result
+                    return result
             return async_wrapper
         else:
             def wrapper(*args, **kwargs):
@@ -101,9 +101,9 @@ def cached(cache, keyfunc):
                 if key in cache:
                     return cache[key]
                 else:
-                result = func(*args, **kwargs)
-                cache[key] = result
-                return result
+                    result = func(*args, **kwargs)
+                    cache[key] = result
+                    return result
             return wrapper
     return decorator
     
