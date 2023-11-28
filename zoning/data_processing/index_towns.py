@@ -35,7 +35,7 @@ def index_dataset(d, index_name):
             text += f"\nNEW PAGE {page + j - 1}\n" + d.loc[page + j]["Text"]
 
         # Truncate to 2000 tokens
-        text = enc.decode(enc.encode(text)[:2000])
+        text = enc.decode(enc.encode(text)[:2500])
         es.index(index=index_name, id=page, document={"Page": page, "Text": text})
 
 
