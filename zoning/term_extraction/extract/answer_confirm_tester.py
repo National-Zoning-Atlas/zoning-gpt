@@ -43,7 +43,7 @@ async def answer_confirm_test(
         synonyms=", ".join(thesaurus.get(term, [])),
         district=district,
         town=town,
-        answer="\n\n===\n\n".join(template_answer(result)), 
+        answer=template_answer(result), 
     )
     print(input_prompt)
 
