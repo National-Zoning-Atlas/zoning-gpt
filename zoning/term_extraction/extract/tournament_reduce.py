@@ -108,5 +108,5 @@ class TournamentReduceExtractor(MapExtractor):
             yield result
 
         # Ensure that we yield one empty result to handle case when the expected output is None
-        if len(empty_results) != 0:
+        if len(results) == 0:
             yield empty_results[0]
