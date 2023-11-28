@@ -124,6 +124,7 @@ def compare_results(
     actual_raw: str | None,
     expected: str | None,
     expected_extended: str | None,
+    expected_extended_normalized: float | None,
 ) -> bool:
     if actual_raw is not None and expected is None and expected_extended is not None:
         # If no normalized expected answer exists, but an extended one does,
@@ -132,7 +133,8 @@ def compare_results(
 
         # TODO: If this returns true, then what we actually want to return to
         # the user is the raw answer, not the normalized one.
-        return semantic_comparison(expected_extended, actual_raw)
+        # expected_extended_normalized is not none if expected_extended is not none
+        return semantic_comparison(expected_extended, actual_raw) or actual_normalized == expected_extended_normalized
     else:
         # The correct answer is something simple (or nothing)
         return actual_normalized == expected
@@ -179,10 +181,12 @@ async def evaluate_term(
                 skip_nulls=False,
             )
             .alias("expected_normalized"),
+            pl.col("expected_extended").apply(clean_string_units).alias("expected_extended_normalized"),
         )
         # Explode all values so that we have one row per expected-actual-value pair.
         .explode("actual_normalized")
         .explode("expected_normalized")
+        .explode("expected_extended_normalized")
         .with_columns(
             pl.struct(
                 [
@@ -190,6 +194,7 @@ async def evaluate_term(
                     "actual_normalized",
                     "expected_normalized",
                     "expected_extended",
+                    "expected_extended_normalized"
                 ]
             )
             .apply(
@@ -198,6 +203,7 @@ async def evaluate_term(
                     s["actual"],
                     s["expected_normalized"],
                     s["expected_extended"],
+                    s["expected_extended_normalized"]
                 )
             )
             .alias("correct_answer")
