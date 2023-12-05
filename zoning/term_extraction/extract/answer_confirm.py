@@ -1,25 +1,22 @@
 import warnings
 
+from zoning.term_extraction.extract.tournament_reduce import TournamentReduceExtractor
+
 from ...prompting import prompt
-from ...utils import batched, get_jinja_environment
+from ...utils import get_jinja_environment
 from ..thesaurus import get_thesaurus
 from ..types import District, LookupOutput, PageSearchOutput
-from .map import MapExtractor
 from .utils import include_context_around_phrase
-import pickle 
 
-TOURNAMENT_REDUCE_MAX_ANSWERS_PER_STAGE = 4
 TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER = 2000
 final_answer_tmpl = get_jinja_environment().get_template("answer_confirm.pmpt.tpl")
 
-async def answer_confirm_test(
-    result: LookupOutput, term: str, district: District, k: int, town: str
+
+async def answer_confirm(
+    result: LookupOutput, term: str, district: District, town: str
 ) -> str:
 
     thesaurus = get_thesaurus()
-    # start first first item as initial comparison point
-    current_winner_index = 0
-    # compare the current best answer to each other answer in results
 
     def template_answer(record):
         context = include_context_around_phrase(
@@ -43,33 +40,52 @@ async def answer_confirm_test(
         synonyms=", ".join(thesaurus.get(term, [])),
         district=district,
         town=town,
-        answer=template_answer(result), 
+        answer=template_answer(result),
     )
-    print(input_prompt)
 
     text = await prompt(
         "gpt-4-1106-preview", [{"role": "user", "content": input_prompt}], max_tokens=1
     )
-    
+
     if text is None or text == "NO_ANSWER":
         warnings.warn(
             "Null GPT response"
         )
+    elif text == "Y":
+        return result
+    elif text == "N":
+        return LookupOutput(
+                output=None,
+                search_pages=result.search_pages,
+                search_pages_expanded=result.search_pages_expanded,
+            )
+        # return LookupOutput(None, result.search_pages, result.search_pages_expanded)
+        # return None
+    else:
+        warnings.warn("GPT returned something unexpected")
 
-    return text
 
-class AnswerConfirmTester(MapExtractor):
+class ConfirmExtractor(TournamentReduceExtractor):
     def __init__(self, model_name: str, k: int):
-        super().__init__(model_name)
+        super().__init__(model_name, k)
         self.k = k
 
     async def extract(
-        self, input: LookupOutput, district: District, term: str, town: str
+        self, pages: list[PageSearchOutput], district: District, term: str, town: str
     ):
-        result = input
-        for r in await answer_confirm_test(result, term, district, self.k, town):
-            yield r
+        # We first tournament reduce
+        results = []
+        empty_results = []
+        async for r in super().extract(pages, district, term, town):
+            if (r.output is not None) and r.output.extracted_text:
+                results.append(r)
+            else:
+                empty_results.append(r)
 
-        # # Ensure that we yield one empty result to handle case when the expected output is None
-        # if len(empty_results) != 0:
-        #     yield empty_results[0]
+        for r in results:
+            result = await answer_confirm(r, term, district, town)
+            yield result
+
+        # Ensure that we yield one empty result to handle case when the expected output is None
+        if len(results) == 0:
+            yield empty_results[0]
