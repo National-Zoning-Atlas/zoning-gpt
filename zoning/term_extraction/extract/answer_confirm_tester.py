@@ -9,7 +9,7 @@ from .utils import include_context_around_phrase
 import pickle 
 
 TOURNAMENT_REDUCE_MAX_ANSWERS_PER_STAGE = 4
-TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER = 2000
+TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER = 3500
 final_answer_tmpl = get_jinja_environment().get_template("answer_confirm.pmpt.tpl")
 
 async def answer_confirm_test(
