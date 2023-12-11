@@ -7,6 +7,8 @@ from ..types import District, LookupOutput, PageSearchOutput
 from .map import MapExtractor
 from .utils import include_context_around_phrase
 
+import pickle
+
 TOURNAMENT_REDUCE_MAX_ANSWERS_PER_STAGE = 4
 TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER = 3500
 
