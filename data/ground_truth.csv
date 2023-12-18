@@ -5,7 +5,6 @@ ashford,TD,Technology Development,21,,,,900,900,29,35,35,49,40,25,49,60,60,49,2,
 avon,IP,Industrial Park,"1,2",,,,,,,,,,,,,,,,,,,,
 barkhamsted,B-1,Restricted Business,11,,43560,20,,750,20,,35,21,,,,,40,20,,2,30,,"missing values for all fields, max lot coverage def on separate page"
 barkhamsted,B-2,General Business,11,,87120,20,,750,20,,35,21,,,,,40,20,,2,30,,"missing values for all fields, max lot coverage def on separate page"
-beacon-falls,PARD-3,Planned Adaptive Reuse Development 3,8,142,6185520,121,1200,1200,121,,35,121,,20,121,,25,121,2,2,84,,
 berlin,GI,General Industrial,33,,21780,102,,,,,45,102,,35,102,,80,102,,2,133,,
 berlin,VDO,Village Overlay,33,,,,,,,,,,,,,,,,,2,133,,
 bethany,HOD,Housing Opportunity Development,70,30,1306800,70,,,,35,35,71,10,10,71,20,20,71,2,2,49,,district not mentioned in the main list of districts
@@ -17,8 +16,6 @@ branford,R-3,Residence R-3,9,0.34,15000,40,,,,35,35,40,,25,40,25,,,2,2,113,,dist
 branford,MF,Multifamily Residence,9,3,130680,40,,,,35,35,40,,20,40,20,50,40,2,2,113,,orig lot coverage incorrect
 branford-pine-orchard,A-1,A-1,8,0.46,20000,20,,,,,,,,,,,,,,2,24,,
 branford-short-beach,SB-C,Business C,12,0.1,4500,23,600,600,25,30,30,24,30,30,25,70,85,25,2,2,26,,orig lot coverage incorrect
-bridgeport,MXN,Mixed Use Neighborhood Corners,10,,,,,,,46,,,,,,95,,,,0.5,235,,"Does not conform to this standard, requirements are based on use, not zone"
-bridgeport,MX2,Mixed Use Corridor,10,,,,,,,74,,,,,,95,,,,0.5,235,,"Does not conform to this standard, requirements are based on use, not zone"
 bridgewater,C,Commercial,26,,130680,31,,,,,35,31,,10,31,,50,32,,2,45,,"I honestly do not know which is which, max lot coverage def on separate page"
 bristol,R-40,Residential R-40,30,,40000,47,,,,35,35,47,20,20,47,,,,2,2,94,,
 brookfield,TCD-P,Town Center Perimeter Overlay,,0.23,10000,85,,,,,42,85,,,,,80,85,,2,124,,no single list of zones
@@ -29,7 +26,7 @@ canaan-falls-village,Rural Business,Rural Business,,0.92,40000,21,,,,35,35,21,25
 canterbury,VC,Village Commercial,,,60000,28,,,,35,35,28,15,,,,,,,2,61,,no single list of zones
 canton,R-3,R-3 Residential,,87120 (front); 130680 (rear),,70,,,,35,35,74,10,10,74,30,30,74,2,2,136,,no single list of zones; lot coverage requires 2-step table lookup
 chaplin,AZ,Aquifer Protection,15,,,,,,,,,,,,,,,,,2,38,,
-cheshire,R-20A,Residential R-20A,18,,20000,90,,,,40,40,90,,,,35,35,90,2,2,94,,
+cheshire,R-20A,Residential R-20A,18,"20000, 16000 (subdivisions)",,"90,157",,,,40,40,90,,,,35,35,90,2,2,94,,
 chester,TW2,Tidal Wetlands,13,2,87120,34,,,,35,35,34,15,15,34,,,,,2,62,,
 clinton,B-2,Business-2,,0.23,10000,334,"900 for 1 story, 500 ground floor area for 2 story",,,,,,,,,,,,,,,,no single list of zones
 clinton,V-Z,Village,,0.23,10000,334,1000 for 1 story; 800 ground floor for 2 story,,,,,,,,,,,,,,,,no single list of zones

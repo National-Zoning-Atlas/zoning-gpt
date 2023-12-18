@@ -31,6 +31,15 @@ PERCENT_FORMS = {
     "per cent"
 }
 
+NULL_FORMS = {
+    "N/A",
+    "n/a",
+    "None",
+    "none",
+    "Null",
+    "null"
+}
+
 def extract_fraction_decimal(text):
     fraction_pattern = r"\d+\s*\d*\/\d+"
     fractions = re.findall(fraction_pattern, text)
@@ -46,6 +55,7 @@ def extract_fraction_decimal(text):
         return decimal_value
     else:
         return 0.0  # TODO: Is this correct? @ek542
+
 
 or_form = "(.*?)\sor\s(.*?)" # captures text before/after "or"
 and_form = "(.*?)\sand\s(.*?)" # captures text before/after "and"
@@ -72,7 +82,9 @@ def clean_string_units(input_string):
     tokens = split_regex.split(input_string)
     for token in tokens:
         if token:
-            if any(substring in token for substring in SQ_FT_FORMS | FT_FORMS | PERCENT_FORMS):
+            if token in NULL_FORMS:
+                return res
+            elif any(substring in token for substring in SQ_FT_FORMS | FT_FORMS | PERCENT_FORMS):
                 res.extend(parse_token(token))
             elif any(substring in token for substring in ACRE_FORMS):
                 res.extend(t * 43560 for t in parse_token(token))

@@ -8,7 +8,7 @@ from ..thesaurus import get_thesaurus
 from ..types import District, LookupOutput, PageSearchOutput
 from .utils import include_context_around_phrase
 
-TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER = 2000
+TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER = 3500
 final_answer_tmpl = get_jinja_environment().get_template("answer_confirm.pmpt.tpl")
 
 
@@ -47,6 +47,7 @@ async def answer_confirm(
         "gpt-4-1106-preview", [{"role": "user", "content": input_prompt}], max_tokens=1
     )
 
+    print(town, district.full_name, "answer: ", result.output.answer, "response: ", text)
     if text is None or text == "NO_ANSWER":
         warnings.warn(
             "Null GPT response"
@@ -56,11 +57,9 @@ async def answer_confirm(
     elif text == "N":
         return LookupOutput(
                 output=None,
-                search_pages=result.search_pages,
-                search_pages_expanded=result.search_pages_expanded,
+                search_pages=[],
+                search_pages_expanded=[],
             )
-        # return LookupOutput(None, result.search_pages, result.search_pages_expanded)
-        # return None
     else:
         warnings.warn("GPT returned something unexpected")
 

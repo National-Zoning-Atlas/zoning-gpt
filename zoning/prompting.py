@@ -29,6 +29,7 @@ async def prompt(
     model_name: str,
     input_prompt: str | list[dict[str, str]],
     max_tokens=256,
+    formatted_response=False,
 ) -> str | None:
     base_params = {
         "model": model_name,
@@ -53,12 +54,21 @@ async def prompt(
                 top_choice = resp.choices[0]  # type: ignore
                 return top_choice.message.content
             case "gpt-4-1106-preview":
-                resp = await openai.ChatCompletion.acreate(
-                    **base_params,
-                    messages=input_prompt,
-                )
-                top_choice = resp.choices[0]  # type: ignore
-                return top_choice.message.content
+                if not formatted_response:
+                    resp = await openai.ChatCompletion.acreate(
+                        **base_params,
+                        messages=input_prompt,
+                    )
+                    top_choice = resp.choices[0]  # type: ignore
+                    return top_choice.message.content
+                else:
+                    resp = await openai.ChatCompletion.acreate(
+                        **base_params,
+                        messages=input_prompt,
+                        response_format={"type": "json_object"}
+                    )
+                    top_choice = resp.choices[0]  # type: ignore
+                    return top_choice.message.content
             case _:
                 raise ValueError(f"Unknown model name: {model_name}")
     except openai.error.InvalidRequestError as exc:

@@ -64,7 +64,7 @@ async def tournament_reduce(
                 ),
             )
             text = await prompt(
-                "gpt-4", [{"role": "user", "content": input_prompt}], max_tokens=1
+                "gpt-4", [{"role": "user", "content": input_prompt}], max_tokens=1,
             )
 
             if text is None or text == "NO_ANSWER":

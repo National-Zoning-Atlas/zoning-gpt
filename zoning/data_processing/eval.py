@@ -42,8 +42,8 @@ async def compute_eval_result(
         town=town,
         district=district,
         method=extraction_method,
-        # model_name="gpt-4",
-        model_name="gpt-4-1106-preview",
+        model_name="gpt-4",
+        # model_name="gpt-4-1106-preview",
         tournament_k=tournament_k,
     )
 
@@ -63,7 +63,7 @@ async def compute_eval_result(
         searched_pages_expanded = set(result.search_pages_expanded)
         is_correct_page_searched = any(gt_page & searched_pages_expanded)
         expected_extended = ground_truth[f"{term}_gt_orig"]
-        label = result.search_pages[0].log["label"]
+        label = result.search_pages[0].log["label"] if result.search_pages else ""
 
         base_output = {
             "town": town,
