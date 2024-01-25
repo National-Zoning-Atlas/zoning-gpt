@@ -30,6 +30,11 @@ brew install pdm
 pdm install
 ```
 
+or on [Linux](https://pdm-project.org/latest/#recommended-installation-method):
+```sh
+curl -sSL https://pdm-project.org/install-pdm.py | python3 -
+```
+
 ## Download Existing Artifacts
 
 To use existing artifacts produced by our team, you will need to obtain access
@@ -50,6 +55,9 @@ pdm run dvc pull
 ```
 
 ## Generate/Update Artifacts
+
+Do not run this if you successfully downloaded existing artifacts,
+unless you *really* want to re-parse the PDFs.
 
 If you do not have access to the Azure Blob storage or if you wish to generate your own
 results, you can place any number of PDF documents at `data/orig-documents`.
@@ -145,10 +153,17 @@ When processing is complete, evaluation metrics will be available in
 To run experiments, we recommend using DVC Experiments, which this repository is
 setup for.
 
+Go setup the ElasticSearch+Docker stuff first. The instructions are at the bottom of this readme.
+After setting up the index, you may have to run the following command to reset the index.
+```
+pdm run python -m zoning.data_processing.index_towns
+```
+
 To run an experiment you can do the following: 
 ```
 pdm run python -m zoning.data_processing.eval --num-eval-rows 30 --terms min_lot_size --search-method elasticsearch --extraction-method tournament_reduce --k 10
 ```
+You can view the metrics/results in `data/results/eval.{yaml,csv}`.
 
 In order to run an experiment that changes hyperparameters and forces the run instead of caching , you can run something like:
 
