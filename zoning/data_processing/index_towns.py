@@ -36,7 +36,7 @@ def index_dataset(d, index_name):
 
         # Truncate to 2000 tokens
         text = enc.decode(enc.encode(text)[:2500])
-        es.index(index=index_name, id=page, document={"Page": page, "Text": text})
+        es.index(index=index_name, id=page, document={"Page": page, "Text": text}, request_timeout=30)
 
 
 def main():
