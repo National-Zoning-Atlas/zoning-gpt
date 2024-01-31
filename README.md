@@ -312,3 +312,12 @@ The initial startup may take some time.
           zoning/prompting/eval_results.py to include the edge case you found.
         - For the complex answer workflow, our method is not perfect, so you may
           want to iterate on the prompt to improve evaluation performance.
+
+# Commands
+```
+# Compute page accuracy
+pdm run python -m zoning.data_processing.eval --num-eval-rows 30 --terms min_lot_size --search-method experiment_3 --extraction-method tournament_reduce --k 10 --tournament-k 1
+# Compute page recall@10
+pdm run python -m zoning.data_processing.eval --num-eval-rows 30 --terms min_lot_size --search-method experiment_3 --extraction-method map --k 10 --tournament-k 1
+```
+The results + csvs are saved in `data/results/snapshots/*.{yaml,csv}`.
