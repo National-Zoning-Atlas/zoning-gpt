@@ -12,6 +12,8 @@ import streamlit as st
 
 from elasticsearch import Elasticsearch
 
+import zoning
+
 es = Elasticsearch("http://localhost:9200")  # default client
 
 
@@ -43,6 +45,7 @@ def display_cluster_info():
     else:
         st.write("No indices found.")
 
+
 def run_query():
     """Runs a simple query against the Elasticsearch cluster."""
     st.header("Elasticsearch Actions")
@@ -57,7 +60,6 @@ def run_query():
         zoning.data_processing.index_towns.main(st)
         st.write("Data loaded.")
 
-
     st.subheader("Run a Query")
     town_query = st.text_input("Enter a town name", "andover")
     text_query = st.text_input("Enter a text query", "zoning")
@@ -67,7 +69,6 @@ def run_query():
         st.json(res, expanded=False)
         dataFrame = pd.DataFrame(res['hits']['hits'])
         st.write(dataFrame)
-
 
 
 def main():

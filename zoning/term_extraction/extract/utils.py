@@ -66,7 +66,7 @@ def log_to_csv(
 
     mode = "a" if file_exists else "w"
 
-    with open(csv_file_path, mode, newline="") as file:
+    with open(csv_file_path, mode, newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
 
         # Write header only if the file did not exist
