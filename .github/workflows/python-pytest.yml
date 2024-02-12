@@ -30,6 +30,10 @@ jobs:
       run: |
         pdm add --dev pytest
 
+    - name: add dummy openai key
+      run: |
+        echo "OPENAI_API_KEY=sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" > .env
+
     - name: Run pytest with PDM
       run: |
         pdm run pytest
