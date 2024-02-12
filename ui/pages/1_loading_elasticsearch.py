@@ -5,6 +5,7 @@
 @File : 1_loading_elasticsearch.py.py
 @IDE  : PyCharm
 """
+import collections
 import time
 import numpy as np
 import pandas as pd
@@ -13,6 +14,7 @@ import streamlit as st
 from elasticsearch import Elasticsearch
 
 import zoning
+from zoning.term_extraction.search.utils import expand_term
 
 es = Elasticsearch("http://localhost:9200")  # default client
 
@@ -62,13 +64,23 @@ def run_query():
 
     st.subheader("Run a Query")
     town_query = st.text_input("Enter a town name", "andover")
-    text_query = st.text_input("Enter a text query", "zoning")
+    # town_query = st.selectbox("Select a town", existing_indices)
+    text_query = st.text_input("Enter a text query", "min_lot_size")
+    expanded_terms = list(expand_term(text_query))
+    st.json(expanded_terms, expanded=False)
+
     if st.button("Run Query"):
-        res = es.search(index=town_query, body={"query": {"match": {"Text": text_query}}})
+        res = es.search(index=town_query, body={"query": {"match": {"Text": str(expanded_terms)}}})
         st.subheader("Query Results")
         st.json(res, expanded=False)
         dataFrame = pd.DataFrame(res['hits']['hits'])
         st.write(dataFrame)
+        pages_count = collections.defaultdict(int)
+        for hit in res['hits']['hits']:
+            page = hit['_id']
+            score = hit['_score']
+            pages_count[page] = max(pages_count[page], score)
+        st.bar_chart(pd.Series(pages_count, name="Page Scores"))
 
 
 def main():

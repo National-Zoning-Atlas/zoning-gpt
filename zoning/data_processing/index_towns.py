@@ -47,6 +47,7 @@ def main(st=None):
         if st:
             st.write(f"Processing {split} split...")
         df = ds[split].to_pandas().set_index(["Town", "Page"])
+        st.write(df)
         towns = set(df.index.get_level_values(0))
         thread_map(lambda town: index_dataset(df.loc[town], town), towns)
 

@@ -336,6 +336,8 @@ async def main(
     with open(SNAPSHOT_METRICS_PATH, "w") as file:
         yaml.dump(metrics, file)
 
+    return metrics, df
+
 
 if __name__ == "__main__":
     app = AsyncTyper(add_completion=False)
