@@ -26,6 +26,10 @@ jobs:
       run: |
         pdm install
 
+    - name: Install pytest
+      run: |
+        pdm add --dev pytest
+
     - name: Run pytest with PDM
       run: |
         pdm run pytest
