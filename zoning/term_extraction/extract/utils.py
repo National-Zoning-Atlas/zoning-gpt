@@ -49,7 +49,7 @@ def log_to_csv(
 
     filename = f"timestamp={now.strftime('%Y-%m-%d_%H-%M')}_town={sanitized_town}_district={sanitized_district_fn}_term={sanitized_term}_phrase={sanitized_phrase}_tokens={n_tokens}_occurrence={occurrence}.csv"
 
-    filename = sanitize_for_filename(filename, 255)
+    filename = sanitize_for_filename(filename, 100)
 
     root_directory = get_project_root()
     sub_folder_path = (
