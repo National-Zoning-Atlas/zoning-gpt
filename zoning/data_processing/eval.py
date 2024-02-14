@@ -6,6 +6,7 @@ import typer
 import yaml
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 
+from zoning.term_extraction.search.utils import page_coverage
 from ..term_extraction.eval_results import clean_string_units
 from ..term_extraction.extract import ExtractionMethod, extract_answer
 from ..term_extraction.search import (
@@ -14,7 +15,7 @@ from ..term_extraction.search import (
 )
 from ..term_extraction.semantic_comparison import semantic_comparison
 from ..term_extraction.types import District
-from ..utils import get_project_root
+from ..utils import get_project_root, flatten
 from .utils import AsyncTyper
 
 DATA_ROOT = get_project_root() / "data"
@@ -36,6 +37,7 @@ async def compute_eval_result(
         tournament_k: int,
 ):
     pages = search_for_term(town, district, term, search_method, k)
+    expanded_pages = flatten(page_coverage(pages))
     outputs = extract_answer(
         pages=pages,
         term=term,
@@ -61,7 +63,7 @@ async def compute_eval_result(
         is_empty = False
         searched_pages = {r.page_number for r in result.search_pages}
         searched_pages_expanded = set(result.search_pages_expanded)
-        is_correct_page_searched = any(gt_page & searched_pages_expanded) or len(gt_page) == 0
+        is_correct_page_searched = any(gt_page & set(expanded_pages))
         expected_extended = ground_truth[f"{term}_gt_orig"]
         label = result.search_pages[0].log["label"] if result.search_pages else ""
 
@@ -75,6 +77,8 @@ async def compute_eval_result(
             "expected": expected,
             "expected_extended": expected_extended,
             "label": label,
+            "expanded_pages": list(expanded_pages),
+            "pages": [p.page_number for p in pages],
         }
 
         if result.output is None:
@@ -83,10 +87,6 @@ async def compute_eval_result(
                 "rationale": None,
                 "extracted_text": None,
                 "actual": None,
-                # For determining the correct page, we consider the page to be
-                # correct if the ground truth was also blank and GPT did not return
-                # an answer. Note that search always returns some page, so we ignore
-                # that result as long as GPT ignored it.
                 "correct_page_searched": is_correct_page_searched,
             }
         else:
@@ -112,7 +112,9 @@ async def compute_eval_result(
             "rationale": None,
             "extracted_text": None,
             "actual": None,
-            "correct_page_searched": expected is None,
+            "correct_page_searched": False,
+            "expanded_pages": None,
+            "pages": None,
         }
 
 
@@ -229,6 +231,9 @@ async def evaluate_term(
     )
     num_correct_answer = len(search_results_df.filter(pl.col("correct_answer") > 0))
 
+    number_of_rows_with_gt_page = len(gt.filter(pl.col(f"{term}_page_gt").is_not_null()))
+    print(f"Number of rows with ground truth page: {number_of_rows_with_gt_page}")
+    print(num_correct_page_searched)
     return {
         "num_results": num_results,
         "num_row_processed": len(search_results_df),
@@ -236,7 +241,7 @@ async def evaluate_term(
         "num_correct_page_searched": num_correct_page_searched,
         "num_correct_answer": num_correct_answer,
         "row_processed": len(search_results_df) / row_count,
-        "page_search_recall": num_correct_page_searched / len(search_results_df),
+        "page_search_recall": num_correct_page_searched / number_of_rows_with_gt_page,
         # This is the answer accuracy conditional on the correct page having
         # been looked up by search
         "conditional_answer_accuracy": (
