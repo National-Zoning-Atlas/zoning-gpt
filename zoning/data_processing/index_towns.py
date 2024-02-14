@@ -39,12 +39,15 @@ def index_dataset(d, index_name):
         es.index(index=index_name, id=page, document={"Page": page, "Text": text}, request_timeout=30)
 
 
-def main():
+def main(st=None):
     ds = cast(DatasetDict, load_from_disk(input_hf_dataset_path))
 
     for split in ds.keys():
         print(f"Processing {split} split...")
+        if st:
+            st.write(f"Processing {split} split...")
         df = ds[split].to_pandas().set_index(["Town", "Page"])
+        st.write(df)
         towns = set(df.index.get_level_values(0))
         thread_map(lambda town: index_dataset(df.loc[town], town), towns)
 

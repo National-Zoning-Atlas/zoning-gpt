@@ -8,6 +8,8 @@ import os
 import openai
 from dotenv import load_dotenv
 from .utils import get_project_root
+from . import data_processing
+from . import term_extraction
 
 # Get the absolute path to the .env file
 dotenv_path = os.path.join(get_project_root(), ".env")

@@ -26,14 +26,14 @@ SNAPSHOTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 async def compute_eval_result(
-    town: str,
-    district: District,
-    term: str,
-    ground_truth: dict[str, Any],
-    search_method: SearchMethod,
-    extraction_method: ExtractionMethod,
-    k: int,
-    tournament_k: int,
+        town: str,
+        district: District,
+        term: str,
+        ground_truth: dict[str, Any],
+        search_method: SearchMethod,
+        extraction_method: ExtractionMethod,
+        k: int,
+        tournament_k: int,
 ):
     pages = search_for_term(town, district, term, search_method, k)
     outputs = extract_answer(
@@ -42,8 +42,8 @@ async def compute_eval_result(
         town=town,
         district=district,
         method=extraction_method,
-        #model_name="gpt-4",
-        model_name="gpt-4-1106-preview", # getting better results with this
+        # model_name="gpt-4",
+        model_name="gpt-4-1106-preview",  # getting better results with this
         tournament_k=tournament_k,
     )
 
@@ -61,7 +61,7 @@ async def compute_eval_result(
         is_empty = False
         searched_pages = {r.page_number for r in result.search_pages}
         searched_pages_expanded = set(result.search_pages_expanded)
-        is_correct_page_searched = any(gt_page & searched_pages_expanded)
+        is_correct_page_searched = any(gt_page & searched_pages_expanded) or len(gt_page) == 0
         expected_extended = ground_truth[f"{term}_gt_orig"]
         label = result.search_pages[0].log["label"] if result.search_pages else ""
 
@@ -87,10 +87,7 @@ async def compute_eval_result(
                 # correct if the ground truth was also blank and GPT did not return
                 # an answer. Note that search always returns some page, so we ignore
                 # that result as long as GPT ignored it.
-                "correct_page_searched": (
-                    expected is None and expected_extended is None
-                )
-                or is_correct_page_searched,
+                "correct_page_searched": is_correct_page_searched,
             }
         else:
             yield {
@@ -98,7 +95,7 @@ async def compute_eval_result(
                 "rationale": result.output.rationale,
                 "extracted_text": result.output.extracted_text,
                 "actual": result.output.answer,
-                "correct_page_searched": any(gt_page & searched_pages_expanded),
+                "correct_page_searched": is_correct_page_searched,
             }
 
     # Handle case when elastic search return 0 results
@@ -120,11 +117,11 @@ async def compute_eval_result(
 
 
 def compare_results(
-    actual_normalized: float | None,
-    actual_raw: str | None,
-    expected: str | None,
-    expected_extended: str | None,
-    expected_extended_normalized: float | None,
+        actual_normalized: float | None,
+        actual_raw: str | None,
+        expected: str | None,
+        expected_extended: str | None,
+        expected_extended_normalized: float | None,
 ) -> bool:
     if actual_raw is not None and expected is None and expected_extended is not None:
         # If no normalized expected answer exists, but an extended one does,
@@ -141,13 +138,13 @@ def compare_results(
 
 
 async def evaluate_term(
-    term: str,
-    gt: pl.DataFrame,
-    progress: Progress,
-    search_method: SearchMethod,
-    extraction_method: ExtractionMethod,
-    k: int,
-    tournament_k: int,
+        term: str,
+        gt: pl.DataFrame,
+        progress: Progress,
+        search_method: SearchMethod,
+        extraction_method: ExtractionMethod,
+        k: int,
+        tournament_k: int,
 ):
     eval_task = progress.add_task(f"Evaluating {term}", total=len(gt))
 
@@ -162,7 +159,7 @@ async def evaluate_term(
             eval_task, description=f"Evaluating {term}, {town}, {district.full_name}"
         )
         async for result in compute_eval_result(
-            town, district, term, row, search_method, extraction_method, k, tournament_k
+                town, district, term, row, search_method, extraction_method, k, tournament_k
         ):
             results.append(result)
         progress.advance(eval_task)
@@ -243,7 +240,7 @@ async def evaluate_term(
         # This is the answer accuracy conditional on the correct page having
         # been looked up by search
         "conditional_answer_accuracy": (
-            len(agg_answer_page_df) / num_correct_page_searched
+                len(agg_answer_page_df) / num_correct_page_searched
         )
         if num_correct_page_searched != 0
         else 0,
@@ -253,14 +250,14 @@ async def evaluate_term(
 
 
 async def main(
-    search_method: Annotated[SearchMethod, typer.Option()],
-    extraction_method: Annotated[ExtractionMethod, typer.Option()],
-    terms: Annotated[list[str], typer.Option()],
-    k: Annotated[int, typer.Option()],
-    # We must use Optional here because the "|" syntax can't be used by typer
-    # yet for some reason.
-    num_eval_rows: Annotated[Optional[int], typer.Option()] = None,
-    tournament_k: Annotated[int, typer.Option()] = 1,
+        search_method: Annotated[SearchMethod, typer.Option()],
+        extraction_method: Annotated[ExtractionMethod, typer.Option()],
+        terms: Annotated[list[str], typer.Option()],
+        k: Annotated[int, typer.Option()],
+        # We must use Optional here because the "|" syntax can't be used by typer
+        # yet for some reason.
+        num_eval_rows: Annotated[Optional[int], typer.Option()] = None,
+        tournament_k: Annotated[int, typer.Option()] = 1,
 ):
     metrics = {}
 
@@ -277,9 +274,9 @@ async def main(
     # Run evaluation against entire ground truth for each term and aggregate all
     # results into one object.
     with Progress(
-        SpinnerColumn(),
-        *Progress.get_default_columns(),
-        TimeElapsedColumn(),
+            SpinnerColumn(),
+            *Progress.get_default_columns(),
+            TimeElapsedColumn(),
     ) as progress:
         term_task = progress.add_task("Terms", total=len(terms))
         for term in terms:
@@ -335,6 +332,8 @@ async def main(
 
     with open(SNAPSHOT_METRICS_PATH, "w") as file:
         yaml.dump(metrics, file)
+
+    return metrics, df
 
 
 if __name__ == "__main__":

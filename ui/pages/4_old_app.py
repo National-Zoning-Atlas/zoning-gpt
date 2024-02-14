@@ -9,6 +9,7 @@ from zoning.term_extraction.search import search_for_term
 from zoning.term_extraction.extract import extract_answer
 from zoning.utils import get_project_root
 
+
 @st.cache_data
 def get_towns():
     with (get_project_root() / "data" / "results" / "districts_matched.jsonl").open(encoding="utf-8") as f:
@@ -30,7 +31,7 @@ def get_pdf_page_image(pdf_path: Path, page_num: int) -> Image.Image:
 
 @st.cache_data
 def draw_rect_onto_image(
-    base_image: Image.Image, left: float, top: float, width: float, height: float, color
+        base_image: Image.Image, left: float, top: float, width: float, height: float, color
 ) -> Image.Image:
     """Given a base image, draw a rectangle at the desired location on the
     image."""
@@ -63,6 +64,7 @@ def render_page_results(page_image: Image.Image, page_results: dict) -> Image.Im
 
     return page_image
 
+
 def main():
     with st.sidebar:
         st.title("Warpspeed Document QA")
@@ -87,7 +89,7 @@ def main():
             return
 
         term = st.text_input("Search Term", "min lot size")
-        
+
         pages = search_for_term(town["Town"], district, term)
 
         page_num = st.select_slider(

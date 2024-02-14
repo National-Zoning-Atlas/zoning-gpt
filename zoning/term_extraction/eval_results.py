@@ -40,6 +40,7 @@ NULL_FORMS = {
     "null"
 }
 
+
 def extract_fraction_decimal(text):
     fraction_pattern = r"\d+\s*\d*\/\d+"
     fractions = re.findall(fraction_pattern, text)
@@ -57,14 +58,15 @@ def extract_fraction_decimal(text):
         return 0.0  # TODO: Is this correct? @ek542
 
 
-or_form = "(.*?)\sor\s(.*?)" # captures text before/after "or"
-and_form = "(.*?)\sand\s(.*?)" # captures text before/after "and"
-paren_form = "(.*?)\s\((.*?)\)" # captures text before/after and inside "()"
-semicolon_form = "(.*?)\s*\;\s*(.*?)" # captures text before/after ";"
+or_form = "(.*?)\sor\s(.*?)"  # captures text before/after "or"
+and_form = "(.*?)\sand\s(.*?)"  # captures text before/after "and"
+paren_form = "(.*?)\s\((.*?)\)"  # captures text before/after and inside "()"
+semicolon_form = "(.*?)\s*\;\s*(.*?)"  # captures text before/after ";"
 split_regex = re.compile(f"{or_form}|{and_form}|{paren_form}|{semicolon_form}")
 # split_regex = re.compile(r"(.+?)\s(?:\(|or|and)\s(.+?)|(.*?)\sor\s(.*?)|(.*?)\sand\s(.*?)|(.*?)\s\((.*?)\)")
 # parses numbers with decimals and commas 
 parsing_regex = re.compile(r"(?:\d{4,}|\d{1,3}(?:,\d{3})*)(?:\.\d+)?")
+
 
 def parse_token(token: str):
     if "/" in token:
@@ -74,6 +76,7 @@ def parse_token(token: str):
     else:
         res = re.findall(parsing_regex, token)
         yield from (float(a.replace(",", "")) for a in res)
+
 
 def clean_string_units(input_string):
     res = []
@@ -97,4 +100,3 @@ def clean_string_units(input_string):
                 res.extend(t * 100 if t < 1 else t for t in parse_token(token))
 
     return res
-
