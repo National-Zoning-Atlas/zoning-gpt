@@ -6,6 +6,8 @@ abbreviated name "{{district.short_name}}".
 
 We have identified a potential value for "{{term}}", which also goes by the following other names: {{synonyms}}. You will be given a possible value for {{term}}. You will also be given a rationale for the answer as well as an extracted chunk of text relevant to the answer. Finally, you will be shown the page contents from the document. Your job is to decide whether or not the value is the correct answer for "{{term}}" as supported by the text. For {{term}} in residential districts, we are only interested in the answer as it pertains to single-family homes. Pay extra attention to the district referenced in the text. The given answer should be related to the "{{district.full_name}}" district only, with "{{district.short_name}}" as the ONLY valid abbreviation. The given answer should be a general value for {{term}} in the district, not a special exception or special case. For {{term}} in residential districts, we are only interested in the answer as it pertains to single-family homes.
 
+However, "{{term}}" is different than {{not_synonyms}}, they are not synonyms. If you see any of these "not synonym words" in the text, the answer is incorrect.
+
 {% if value_range %}
 
 The value for {{term}} should be within the range of {{value_range}}. The first number is the minimum value and the second number is the maximum value.

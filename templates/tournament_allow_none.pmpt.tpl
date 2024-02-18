@@ -5,8 +5,12 @@ document about a Zoning District with the name "{{district.full_name}}" and with
 abbreviated name "{{district.short_name}}".
 
 You are looking to find the value for "{{term}}", which also goes by the
-following other names: {{synonyms}}. You will be shown a list of page contents
-from a document. You will also be shown a possible value for {{term}} that was
+following other names: {{synonyms}}.
+
+However, "{{term}}" is different than {{not_synonyms}}.
+
+You will be shown a list of page contents from a document.
+You will also be shown a possible value for {{term}} that was
 extracted from the text, along with the rationale for that extraction. Your job
 is output the index of the best answer, as supported by the text. For
 {{term}} in residential districts, we are only interested in the answer as it

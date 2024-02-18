@@ -38,10 +38,16 @@ async def answer_confirm(
             f"- Supporting Text:\n{context}"
         )
 
+    not_synonyms = []
+    for key in value_ranges:
+        if key != term:
+            not_synonyms.extend(thesaurus.get(key, []))
+
     input_prompt = final_answer_tmpl.render(
         term=term,
         value_range=value_ranges.get(term, None),
         synonyms=", ".join(thesaurus.get(term, [])),
+        not_synonyms=", ".join(not_synonyms),
         district=district,
         town=town,
         answer=template_answer(result),

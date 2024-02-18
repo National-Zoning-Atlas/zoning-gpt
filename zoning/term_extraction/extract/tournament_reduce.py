@@ -1,5 +1,6 @@
 import warnings
 
+from ..value_ranges import get_value_ranges
 from ...prompting import prompt
 from ...utils import batched, get_jinja_environment
 from ..thesaurus import get_thesaurus
@@ -41,6 +42,7 @@ async def tournament_reduce(
         )
 
     thesaurus = get_thesaurus()
+    value_ranges = get_value_ranges()
     # start first first item as initial comparison point
     current_winner_index = 0
     # compare the current best answer to each other answer in results
@@ -54,9 +56,14 @@ async def tournament_reduce(
             ),
             2,
         ):
+            not_synonyms = []
+            for key in value_ranges:
+                if key != term:
+                    not_synonyms.extend(thesaurus.get(key, []))
             input_prompt = tournament_reduce_tmpl.render(
                 term=term,
                 synonyms=", ".join(thesaurus.get(term, [])),
+                not_synonyms=", ".join(not_synonyms),
                 district=district,
                 town=town,
                 answers="\n\n===\n\n".join(
