@@ -32,6 +32,15 @@ class LookupOutput(BaseModel):
     """
 
 
+class LookupOutputConfirmed(LookupOutput):
+    confirmed: bool
+    confirmed_raw: str
+    original_output: ExtractionOutput | None
+    """
+    The confirmed result by GPT.
+    """
+
+
 class RelevantContext(BaseModel):
     characters: int
     min_distance: int

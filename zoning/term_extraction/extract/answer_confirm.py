@@ -6,7 +6,7 @@ from ..value_ranges import get_value_ranges
 from ...prompting import prompt
 from ...utils import get_jinja_environment
 from ..thesaurus import get_thesaurus
-from ..types import District, LookupOutput, PageSearchOutput
+from ..types import District, LookupOutput, PageSearchOutput, LookupOutputConfirmed
 from .utils import include_context_around_phrase
 
 TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER = 3500
@@ -16,7 +16,7 @@ final_answer_tmpl = get_jinja_environment().get_template("answer_confirm.pmpt.tp
 
 async def answer_confirm(
     result: LookupOutput, term: str, district: District, town: str
-) -> LookupOutput:
+) -> LookupOutputConfirmed:
 
     thesaurus = get_thesaurus()
     value_ranges = get_value_ranges()
@@ -63,12 +63,22 @@ async def answer_confirm(
             "Null GPT response"
         )
     elif text == "Y":
-        return result
+        return LookupOutputConfirmed(
+            output=result.output,
+            search_pages=result.search_pages,
+            search_pages_expanded=result.search_pages_expanded,
+            confirmed=True,
+            confirmed_raw=text,
+            original_output=result.output
+        )
     elif text == "N":
-        return LookupOutput(
+        return LookupOutputConfirmed(
                 output=None,
                 search_pages=[],
                 search_pages_expanded=[],
+                confirmed=False,
+                confirmed_raw=text,
+                original_output=result.output
             )
     else:
         warnings.warn("GPT returned something unexpected")
@@ -90,7 +100,7 @@ class ConfirmExtractor(TournamentReduceExtractor):
                 results.append(r)
             else:
                 empty_results.append(r)
-        assert len(results) <= 1
+
         for r in results:
             result = await answer_confirm(r, term, district, town)
             yield result
