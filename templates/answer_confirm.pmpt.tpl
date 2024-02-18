@@ -4,15 +4,21 @@ You are an expert architectural lawyer. You are looking for facts inside a
 document about a Zoning District with the name "{{district.full_name}}" and with an
 abbreviated name "{{district.short_name}}".
 
-You have identified a potential value for "{{term}}", which also goes by the following other names: {{synonyms}}. You will be given a possible value for {{term}}. You will also be given a rationale for the answer as well as an extracted chunk of text relevant to the answer. Finally, you will be shown the page contents from the document. Your job is to decide whether or not the value is the correct answer for "{{term}}" as supported by the text. For {{term}} in residential districts, we are only interested in the answer as it pertains to single-family homes. Pay extra attention to the district referenced in the text. The given answer should be related to the "{{district.full_name}}" district only, with "{{district.short_name}}" as the ONLY valid abbreviation. The given answer should be a general value for {{term}} in the district, not a special exception or special case. For {{term}} in residential districts, we are only interested in the answer as it pertains to single-family homes. 
+We have identified a potential value for "{{term}}", which also goes by the following other names: {{synonyms}}. You will be given a possible value for {{term}}. You will also be given a rationale for the answer as well as an extracted chunk of text relevant to the answer. Finally, you will be shown the page contents from the document. Your job is to decide whether or not the value is the correct answer for "{{term}}" as supported by the text. For {{term}} in residential districts, we are only interested in the answer as it pertains to single-family homes. Pay extra attention to the district referenced in the text. The given answer should be related to the "{{district.full_name}}" district only, with "{{district.short_name}}" as the ONLY valid abbreviation. The given answer should be a general value for {{term}} in the district, not a special exception or special case. For {{term}} in residential districts, we are only interested in the answer as it pertains to single-family homes.
 
+{% if value_range %}
 
-If the answer is correct, you should return "Y". If it is incorrect, you should
-return "N".
+The value for {{term}} should be within the range of {{value_range}}. The first number is the minimum value and the second number is the maximum value.
+
+{% endif %}
+
+If you think the answer is correct, you should return "Y". If it is incorrect, you should
+return "N". If the answer is not in the text, you should also return "N", DO NOT fake an answer or make assumptions.
 
 Output MUST be a single character. Do not provide any explanation.
 
-Here is an example for reference: 
+Here is an example for reference:
+
 # Example 
 Input:
 
@@ -45,6 +51,11 @@ N
 Explanation: 
 The output should be "N" because the extracted answer is for the R-23 Zone instead of the "{{district.full_name}}" Zone.
 
+
+# END of instructions
+
 # Answer to confirm
 
 {{answer}}
+
+# END of answer to confirm

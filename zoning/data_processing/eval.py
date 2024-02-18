@@ -235,6 +235,7 @@ async def evaluate_term(
     print(f"Number of rows with ground truth page: {number_of_rows_with_gt_page}")
     print(num_correct_page_searched)
     return {
+        #
         "num_results": num_results,
         "num_row_processed": len(search_results_df),
         "num_row_input": row_count,

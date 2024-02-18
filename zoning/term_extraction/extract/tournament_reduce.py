@@ -12,8 +12,8 @@ import pickle
 TOURNAMENT_REDUCE_MAX_ANSWERS_PER_STAGE = 4
 TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER = 3500
 
-tournament_reduce_tmpl = get_jinja_environment().get_template("tournament.pmpt.tpl")
-# tournament_reduce_tmpl = get_jinja_environment().get_template("tournament_allow_none.pmpt.tpl")
+# tournament_reduce_tmpl = get_jinja_environment().get_template("tournament.pmpt.tpl")
+tournament_reduce_tmpl = get_jinja_environment().get_template("tournament_allow_none.pmpt.tpl")
 
 
 async def tournament_reduce(

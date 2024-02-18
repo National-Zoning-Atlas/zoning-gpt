@@ -1,0 +1,4 @@
+{
+  "min_lot_size": [0, 1000],
+  "min_unit_size": [500, 5000]
+}

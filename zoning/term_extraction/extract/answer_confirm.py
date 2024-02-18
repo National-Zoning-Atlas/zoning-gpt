@@ -1,6 +1,7 @@
 import warnings
 
 from zoning.term_extraction.extract.tournament_reduce import TournamentReduceExtractor
+from ..value_ranges import get_value_ranges
 
 from ...prompting import prompt
 from ...utils import get_jinja_environment
@@ -12,11 +13,13 @@ TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER = 3500
 final_answer_tmpl = get_jinja_environment().get_template("answer_confirm.pmpt.tpl")
 
 
+
 async def answer_confirm(
     result: LookupOutput, term: str, district: District, town: str
-) -> str:
+) -> LookupOutput:
 
     thesaurus = get_thesaurus()
+    value_ranges = get_value_ranges()
 
     def template_answer(record):
         context = include_context_around_phrase(
@@ -29,14 +32,15 @@ async def answer_confirm(
         )
 
         return (
-            f"Answer: {record.output.answer}\n"
-            f"Rationale: {record.output.rationale}\n"
-            f"Extracted Text: {record.output.extracted_text}\n"
-            f"Supporting Text:\n{context}"
+            f"- Answer: {record.output.answer}\n"
+            f"- Rationale: {record.output.rationale}\n"
+            f"- Extracted Text: {record.output.extracted_text}\n"
+            f"- Supporting Text:\n{context}"
         )
 
     input_prompt = final_answer_tmpl.render(
         term=term,
+        value_range=value_ranges.get(term, None),
         synonyms=", ".join(thesaurus.get(term, [])),
         district=district,
         town=town,
@@ -80,7 +84,7 @@ class ConfirmExtractor(TournamentReduceExtractor):
                 results.append(r)
             else:
                 empty_results.append(r)
-
+        assert len(results) <= 1
         for r in results:
             result = await answer_confirm(r, term, district, town)
             yield result

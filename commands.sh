@@ -1,0 +1,1 @@
+python -m zoning.data_processing.eval --num-eval-rows 30 --terms min_unit_size --search-method experiment_3 --extraction-method tournament_reduce --k 10
