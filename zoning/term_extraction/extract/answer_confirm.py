@@ -1,22 +1,25 @@
 import warnings
 
 from zoning.term_extraction.extract.tournament_reduce import TournamentReduceExtractor
+from ..value_ranges import get_value_ranges
 
 from ...prompting import prompt
 from ...utils import get_jinja_environment
 from ..thesaurus import get_thesaurus
-from ..types import District, LookupOutput, PageSearchOutput
+from ..types import District, LookupOutput, PageSearchOutput, LookupOutputConfirmed
 from .utils import include_context_around_phrase
 
 TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER = 3500
 final_answer_tmpl = get_jinja_environment().get_template("answer_confirm.pmpt.tpl")
 
 
+
 async def answer_confirm(
     result: LookupOutput, term: str, district: District, town: str
-) -> str:
+) -> LookupOutputConfirmed:
 
     thesaurus = get_thesaurus()
+    value_ranges = get_value_ranges()
 
     def template_answer(record):
         context = include_context_around_phrase(
@@ -29,15 +32,22 @@ async def answer_confirm(
         )
 
         return (
-            f"Answer: {record.output.answer}\n"
-            f"Rationale: {record.output.rationale}\n"
-            f"Extracted Text: {record.output.extracted_text}\n"
-            f"Supporting Text:\n{context}"
+            f"- Answer: {record.output.answer}\n"
+            f"- Rationale: {record.output.rationale}\n"
+            f"- Extracted Text: {record.output.extracted_text}\n"
+            f"- Supporting Text:\n{context}"
         )
+
+    not_synonyms = []
+    for key in value_ranges:
+        if key != term:
+            not_synonyms.extend(thesaurus.get(key, []))
 
     input_prompt = final_answer_tmpl.render(
         term=term,
+        value_range=value_ranges.get(term, None),
         synonyms=", ".join(thesaurus.get(term, [])),
+        not_synonyms=", ".join(not_synonyms),
         district=district,
         town=town,
         answer=template_answer(result),
@@ -53,12 +63,22 @@ async def answer_confirm(
             "Null GPT response"
         )
     elif text == "Y":
-        return result
+        return LookupOutputConfirmed(
+            output=result.output,
+            search_pages=result.search_pages,
+            search_pages_expanded=result.search_pages_expanded,
+            confirmed=True,
+            confirmed_raw=text,
+            original_output=result.output
+        )
     elif text == "N":
-        return LookupOutput(
+        return LookupOutputConfirmed(
                 output=None,
                 search_pages=[],
                 search_pages_expanded=[],
+                confirmed=False,
+                confirmed_raw=text,
+                original_output=result.output
             )
     else:
         warnings.warn("GPT returned something unexpected")

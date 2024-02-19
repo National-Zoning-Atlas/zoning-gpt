@@ -14,7 +14,7 @@ from ..term_extraction.search import (
     search_for_term,
 )
 from ..term_extraction.semantic_comparison import semantic_comparison
-from ..term_extraction.types import District
+from ..term_extraction.types import District, LookupOutputConfirmed
 from ..utils import get_project_root, flatten
 from .utils import AsyncTyper
 
@@ -24,6 +24,13 @@ EVAL_METRICS_PATH = DATA_ROOT / "results" / "eval.yaml"
 EVAL_OUTPUT_PATH = DATA_ROOT / "results" / "eval.parquet"
 SNAPSHOTS_DIR = DATA_ROOT / "results" / "snapshots"
 SNAPSHOTS_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def calculate_verification_metrics(true_positives, false_positives, false_negatives):
+    recall = true_positives / (true_positives + false_negatives) if true_positives + false_negatives > 0 else 0
+    precision = true_positives / (true_positives + false_positives) if true_positives + false_positives > 0 else 0
+    f1 = 2 * (precision * recall) / (precision + recall) if precision + recall > 0 else 0
+    return recall, precision, f1
 
 
 async def compute_eval_result(
@@ -79,7 +86,15 @@ async def compute_eval_result(
             "label": label,
             "expanded_pages": list(expanded_pages),
             "pages": [p.page_number for p in pages],
+            "confirmed_flag": None,
+            "confirmed_raw": None,
+            "actual_before_confirmation": None,
         }
+        if extraction_method == ExtractionMethod.REDUCE_AND_CONFIRM and isinstance(result, LookupOutputConfirmed):
+            # If we are using the REDUCE_AND_CONFIRM method, then the result class is LookupOutputConfirmed
+            base_output["confirmed_flag"] = result.confirmed
+            base_output["confirmed_raw"] = result.confirmed_raw
+            base_output['actual_before_confirmation'] = result.original_output.answer
 
         if result.output is None:
             yield {
@@ -115,6 +130,9 @@ async def compute_eval_result(
             "correct_page_searched": False,
             "expanded_pages": None,
             "pages": None,
+            "confirmed_flag": None,
+            "confirmed_raw": None,
+            "actual_before_confirmation": None,
         }
 
 
@@ -207,12 +225,57 @@ async def evaluate_term(
             )
             .alias("correct_answer")
         )
+        .with_columns(
+            pl.col("actual_before_confirmation").apply(clean_string_units).alias("actual_normalized"),
+            pl.col("expected")
+            .apply(
+                lambda s: [float(f.strip()) for f in s.split(",")]
+                if s is not None
+                else [],
+                skip_nulls=False,
+            )
+            .alias("expected_normalized"),
+            pl.col("expected_extended").apply(clean_string_units).alias("expected_extended_normalized"),
+        )
+        # Explode all values so that we have one row per expected-actual-value pair.
+        .explode("actual_normalized")
+        .explode("expected_normalized")
+        .explode("expected_extended_normalized")
+        .with_columns(
+            pl.struct(
+                [
+                    "actual_before_confirmation",
+                    "actual_normalized",
+                    "expected_normalized",
+                    "expected_extended",
+                    "expected_extended_normalized"
+                ]
+            )
+            .apply(
+                lambda s: compare_results(
+                    s["actual_normalized"],
+                    s["actual_before_confirmation"],
+                    s["expected_normalized"],
+                    s["expected_extended"],
+                    s["expected_extended_normalized"]
+                )
+            )
+            .alias("correct_answer_before_confirmation")
+        )
     )
+
 
     # groupby to calculate search page recall
     search_results_df = results_df.groupby(pl.col("town", "district")).agg(
         pl.col("correct_page_searched").sum(),
         pl.col("correct_answer").sum(),
+    )
+
+    # groupby to calculate search page recall
+    search_results_df_before_confirmation = results_df.groupby(pl.col("town", "district")).agg(
+        pl.col("correct_page_searched").sum(),
+        pl.col("correct_answer_before_confirmation").sum(),
+        pl.col("confirmed_flag").sum(),
     )
 
     # filter entries that have correct page searched and answered
@@ -234,7 +297,15 @@ async def evaluate_term(
     number_of_rows_with_gt_page = len(gt.filter(pl.col(f"{term}_page_gt").is_not_null()))
     print(f"Number of rows with ground truth page: {number_of_rows_with_gt_page}")
     print(num_correct_page_searched)
+
+    true_positives = len(search_results_df_before_confirmation.filter((pl.col("correct_answer_before_confirmation") > 0) & (pl.col("confirmed_flag") > 0)))
+    false_positives = len(search_results_df_before_confirmation.filter((pl.col("correct_answer_before_confirmation") == 0) & (pl.col("confirmed_flag") > 0)))
+    false_negatives = len(search_results_df_before_confirmation.filter((pl.col("correct_answer_before_confirmation") > 0) & (pl.col("confirmed_flag") == 0)))
+    true_negatives = len(search_results_df_before_confirmation.filter((pl.col("correct_answer_before_confirmation") == 0) & (pl.col("confirmed_flag") == 0)))
+
+    precision, recall, f1 = calculate_verification_metrics(true_positives, false_positives, false_negatives)
     return {
+        #
         "num_results": num_results,
         "num_row_processed": len(search_results_df),
         "num_row_input": row_count,
@@ -251,6 +322,13 @@ async def evaluate_term(
         else 0,
         "answer_accuracy": num_correct_answer / len(search_results_df),
         "answer_page_accuracy": (len(agg_answer_page_df) / len(search_results_df)),
+        'e_true_positives': true_positives,
+        'e_false_positives': false_positives,
+        'e_false_negatives': false_negatives,
+        'e_true_negatives': true_negatives,
+        'e_confirmed_recall': recall,
+        'e_confirmed_precision': precision,
+        'e_confirmed_f1': f1,
     }, results_df
 
 
