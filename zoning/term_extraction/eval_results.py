@@ -79,6 +79,8 @@ def parse_token(token: str):
 
 
 def clean_string_units(input_string):
+    if not input_string:
+        return []
     res = []
     input_string = str(input_string).lower()
     # Split tokens along any conjunctions, e.g. "35 feet or 2.5 stories" -> ["35 feet", "2.5 stories"]

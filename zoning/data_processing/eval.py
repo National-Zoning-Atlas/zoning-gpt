@@ -184,7 +184,6 @@ async def evaluate_term(
             results.append(result)
         progress.advance(eval_task)
     progress.update(eval_task, description=f"Evaluated {term}")
-
     results_df = (
         pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
         # Attempt to normalize LLM responses
@@ -225,8 +224,9 @@ async def evaluate_term(
             )
             .alias("correct_answer")
         )
+        # Only used for the REDUCE_AND_CONFIRM method
         .with_columns(
-            pl.col("actual_before_confirmation").apply(clean_string_units).alias("actual_normalized"),
+            pl.col("actual_before_confirmation").apply(clean_string_units, skip_nulls=False).alias("actual_normalized"),
             pl.col("expected")
             .apply(
                 lambda s: [float(f.strip()) for f in s.split(",")]
@@ -235,7 +235,8 @@ async def evaluate_term(
                 skip_nulls=False,
             )
             .alias("expected_normalized"),
-            pl.col("expected_extended").apply(clean_string_units).alias("expected_extended_normalized"),
+            pl.col("expected_extended").apply(clean_string_units, skip_nulls=False).alias(
+                "expected_extended_normalized"),
         )
         # Explode all values so that we have one row per expected-actual-value pair.
         .explode("actual_normalized")
@@ -258,12 +259,11 @@ async def evaluate_term(
                     s["expected_normalized"],
                     s["expected_extended"],
                     s["expected_extended_normalized"]
-                )
+                ), skip_nulls=False
             )
             .alias("correct_answer_before_confirmation")
         )
     )
-
 
     # groupby to calculate search page recall
     search_results_df = results_df.groupby(pl.col("town", "district")).agg(
@@ -298,13 +298,18 @@ async def evaluate_term(
     print(f"Number of rows with ground truth page: {number_of_rows_with_gt_page}")
     print(num_correct_page_searched)
 
-    true_positives = len(search_results_df_before_confirmation.filter((pl.col("correct_answer_before_confirmation") > 0) & (pl.col("confirmed_flag") > 0)))
-    false_positives = len(search_results_df_before_confirmation.filter((pl.col("correct_answer_before_confirmation") == 0) & (pl.col("confirmed_flag") > 0)))
-    false_negatives = len(search_results_df_before_confirmation.filter((pl.col("correct_answer_before_confirmation") > 0) & (pl.col("confirmed_flag") == 0)))
-    true_negatives = len(search_results_df_before_confirmation.filter((pl.col("correct_answer_before_confirmation") == 0) & (pl.col("confirmed_flag") == 0)))
+    true_positives = len(search_results_df_before_confirmation.filter(
+        (pl.col("correct_answer_before_confirmation") > 0) & (pl.col("confirmed_flag") > 0)))
+    false_positives = len(search_results_df_before_confirmation.filter(
+        (pl.col("correct_answer_before_confirmation") == 0) & (pl.col("confirmed_flag") > 0)))
+    false_negatives = len(search_results_df_before_confirmation.filter(
+        (pl.col("correct_answer_before_confirmation") > 0) & (pl.col("confirmed_flag") == 0)))
+    true_negatives = len(search_results_df_before_confirmation.filter(
+        (pl.col("correct_answer_before_confirmation") == 0) & (pl.col("confirmed_flag") == 0)))
 
     precision, recall, f1 = calculate_verification_metrics(true_positives, false_positives, false_negatives)
-    return {
+
+    eval_metrics = {
         #
         "num_results": num_results,
         "num_row_processed": len(search_results_df),
@@ -322,14 +327,18 @@ async def evaluate_term(
         else 0,
         "answer_accuracy": num_correct_answer / len(search_results_df),
         "answer_page_accuracy": (len(agg_answer_page_df) / len(search_results_df)),
-        'e_true_positives': true_positives,
-        'e_false_positives': false_positives,
-        'e_false_negatives': false_negatives,
-        'e_true_negatives': true_negatives,
-        'e_confirmed_recall': recall,
-        'e_confirmed_precision': precision,
-        'e_confirmed_f1': f1,
-    }, results_df
+    }
+    if extraction_method == ExtractionMethod.REDUCE_AND_CONFIRM:
+        eval_metrics.update({
+            'e_true_positives': true_positives,
+            'e_false_positives': false_positives,
+            'e_false_negatives': false_negatives,
+            'e_true_negatives': true_negatives,
+            'e_confirmed_recall': recall,
+            'e_confirmed_precision': precision,
+            'e_confirmed_f1': f1,
+        })
+    return eval_metrics, results_df
 
 
 async def main(
