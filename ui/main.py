@@ -25,3 +25,6 @@ The National Zoning Atlas (NZA) is working to depict key aspects of zoning codes
 The goal of this project is to use Large Language Models (LLMs) in conjunction with other natural language processing (NLP) techniques to automatically extract structured, relevant information from U.S. Zoning Code documents, so as to help the NZA team expand the reach of its atlas.
 """
 )
+
+st.page_link("pages/chat.py", label="Start chat")
+

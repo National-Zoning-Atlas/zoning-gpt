@@ -23,6 +23,15 @@ from zoning.utils import flatten
 
 import asyncio
 
+# Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Display chat messages from history on app rerun
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
 
 async def consume_async_gen(pages: list,
                             term: str,
@@ -44,11 +53,9 @@ async def consume_async_gen(pages: list,
         if result.output is None:
             pass
         else:
-            st_stream_write(f"---")
             st_stream_write(f"**extracted_text:** `{result.output.extracted_text}`")
             st_stream_write(f"**rationale:** `{result.output.rationale}`")
             st_stream_write(f"**actual:** `{result.output.answer}`")
-            st_stream_write(f"---")
 
     print("All values consumed.")
 
@@ -88,7 +95,9 @@ def get_stream_data(data_to_write):
 
 
 def st_stream_write(data_to_write):
-    st.write_stream(get_stream_data(data_to_write))
+    with st.chat_message("assistant"):
+        st.write_stream(get_stream_data(data_to_write))
+        st.session_state.messages.append({"role": "assistant", "content": data_to_write})
 
 
 def main():
@@ -126,13 +135,34 @@ def main():
         )
         model_name = st.text_input("Model name", "gpt-4-1106-preview")
 
-    st.title("Zoning Document Search")
-    st.write("This page allows you to search for terms in zoning documents.")
-    st.write("Example input: `andover;Andover Lake;AL;min lot size`")
+        st.markdown(
+            """
+            Examples:
+            
+            `andover;Andover Lake;AL;min lot size`
+            
+            `andover;Andover Lake;AL;min unit size`
+            
+            `berlin;General Industrial;GI;min lot size`
+            
+            `berlin;General Industrial;GI;min unit size`
+            
+            `bloomfield;I-1 General Industry;IND-1;min lot size`
+            
+            `canaan-falls-village;Rural Business;Rural Business;min lot size`
+            """
+        )
+    with st.chat_message("assistant"):
+        st.write("Hello 👋, Welcome to Zoning Document Search!")
+        st.write("This page allows you to search for terms in zoning documents.")
+        st.write("Example input: `andover;Andover Lake;AL;min lot size`")
     chat_input = st.chat_input("Chat with the bot")
     # submit = st.button("Submit")
     if chat_input:
         parsed_input = parse_input(chat_input)
+        with st.chat_message("user"):
+            st.write(chat_input)
+            st.session_state.messages.append({"role": "user", "content": chat_input})
 
         town = parsed_input["town"]
         district_name = parsed_input["district_name"]
@@ -144,7 +174,7 @@ def main():
         st_stream_write(f"Searching for term: `{term}`")
         st_stream_write(f"Searching using method: `{search_method}`")
         st_stream_write(f"Returning top `{k}` results")
-        st_stream_write(f"---")
+
         st_stream_write(f"Start 1st stage search (Elasticsearch)...")
         try:
             pages = zoning.term_extraction.search.search_for_term(town, district, term, search_method, k)
@@ -158,7 +188,6 @@ def main():
                 f"Page: `{page.page_number}`, Score: `{page.score}`, Text: \n```\n{page.text[:100]}...\n```")
 
         st_stream_write(f"Expanded pages: `{expanded_pages}`")
-        st_stream_write(f"---")
 
         st_stream_write(f"Start 2nd stage search...")
         asyncio.run(consume_async_gen(
@@ -173,7 +202,6 @@ def main():
 
         st_stream_write(f"2nd stage search done.")
         st_stream_write(f"Search completed.")
-        st_stream_write(f"---")
 
 
 if __name__ == '__main__':
