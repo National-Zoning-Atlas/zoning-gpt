@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Coroutine
 
 from ..types import District, LookupOutput, PageSearchOutput
 from .base import Extractor
@@ -54,6 +54,7 @@ async def extract_answer(
             extractor = MapExtractor(model_name)
         case ExtractionMethod.REDUCE_AND_CONFIRM:
             extractor = ConfirmExtractor(model_name, tournament_k)
-
+        case _:
+            extractor = DummyExtractor()
     async for result in extractor.extract(pages, district, term, town):
         yield result
