@@ -8,8 +8,7 @@ services:
       - elastic
       - zoning-gpt
     depends_on:
-      zoning-gpt-elasticsearch:
-        condition: service_healthy
+      - zoning-gpt-elasticsearch
     environment:
       - ELASTICSEARCH_URL=http://zoning-gpt-elasticsearch:9200
       - OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx <- Replace with your OpenAI API key
