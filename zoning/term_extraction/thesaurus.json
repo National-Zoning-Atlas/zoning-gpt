@@ -29,8 +29,8 @@
   ],
   "min_unit_size": [
     "min unit size",
-    "minimum unit size",
     "min floor area",
+    "min finished floor area",
     "min livable floor area",
     "min building size",
     "min floor area",
@@ -42,7 +42,7 @@
     "min total living area",
     "min lot area per dwelling unit",
     "living area requirements",
-    "minimum habitable floor area",
+    "min habitable floor area",
     "living area requirements",
     "min gross floor area",
     "min ground floor area"
