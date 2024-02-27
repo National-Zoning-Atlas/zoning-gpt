@@ -31,13 +31,13 @@ services:
     networks:
       - elastic
 
-  kibana:
+  zoning-gpt-kibana:
     image: kibana:7.16.1
-    container_name: zoning-gpt-kib
+    container_name: zoning-gpt-kibana
     ports:
       - "5601:5601"
     depends_on:
-      - elasticsearch
+      - zoning-gpt-elasticsearch
     networks:
       - elastic
 
