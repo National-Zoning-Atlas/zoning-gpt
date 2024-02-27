@@ -1,0 +1,47 @@
+services:
+  zoning-gpt-app:
+    image: echocool/zoning-gpt
+    container_name: zoning-gpt-app
+    ports:
+      - "8080:8501"
+    networks:
+      - elastic
+      - zoning-gpt
+    depends_on:
+      zoning-gpt-elasticsearch:
+        condition: service_healthy
+    environment:
+      - ELASTICSEARCH_URL=http://zoning-gpt-elasticsearch:9200
+      - OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx <- Replace with your OpenAI API key
+
+  zoning-gpt-elasticsearch:
+    image: echocool/zoning-gpt-elasticsearch
+    container_name: zoning-gpt-elasticsearch
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+#    ports:
+#      - "9200:9200"
+#      - "9300:9300"
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    networks:
+      - elastic
+
+  kibana:
+    image: kibana:7.16.1
+    container_name: zoning-gpt-kib
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - elastic
+
+
+networks:
+  elastic:
+  zoning-gpt:

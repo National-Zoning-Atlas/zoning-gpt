@@ -1,4 +1,5 @@
 import json
+import os
 import warnings
 
 from elasticsearch import Elasticsearch
@@ -12,7 +13,10 @@ from .utils import expand_term
 class ElasticSearcher(Searcher):
     def __init__(self, k: int, is_district_fuzzy: bool = False,
                  is_term_fuzzy: bool = False, label: str = "") -> None:
-        self.client = Elasticsearch("http://localhost:9200")  # default client
+        if os.environ.get("ELASTICSEARCH_URL"):
+            self.client = Elasticsearch(os.environ.get("ELASTICSEARCH_URL"))
+        else:
+            self.client = Elasticsearch("http://localhost:9200")  # default client
         self.k = k
         self.is_district_fuzzy = is_district_fuzzy
         self.is_term_fuzzy = is_term_fuzzy

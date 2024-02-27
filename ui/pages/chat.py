@@ -23,6 +23,8 @@ from zoning.utils import flatten
 
 import asyncio
 
+st.set_page_config(page_title="Zoning Document Search", page_icon="🔍", layout="wide")
+
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
