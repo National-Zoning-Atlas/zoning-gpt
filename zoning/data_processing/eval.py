@@ -25,6 +25,8 @@ EVAL_OUTPUT_PATH = DATA_ROOT / "results" / "eval.parquet"
 SNAPSHOTS_DIR = DATA_ROOT / "results" / "snapshots"
 SNAPSHOTS_DIR.mkdir(parents=True, exist_ok=True)
 
+# If DEBUG=True, do not print rich tracking information
+DEBUG = False
 
 def calculate_verification_metrics(true_positives, false_positives, false_negatives):
     recall = true_positives / (true_positives + false_negatives) if true_positives + false_negatives > 0 else 0
@@ -227,6 +229,7 @@ async def evaluate_term(
         # Only used for the REDUCE_AND_CONFIRM method
         .with_columns(
             pl.col("actual_before_confirmation").apply(clean_string_units, skip_nulls=False).alias("actual_normalized"),
+            pl.col("expected").apply(lambda x: x is not None, skip_nulls=False).alias("expected_exists"),
             pl.col("expected")
             .apply(
                 lambda s: [float(f.strip()) for f in s.split(",")]
@@ -298,14 +301,19 @@ async def evaluate_term(
     print(f"Number of rows with ground truth page: {number_of_rows_with_gt_page}")
     print(num_correct_page_searched)
 
-    true_positives = len(search_results_df_before_confirmation.filter(
-        (pl.col("correct_answer_before_confirmation") > 0) & (pl.col("confirmed_flag") > 0)))
-    false_positives = len(search_results_df_before_confirmation.filter(
-        (pl.col("correct_answer_before_confirmation") == 0) & (pl.col("confirmed_flag") > 0)))
-    false_negatives = len(search_results_df_before_confirmation.filter(
-        (pl.col("correct_answer_before_confirmation") > 0) & (pl.col("confirmed_flag") == 0)))
-    true_negatives = len(search_results_df_before_confirmation.filter(
-        (pl.col("correct_answer_before_confirmation") == 0) & (pl.col("confirmed_flag") == 0)))
+    # groupby to calculate confirmation f1
+    confirmation_df = results_df.groupby(pl.col("town", "district")).agg(
+        pl.col("confirmed_flag").sum(),
+        pl.col("expected_exists").sum(),
+    )
+    true_positives = len(confirmation_df.filter(
+        (pl.col("expected_exists") > 0) & (pl.col("confirmed_flag") > 0)))
+    false_positives = len(confirmation_df.filter(
+        (pl.col("expected_exists") == 0) & (pl.col("confirmed_flag") > 0)))
+    false_negatives = len(confirmation_df.filter(
+        (pl.col("expected_exists") > 0) & (pl.col("confirmed_flag") == 0)))
+    true_negatives = len(confirmation_df.filter(
+        (pl.col("expected_exists") == 0) & (pl.col("confirmed_flag") == 0)))
 
     precision, recall, f1 = calculate_verification_metrics(true_positives, false_positives, false_negatives)
 
@@ -369,6 +377,7 @@ async def main(
             SpinnerColumn(),
             *Progress.get_default_columns(),
             TimeElapsedColumn(),
+            disable=DEBUG,
     ) as progress:
         term_task = progress.add_task("Terms", total=len(terms))
         for term in terms:
