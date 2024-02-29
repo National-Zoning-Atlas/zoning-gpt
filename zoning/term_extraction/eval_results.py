@@ -16,7 +16,7 @@ SQ_FT_FORMS = {
     "sq. Ft.",
 }
 
-ACRE_FORMS = {"acres", "acre", "acreage", "-acre", "ac"}
+ACRE_FORMS = {"acres", "acre", "acreage", "-acre", " ac"}
 
 FT_FORMS = {
     "ft",
