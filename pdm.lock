@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform"]
 lock_version = "4.4.1"
-content_hash = "sha256:850e695c31063f2ee3c5bb534a9d714c996b964332309f193cbe14e448fe3fdc"
+content_hash = "sha256:2e06eb2f0ab172343e8d11f4b039d601e8856d80427c8f2a636271c6e280bf2b"
 
 [[package]]
 name = "adlfs"
@@ -2229,16 +2229,6 @@ files = [
 ]
 
 [[package]]
-name = "pympler"
-version = "1.0.1"
-requires_python = ">=3.6"
-summary = "A development tool to measure, monitor and analyze the memory behavior of Python objects."
-files = [
-    {file = "Pympler-1.0.1-py3-none-any.whl", hash = "sha256:d260dda9ae781e1eab6ea15bacb84015849833ba5555f141d2d9b7b7473b307d"},
-    {file = "Pympler-1.0.1.tar.gz", hash = "sha256:993f1a3599ca3f4fcd7160c7545ad06310c9e12f70174ae7ae8d4e25f6c5d3fa"},
-]
-
-[[package]]
 name = "pymupdf"
 version = "1.22.5"
 requires_python = ">=3.7"
@@ -2754,7 +2744,7 @@ files = [
 
 [[package]]
 name = "streamlit"
-version = "1.25.0"
+version = "1.31.1"
 requires_python = ">=3.8, !=3.9.7"
 summary = "A faster way to build and share data apps"
 dependencies = [
@@ -2763,29 +2753,28 @@ dependencies = [
     "cachetools<6,>=4.0",
     "click<9,>=7.0",
     "gitpython!=3.1.19,<4,>=3.0.7",
-    "importlib-metadata<7,>=1.4",
+    "importlib-metadata<8,>=1.4",
     "numpy<2,>=1.19.3",
     "packaging<24,>=16.8",
     "pandas<3,>=1.3.0",
-    "pillow<10,>=7.1.0",
+    "pillow<11,>=7.1.0",
     "protobuf<5,>=3.20",
-    "pyarrow>=6.0",
-    "pydeck<1,>=0.8",
-    "pympler<2,>=0.9",
+    "pyarrow>=7.0",
+    "pydeck<1,>=0.8.0b4",
     "python-dateutil<3,>=2.7.3",
-    "requests<3,>=2.18",
+    "requests<3,>=2.27",
     "rich<14,>=10.14.0",
     "tenacity<9,>=8.1.0",
     "toml<2,>=0.10.1",
     "tornado<7,>=6.0.3",
-    "typing-extensions<5,>=4.1.0",
-    "tzlocal<5,>=1.1",
+    "typing-extensions<5,>=4.3.0",
+    "tzlocal<6,>=1.1",
     "validators<1,>=0.2",
     "watchdog>=2.1.5; platform_system != \"Darwin\"",
 ]
 files = [
-    {file = "streamlit-1.25.0-py2.py3-none-any.whl", hash = "sha256:3c561dca1b5430e73b7f2d66bff1d26103936bb4223912ab563ffee881fccc30"},
-    {file = "streamlit-1.25.0.tar.gz", hash = "sha256:8a7c93bee8703869045804afe22e9373c4e974fdb2a3e9abe3b027df3de03119"},
+    {file = "streamlit-1.31.1-py2.py3-none-any.whl", hash = "sha256:a1a84249f7a9b854fe356db06c85dc03c3f9da4df06a33aa5a922647b955e8c8"},
+    {file = "streamlit-1.31.1.tar.gz", hash = "sha256:dfc43ca85b4b4c31d097c27b983b8ccc960222ad907862b2b2fb4ddf04c50fdc"},
 ]
 
 [[package]]

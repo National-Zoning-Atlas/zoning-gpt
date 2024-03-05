@@ -1,7 +1,13 @@
 {
-  "min_lot_size": [],
-  "min_unit_size": [500, 5000],
-  "max_height": [],
-  "max_lot_coverage": [],
-  "min_parking_spaces": []
+    "min_lot_size": [
+        "500",
+        "4000"
+    ],
+    "min_unit_size": [
+        "500",
+        "5000"
+    ],
+    "max_height": [],
+    "max_lot_coverage": [],
+    "min_parking_spaces": []
 }
