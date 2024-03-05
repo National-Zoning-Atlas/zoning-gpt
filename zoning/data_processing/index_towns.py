@@ -44,10 +44,10 @@ def main(st=None):
 
     for split in ds.keys():
         print(f"Processing {split} split...")
+        df = ds[split].to_pandas().set_index(["Town", "Page"])
         if st:
             st.write(f"Processing {split} split...")
-        df = ds[split].to_pandas().set_index(["Town", "Page"])
-        st.write(df)
+            st.write(df)
         towns = set(df.index.get_level_values(0))
         thread_map(lambda town: index_dataset(df.loc[town], town), towns)
 

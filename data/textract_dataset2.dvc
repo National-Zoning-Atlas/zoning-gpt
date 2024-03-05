@@ -1,0 +1,6 @@
+outs:
+- md5: 2b09a6e90a5cdd96928dbea4d6ac0210.dir
+  size: 3135620050
+  nfiles: 116
+  hash: md5
+  path: textract_dataset2
