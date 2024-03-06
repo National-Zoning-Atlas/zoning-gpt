@@ -8,10 +8,14 @@
 import asyncio
 import collections
 import time
+from io import BytesIO
+
 import numpy as np
 import pandas as pd
 import streamlit as st
+import base64
 
+from PIL.Image import Image
 from elasticsearch import Elasticsearch
 
 import zoning
@@ -19,8 +23,8 @@ from zoning.term_extraction.extract import extract_answer, ExtractionMethod
 from zoning.term_extraction.search import SearchMethod
 from zoning.term_extraction.search.utils import page_coverage
 from zoning.term_extraction.types import District
-from zoning.utils import flatten
-
+from zoning.utils import flatten, get_project_root
+import pdf2image
 import asyncio
 
 st.set_page_config(page_title="Zoning Document Search", page_icon="🔍", layout="wide")
@@ -55,7 +59,32 @@ async def consume_async_gen(pages: list,
         if result.output is None:
             pass
         else:
-            st_stream_write(f"**extracted_text:** `{result.output.extracted_text}`")
+            # barkhamsted-zoning-code.pdf
+            pdf_file = f"data/orig-documents/{town}-zoning-code.pdf"
+            try:
+                images = []
+                for page in result.search_pages_expanded:
+                    image: Image = pdf2image.convert_from_path(pdf_file, first_page=page, last_page=page, dpi=100)[0]
+                    buffered = BytesIO()
+                    image.save(buffered, format="PNG")  # You can use other formats like JPEG
+                    # Encode the byte stream to Base64
+                    img_str = base64.b64encode(buffered.getvalue()).decode()
+                    # Format the Base64 string for HTML
+                    img_base64 = f"data:image/png;base64,{img_str}"
+                    images.append(
+                        (page, img_base64)
+                    )
+
+                image_df = pd.DataFrame(images, columns=["page", "image"])
+                st.dataframe(image_df, column_config={
+                    "image": st.column_config.ImageColumn(
+                        "image", help="Image of the page"
+                    )
+                })
+            except Exception as e:
+                st_stream_write(f"Failed to load images. Error: \n```\n{e}\n```")
+            # st.image(images, caption=[str(i) for i in result.search_pages_expanded], use_column_width=True)
+            st_stream_write(f"**extracted_text:** `{result.output.extracted_text}` \n- page: `{[i.page_number for i in result.search_pages]}` \n- search_pages_expanded: `{result.search_pages_expanded}`")
             st_stream_write(f"**rationale:** `{result.output.rationale}`")
             st_stream_write(f"**actual:** `{result.output.answer}`")
 

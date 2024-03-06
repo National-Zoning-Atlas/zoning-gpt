@@ -12,6 +12,7 @@ from ..types import PageSearchOutput
 
 
 def expand_term(term: str):
+    term = term.replace("_", " ")
     min_variations = get_thesaurus().get("min", [])
     max_variations = get_thesaurus().get("max", [])
     for query in get_thesaurus().get(term, []):

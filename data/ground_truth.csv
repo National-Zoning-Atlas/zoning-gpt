@@ -9,7 +9,7 @@ berlin,GI,General Industrial,33,,21780,102,,,,,45,102,,35,102,,80,102,,2,133,,
 berlin,VDO,Village Overlay,33,,,,,,,,,,,,,,,,,2,133,,
 bethany,HOD,Housing Opportunity Development,70,30,1306800,70,,,,35,35,71,10,10,71,20,20,71,2,2,49,,district not mentioned in the main list of districts
 bethel,C,Commercial,,0.23,10000,72,,,,40,40,73,,,73,,,73,2,2,127,,no single list of zones
-bloomfield,IND-1,I-1 General Industry,,,,,,,,,60,64,,,64,,50,64,,2,128,,no single list of zones
+bloomfield,IND-1,I-1 General Industry,,,,,,,,,60,64,,50,64,,50,64,,2,128,,no single list of zones
 bolton,GB,General Buiness,59,,,,,,,,40,112,,25,112,,65,112,,2,134,,
 bozrah,I-30,Industrial-30,"9,10",,30000,26,,,,,35,26,,30,26,,,,,2,59,,
 branford,R-3,Residence R-3,9,0.34,15000,40,,,,35,35,40,,25,40,25,,,2,2,113,,districts are defined in a somewhat complex table

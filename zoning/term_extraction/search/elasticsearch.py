@@ -80,7 +80,7 @@ class ElasticSearcher(Searcher):
         s = s.highlight("Text")
 
         res = s.execute()
-
+        print(res)
         if len(res) == 0:
             warnings.warn(f"No results found for {term} in {town} {district.full_name}")
 
