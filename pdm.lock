@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform"]
 lock_version = "4.4.1"
-content_hash = "sha256:2e06eb2f0ab172343e8d11f4b039d601e8856d80427c8f2a636271c6e280bf2b"
+content_hash = "sha256:49f49957c30176103fa90d0990b6ca9301487a98aacf38053444146d2737cb73"
 
 [[package]]
 name = "adlfs"
@@ -336,6 +336,36 @@ summary = "Fast, simple object-to-object and broadcast signaling"
 files = [
     {file = "blinker-1.6.2-py3-none-any.whl", hash = "sha256:c3d739772abb7bc2860abf5f2ec284223d9ad5c76da018234f6f50d6f31ab1f0"},
     {file = "blinker-1.6.2.tar.gz", hash = "sha256:4afd3de66ef3a9f8067559fb7a1cbe555c17dcbe15971b05d1b625c3e7abe213"},
+]
+
+[[package]]
+name = "boto3"
+version = "1.34.56"
+requires_python = ">= 3.8"
+summary = "The AWS SDK for Python"
+dependencies = [
+    "botocore<1.35.0,>=1.34.56",
+    "jmespath<2.0.0,>=0.7.1",
+    "s3transfer<0.11.0,>=0.10.0",
+]
+files = [
+    {file = "boto3-1.34.56-py3-none-any.whl", hash = "sha256:300888f0c1b6f32f27f85a9aa876f50f46514ec619647af7e4d20db74d339714"},
+    {file = "boto3-1.34.56.tar.gz", hash = "sha256:b26928f9a21cf3649cea20a59061340f3294c6e7785ceb6e1a953eb8010dc3ba"},
+]
+
+[[package]]
+name = "botocore"
+version = "1.34.56"
+requires_python = ">= 3.8"
+summary = "Low-level, data-driven core of boto 3."
+dependencies = [
+    "jmespath<2.0.0,>=0.7.1",
+    "python-dateutil<3.0.0,>=2.1",
+    "urllib3<2.1,>=1.25.4; python_version >= \"3.10\"",
+]
+files = [
+    {file = "botocore-1.34.56-py3-none-any.whl", hash = "sha256:fff66e22a5589c2d58fba57d1d95c334ce771895e831f80365f6cff6453285ec"},
+    {file = "botocore-1.34.56.tar.gz", hash = "sha256:bffeb71ab21d47d4ecf947d9bdb2fbd1b0bbd0c27742cea7cf0b77b701c41d9f"},
 ]
 
 [[package]]
@@ -2595,6 +2625,19 @@ files = [
     {file = "ruff-0.0.285-py3-none-win_amd64.whl", hash = "sha256:a8c6ad6b9cd77489bf6d1510950cbbe47a843aa234adff0960bae64bd06c3b6d"},
     {file = "ruff-0.0.285-py3-none-win_arm64.whl", hash = "sha256:de44fbc6c3b25fccee473ddf851416fd4e246fc6027b2197c395b1b3b3897921"},
     {file = "ruff-0.0.285.tar.gz", hash = "sha256:45866048d1dcdcc80855998cb26c4b2b05881f9e043d2e3bfe1aa36d9a2e8f28"},
+]
+
+[[package]]
+name = "s3transfer"
+version = "0.10.0"
+requires_python = ">= 3.8"
+summary = "An Amazon S3 Transfer Manager"
+dependencies = [
+    "botocore<2.0a.0,>=1.33.2",
+]
+files = [
+    {file = "s3transfer-0.10.0-py3-none-any.whl", hash = "sha256:3cdb40f5cfa6966e812209d0994f2a4709b561c88e90cf00c2696d2df4e56b2e"},
+    {file = "s3transfer-0.10.0.tar.gz", hash = "sha256:d0c8bbf672d5eebbe4e57945e23b972d963f07d82f661cabf678a5c88831595b"},
 ]
 
 [[package]]
