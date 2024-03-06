@@ -25,10 +25,10 @@ input_textract_dataset_path = DATA_ROOT / "tx_textract_dataset"
 # JSON file listing the full set of towns for which we expect to have data.
 #input_town_list_path = DATA_ROOT / "names_all_towns.json"
 input_town_list_path = DATA_ROOT / "tx_names_all_towns.json"
-output_parquet_dataset_path = DATA_ROOT / "parquet_dataset"
+output_parquet_dataset_path = DATA_ROOT / "tx_parquet_dataset"
 #output_hf_dataset_name = "xyzNLP/nza-ct-zoning-codes"
 output_hf_dataset_name = "xyzNLP/nza-tx-zoning-codes"
-output_hf_dataset_path = DATA_ROOT / "hf_dataset"
+output_hf_dataset_path = DATA_ROOT / "tx_hf_dataset"
 
 # Create output directories if they don't already exist
 makedirs(output_parquet_dataset_path, exist_ok=True)
@@ -120,10 +120,12 @@ if __name__ == "__main__":
         all_towns = json.load(f)
 
     datafiles = [
-        path for path in process_map(import_town, all_towns) if path is not None
+        path.as_posix() for path in process_map(import_town, all_towns) if path is not None
     ]
+
+    # FOR DEBUGGING. DONT FORGET TO CHANGE THIS LATER
     train, test = train_test_split(
-        datafiles, test_size=TEST_SPLIT_FRAC, random_state=RANDOM_STATE
+        datafiles * 2, test_size=TEST_SPLIT_FRAC, random_state=RANDOM_STATE
     )
 
     dataset = load_dataset("parquet", data_files={"train": train, "test": test})
