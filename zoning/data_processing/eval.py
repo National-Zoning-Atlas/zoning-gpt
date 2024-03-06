@@ -330,9 +330,7 @@ async def evaluate_term(
         # been looked up by search
         "conditional_answer_accuracy": (
                 len(agg_answer_page_df) / num_correct_page_searched
-        )
-        if num_correct_page_searched != 0
-        else 0,
+        ) if num_correct_page_searched != 0 else 0,
         "answer_accuracy": num_correct_answer / len(search_results_df),
         "answer_page_accuracy": (len(agg_answer_page_df) / len(search_results_df)),
     }
