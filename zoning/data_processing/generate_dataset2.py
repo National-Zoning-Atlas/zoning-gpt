@@ -21,10 +21,10 @@ TEST_SPLIT_FRAC = config["generate_dataset"]["test_split_frac"]
 # folder named "processed-data" should exist at this path that contains the
 # Textract results.
 #input_textract_dataset_path = DATA_ROOT / "textract_dataset"
-input_textract_dataset_path = DATA_ROOT / "textract_dataset2"
+input_textract_dataset_path = DATA_ROOT / "tx_textract_dataset"
 # JSON file listing the full set of towns for which we expect to have data.
 #input_town_list_path = DATA_ROOT / "names_all_towns.json"
-input_town_list_path = DATA_ROOT / "names_all_towns_tx.json"
+input_town_list_path = DATA_ROOT / "tx_names_all_towns.json"
 output_parquet_dataset_path = DATA_ROOT / "parquet_dataset"
 #output_hf_dataset_name = "xyzNLP/nza-ct-zoning-codes"
 output_hf_dataset_name = "xyzNLP/nza-tx-zoning-codes"

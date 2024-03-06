@@ -1,0 +1,6 @@
+outs:
+- md5: 4dd487b0aa10c43a1923cbba7ae9c04c.dir
+  size: 98800254
+  nfiles: 1
+  hash: md5
+  path: tx_textract_dataset
