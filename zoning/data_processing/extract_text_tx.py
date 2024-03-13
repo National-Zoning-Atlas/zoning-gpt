@@ -21,7 +21,7 @@ output_textract_dataset_path = DATA_ROOT / "tx_textract_dataset"
 
 makedirs(output_textract_dataset_path, exist_ok=True)
 
-textract = boto3.client("textract")
+textract = boto3.client("textract", region_name="us-east-2")
 
 def start_job(town_pdf_path: str) -> str:
     """
