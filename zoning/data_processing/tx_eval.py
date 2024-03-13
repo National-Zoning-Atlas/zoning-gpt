@@ -58,14 +58,16 @@ async def compute_eval_result(
         tournament_k=tournament_k,
     )
 
-    gt_page = ground_truth[f"{term}_page_gt"]
+    #gt_page = ground_truth[f"{term}_page_gt"]
+    gt_page = ground_truth["Pagenumber"]
     if gt_page is None:
         # No ground truth page
         gt_page = set()
     else:
         gt_page = set(map(int, str(gt_page).split(",")))
 
-    expected = ground_truth[f"{term}_gt"]
+    #expected = ground_truth[f"{term}_gt"]
+    expected = ground_truth["Excerpt"]
     is_empty = True
 
     async for result in outputs:
@@ -73,7 +75,8 @@ async def compute_eval_result(
         searched_pages = {r.page_number for r in result.search_pages}
         searched_pages_expanded = set(result.search_pages_expanded)
         is_correct_page_searched = any(gt_page & set(expanded_pages))
-        expected_extended = ground_truth[f"{term}_gt_orig"]
+        #expected_extended = ground_truth[f"{term}_gt_orig"]
+        expected_extended = ground_truth["Excerpt"]
         label = result.search_pages[0].log["label"] if result.search_pages else ""
 
         base_output = {
@@ -125,7 +128,8 @@ async def compute_eval_result(
             "searched_pages": None,
             "searched_pages_expanded": None,
             "expected": expected,
-            "expected_extended": ground_truth[f"{term}_gt_orig"],
+            #"expected_extended": ground_truth[f"{term}_gt_orig"],
+            "expected_extended": ground_truth[f"Excerpt"],
             "rationale": None,
             "extracted_text": None,
             "actual": None,
@@ -176,9 +180,9 @@ async def evaluate_term(
     row_count = len(gt)
     for row in gt.iter_rows(named=True):
         #town = row["town"]
-        town = row["JurisdictionName"]
+        town = row["JurisdictionName"].lower()
         #district = District(full_name=row["district"], short_name=row["district_abb"])
-        district = District(full_name=row["County"], short_name=row["DistrictAbbrv"])
+        district = District(full_name=row["County"].lower(), short_name=row["DistrictAbbrv"].lower())
         progress.update(
             eval_task, description=f"Evaluating {term}, {town}, {district.full_name}"
         )
