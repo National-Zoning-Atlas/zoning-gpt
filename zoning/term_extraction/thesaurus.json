@@ -101,16 +101,17 @@
   "max_lot_coverage": [
     "max lot coverage",
     "building coverage",
-    "max building coverage",
-    "previous surface",
-    "building area as % of lot"
+    "lot coverage",
+    "pervious surface",
+    "building area as % of lot",
+    "coverage",
+    "maximum lot coverage"
   ],
   "max_lot_coverage dimensions": [
     "percent",
     "%",
     "per cent",
-    "ratio",
-    "None"
+    "ratio"
   ],
   "max_lot_coverage_pavement": [
     "lot coverage by impervious surfaces",
