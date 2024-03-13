@@ -192,8 +192,12 @@ async def evaluate_term(
             results.append(result)
         progress.advance(eval_task)
     progress.update(eval_task, description=f"Evaluated {term}")
+
+    import pdb; pdb.set_trace()
+    return results
     results_df = (
-        pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
+        #pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
+        pl.from_dicts(results)
         # Attempt to normalize LLM responses
         .with_columns(
             pl.col("actual").apply(clean_string_units).alias("actual_normalized"),
