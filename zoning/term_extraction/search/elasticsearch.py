@@ -8,6 +8,7 @@ from elasticsearch_dsl import Q, Search
 from ..types import District, PageSearchOutput
 from .base import Searcher
 from .utils import expand_term
+from ...utils import logger
 
 
 class ElasticSearcher(Searcher):
@@ -45,10 +46,10 @@ class ElasticSearcher(Searcher):
             district_query = Q("bool", should=[exact_district_query, fuzzy_district_query])
         else:
             district_query = exact_district_query
-
+        expanded_term = expand_term(term)
         exact_term_query = Q(
             "bool",
-            should=list(Q("match_phrase", Text=t) for t in expand_term(term)),
+            should=list(Q("match_phrase", Text=t) for t in expanded_term),
             minimum_should_match=1,
         )
 
@@ -56,33 +57,34 @@ class ElasticSearcher(Searcher):
             term_query = Q(
                 "bool",
                 should=[
-                           Q("match_phrase", Text=t) for t in expand_term(term)
+                           Q("match_phrase", Text=t) for t in expanded_term
                        ] + [
-                           Q("match", Text={"query": t, "fuzziness": "AUTO"}) for t in expand_term(term)
+                           Q("match", Text={"query": t, "fuzziness": "AUTO"}) for t in expanded_term
                        ],
                 minimum_should_match=1,
             )
         else:
             term_query = exact_term_query
-
+        dimensions_expanded_term = expand_term(f"{term} dimensions")
         dim_query = Q(
             "bool",
             should=list(
-                Q("match_phrase", Text=t) for t in expand_term(f"{term} dimensions")
+                Q("match_phrase", Text=t) for t in dimensions_expanded_term
             ),
             minimum_should_match=1,
         )
 
         s.query = district_query & term_query & dim_query
+        logger.info(f"Query: {s.query.to_dict()}")
         # ensure that we have a maximum of k results 
         s = s.extra(size=self.k)
 
         s = s.highlight("Text")
 
         res = s.execute()
-        print(res)
+        # print(res)
         if len(res) == 0:
-            warnings.warn(f"No results found for {term} in {town} {district.full_name}")
+            logger.warn(f"No results found for {term} in {town} {district.full_name}")
 
         yield from (
             PageSearchOutput(

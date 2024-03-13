@@ -4,7 +4,7 @@ from zoning.term_extraction.extract.tournament_reduce import TournamentReduceExt
 from ..value_ranges import get_value_ranges
 
 from ...prompting import prompt
-from ...utils import get_jinja_environment
+from ...utils import get_jinja_environment, logger
 from ..thesaurus import get_thesaurus
 from ..types import District, LookupOutput, PageSearchOutput, LookupOutputConfirmed
 from .utils import include_context_around_phrase
@@ -57,9 +57,9 @@ async def answer_confirm(
         "gpt-4-1106-preview", [{"role": "user", "content": input_prompt}], max_tokens=1
     )
 
-    print(town, district.full_name, "answer: ", result.output.answer, "response: ", text)
+    logger.info(f"<ConfirmExtractor>: town: {town}, district: {district.full_name}, answer: {result.output}, response: {text}")
     if text is None or text == "NO_ANSWER":
-        warnings.warn(
+        logger.warn(
             "Null GPT response"
         )
     elif text == "Y":
@@ -74,14 +74,14 @@ async def answer_confirm(
     elif text == "N":
         return LookupOutputConfirmed(
                 output=None,
-                search_pages=[],
-                search_pages_expanded=[],
+                search_pages=result.search_pages,
+                search_pages_expanded=result.search_pages_expanded,
                 confirmed=False,
                 confirmed_raw=text,
                 original_output=result.output
             )
     else:
-        warnings.warn("GPT returned something unexpected")
+        logger.warn(f"GPT returned something unexpected, val: {text}")
 
 
 class ConfirmExtractor(TournamentReduceExtractor):

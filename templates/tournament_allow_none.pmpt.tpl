@@ -18,7 +18,7 @@ pertains to single-family homes.
 
 Output MUST be a single integer, the 0-based index that selects the best answer
 from the list below. Do not provide any explanation and return NO_ANSWER if there's no
-good answer.
+good answer. Also, don't return string "INDEX". You should return the index of the answer.
 
 # Answers to choose from
 

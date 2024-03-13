@@ -1,6 +1,6 @@
 from asyncio import gather
 
-from ...utils import flatten
+from ...utils import flatten, logger
 from ..search.utils import page_coverage
 from ..types import LookupOutput, PageSearchOutput, District
 
@@ -23,6 +23,9 @@ class MapExtractor(Extractor):
             )
 
         for page, result in await gather(*map(worker, pages)):
+            logger.info(
+                f"<MapExtractor>: search_pages_expanded: {flatten(page_coverage([page]))}"
+            )
             yield LookupOutput(
                 output=result,
                 search_pages=[page],

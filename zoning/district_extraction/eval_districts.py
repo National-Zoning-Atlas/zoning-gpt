@@ -42,7 +42,7 @@ def check_page(lst_gt, lst_res):
 def score_page(gt_df, pred):
     comb = gt_df[["town", "district_page"]]
     comb["district_page_int"] = comb["district_page"].apply(lambda x: [int(s) for s in re.findall(r'\b\d+\b', x)])
-    print(comb)
+    # print(comb)
     comb["pages_result"] = comb.apply(lambda x: [0,0,0,0], axis=1)
     comb["pages_result"] = comb["pages_result"].astype(object)
     for x in pred:
@@ -52,7 +52,7 @@ def score_page(gt_df, pred):
         comb.loc[comb['town'] == town, "pages_result"] = comb.loc[comb['town'] == town, "pages_result"].apply(lambda x: pages)
     comb["page_score"] = comb.apply(lambda x: check_page(x.district_page_int, x.pages_result) , axis=1)
     comb["top-k"] = comb.apply(lambda x: index_or_minus_one(x.district_page_int, x.pages_result), axis=1)
-    print(comb)
+    # print(comb)
     comb.to_csv("res_csv/pages_score_baseline.csv")
     return comb["page_score"].sum()
 
@@ -115,14 +115,13 @@ if __name__ == "__main__":
         gt_df = pd.read_csv("ground_truth.csv")
         pred_all = load_preds(file=read_file)
         page_score = score_page(gt_df, pred_all)
-        print(page_score)
+        # print(page_score)
         score_total = 0
         for x in gt:
             town = x["Town"]
             for y in pred_all:
                 if y["Town"] == town:
                     score = 0
-                    print(town)
                     if not y["Districts"]:
                         score = 0
                         match = None
@@ -131,7 +130,6 @@ if __name__ == "__main__":
                         match = find_similar_match(x, pred_edited)
                         score = score_match(x, match)
                     score_total += score
-                    print("match", match)
                     if not match:
                         match_val = []
                         temp_df = pd.DataFrame({"town": town, "district_abb": "", "district": "", "score": score}, index=[0]) 
