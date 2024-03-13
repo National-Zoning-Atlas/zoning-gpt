@@ -74,8 +74,8 @@ async def answer_confirm(
     elif text == "N":
         return LookupOutputConfirmed(
                 output=None,
-                search_pages=[],
-                search_pages_expanded=[],
+                search_pages=result.search_pages,
+                search_pages_expanded=result.search_pages_expanded,
                 confirmed=False,
                 confirmed_raw=text,
                 original_output=result.output

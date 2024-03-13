@@ -72,9 +72,9 @@ async def compute_eval_result(
 
     async for result in outputs:
         is_empty = False
-        searched_pages = {r.page_number for r in result.search_pages}
-        searched_pages_expanded = set(result.search_pages_expanded)
-        logger.info(f"Term {term} in {town} in {district.full_name} has searched_pages_expanded: {searched_pages_expanded}")
+        extracted_pages = {r.page_number for r in result.search_pages}
+        extracted_pages_expanded = set(result.search_pages_expanded)
+        logger.info(f"Term {term} in {town} in {district.full_name} has searched_pages_expanded: {extracted_pages_expanded}")
         is_correct_page_searched = any(gt_page & set(expanded_pages))
         expected_extended = ground_truth[f"{term}_gt_orig"]
         label = result.search_pages[0].log["label"] if result.search_pages else ""
@@ -84,12 +84,13 @@ async def compute_eval_result(
             "district": district.full_name,
             "term": term,
             "gt_page": list(gt_page),
-            "searched_pages": list(searched_pages),
-            "searched_pages_expanded": list(searched_pages_expanded),
+            "correct_page_searched": is_correct_page_searched,
+            "expanded_pages": list(expanded_pages),
+            "extracted_pages": list(extracted_pages),
+            "extracted_pages_expanded": list(extracted_pages_expanded),
             "expected": expected,
             "expected_extended": expected_extended,
             "label": label,
-            "expanded_pages": list(expanded_pages),
             "pages": [p.page_number for p in pages],
             "confirmed_flag": None,
             "confirmed_raw": None,
@@ -107,7 +108,7 @@ async def compute_eval_result(
                 "rationale": None,
                 "extracted_text": None,
                 "actual": None,
-                "correct_page_searched": is_correct_page_searched,
+
             }
         else:
             yield {
@@ -115,7 +116,6 @@ async def compute_eval_result(
                 "rationale": result.output.rationale,
                 "extracted_text": result.output.extracted_text,
                 "actual": result.output.answer,
-                "correct_page_searched": is_correct_page_searched,
             }
 
     # Handle case when elastic search return 0 results
@@ -125,6 +125,8 @@ async def compute_eval_result(
             "district": district.full_name,
             "term": term,
             "gt_page": list(gt_page),
+            "correct_page_searched": False,
+            "expanded_pages": None,
             "searched_pages": None,
             "searched_pages_expanded": None,
             "expected": expected,
@@ -132,8 +134,6 @@ async def compute_eval_result(
             "rationale": None,
             "extracted_text": None,
             "actual": None,
-            "correct_page_searched": False,
-            "expanded_pages": None,
             "pages": None,
             "confirmed_flag": None,
             "confirmed_raw": None,
@@ -359,8 +359,10 @@ async def main(
         num_eval_rows: Annotated[Optional[int], typer.Option()] = None,
         tournament_k: Annotated[int, typer.Option()] = 1,
 ):
+    raw_terms = terms
     terms = [i.split(",") for i in terms]
     terms = [i.strip() for i in flatten(terms)]
+    logger.info(f"<eval-main>: Term: {raw_terms} -> {terms}")
     metrics = {}
 
     # Load Ground Truth

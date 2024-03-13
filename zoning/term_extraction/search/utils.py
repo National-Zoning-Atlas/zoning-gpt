@@ -14,18 +14,30 @@ from ...utils import logger
 
 
 def expand_term(term: str):
-    term = term.replace("_", " ")
+    # term = term.replace("_", " ").strip()
+    logger.info(f"<expand_term>: Term: {term}")  # Initial logging of the term
+
     min_variations = get_thesaurus().get("min", [])
     max_variations = get_thesaurus().get("max", [])
-    for query in get_thesaurus().get(term, []):
-        if "min" in query or "minimum" in query:
+    expanded_count = 0
+    for query in get_thesaurus().get(term, []):  # Iterate over thesaurus entries for the term
+        if "min" in query or "minimum" in query:  # Handling minimum variations
             for r in min_variations:
-                yield query.replace("min", r)
-        elif "max" in query or "maximum" in query:
+                modified_query = query.replace("min", r)  # Replace 'min' with its variations
+                # logger.info(f"<expand_term>: Yielding: {modified_query}")  # Log the value to be yielded
+                expanded_count += 1
+                yield modified_query
+        elif "max" in query or "maximum" in query:  # Handling maximum variations
             for r in max_variations:
-                yield query.replace("max", r)
+                modified_query = query.replace("max", r)  # Replace 'max' with its variations
+                # logger.info(f"<expand_term>: Yielding: {modified_query}")  # Log the value to be yielded
+                expanded_count += 1
+                yield modified_query
         else:
+            # logger.info(f"<expand_term>: Yielding: {query}")  # Log the unmodified query to be yielded
+            expanded_count += 1
             yield query
+    logger.info(f"<expand_term>: Expanded {term} to {expanded_count} variations.")  # Log the total number of variations
 
 
 @cache
