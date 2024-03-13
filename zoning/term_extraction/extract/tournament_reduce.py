@@ -2,7 +2,7 @@ import warnings
 
 from ..value_ranges import get_value_ranges
 from ...prompting import prompt
-from ...utils import batched, get_jinja_environment
+from ...utils import batched, get_jinja_environment, logger
 from ..thesaurus import get_thesaurus
 from ..types import District, LookupOutput, PageSearchOutput
 from .map import MapExtractor
@@ -75,7 +75,7 @@ async def tournament_reduce(
             )
 
             if text is None or text == "NO_ANSWER":
-                warnings.warn(
+                logger.warn(
                     "No winner was present for a round in a tournament reduce."
                 )
                 continue
@@ -83,8 +83,8 @@ async def tournament_reduce(
             try:
                 index = int(text)
             except ValueError:
-                warnings.warn(
-                    "Failed to parse index from tournament reduce response. Response was: {text}."
+                logger.warn(
+                    f"Failed to parse index from tournament reduce response. Response was: {text}."
                 )
                 continue
             # extract best answer from gpt result

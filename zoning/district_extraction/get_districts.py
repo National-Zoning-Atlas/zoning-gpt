@@ -26,7 +26,7 @@ class KNNPrompt(EmbeddingPrompt):
         query_embedding = np.array(out)        
         res = dataset.get_nearest_examples("embeddings", query_embedding, k)
         docs = res.examples["Text"]
-        print("pages", res.examples["Page"])
+        # print("pages", res.examples["Page"])
         return {"docs": docs, "pages": res.examples["Page"]}
 
 class DistrictsPrompt(TemplatePrompt):
@@ -53,7 +53,7 @@ def get_districts(dataset):
             page_districts = json.loads(dp(dict(docs = [doc])))
             districts_per_page.append(page_districts)
         
-        print(districts_per_page)
+        # print(districts_per_page)
         
         # combine answers
         districts_combined = []
@@ -67,7 +67,7 @@ def get_districts(dataset):
                     if x["T"] != x["Z"]:
                         districts_filtered.append(x)
         #import pdb; pdb.set_trace()
-        print(districts_filtered)
+        # print(districts_filtered)
 
         pages = doc_list["pages"]
         #print("districts", districts)
@@ -86,13 +86,13 @@ if __name__ == "__main__":
     #towns = ["bristol"]
 
     with open(results_file, "w") as out:
-        print(towns)
+        # print(towns)
         for town in towns:
             if town in town_districts:
                 continue
             d = get_town_data(town)
             districts, pages = get_districts(d)
-            print(town)
+            # print(town)
             print(json.dumps({"Town": town, "Districts": districts, "Pages": pages}))
             print(json.dumps({"Town": town, "Districts": districts, "Pages": pages}), file=out)
         

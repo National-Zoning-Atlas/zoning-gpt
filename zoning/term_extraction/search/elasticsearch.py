@@ -8,6 +8,7 @@ from elasticsearch_dsl import Q, Search
 from ..types import District, PageSearchOutput
 from .base import Searcher
 from .utils import expand_term
+from ...utils import logger
 
 
 class ElasticSearcher(Searcher):
@@ -80,9 +81,9 @@ class ElasticSearcher(Searcher):
         s = s.highlight("Text")
 
         res = s.execute()
-        print(res)
+        # print(res)
         if len(res) == 0:
-            warnings.warn(f"No results found for {term} in {town} {district.full_name}")
+            logger.warn(f"No results found for {term} in {town} {district.full_name}")
 
         yield from (
             PageSearchOutput(

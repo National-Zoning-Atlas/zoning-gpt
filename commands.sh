@@ -11,3 +11,6 @@ python -m zoning.data_processing.eval --num-eval-rows 30 --terms min_parking_spa
 
 # Coverage
 python -m zoning.data_processing.eval --num-eval-rows 30 --terms max_lot_coverage --search-method experiment_3 --extraction-method answer_confirm --k 10
+
+
+python -m zoning.data_processing.eval --num-eval-rows 30 --terms min_lot_size,min_unit_size,max_height,min_parking_spaces,max_lot_coverage --search-method experiment_3 --extraction-method answer_confirm --k 10

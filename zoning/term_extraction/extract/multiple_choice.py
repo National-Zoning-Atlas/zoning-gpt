@@ -1,7 +1,7 @@
 import warnings
 
 from ...prompting import prompt
-from ...utils import batched, get_jinja_environment
+from ...utils import batched, get_jinja_environment, logger
 from ..thesaurus import get_thesaurus
 from ..types import District, LookupOutput, PageSearchOutput
 from .map import MapExtractor
@@ -49,18 +49,18 @@ async def multiple_choice(
             "gpt-4", [{"role": "user", "content": input_prompt}], max_tokens=1
         )
         if text is None:
-            warnings.warn("No winner was present for a round in a tournament reduce.")
+            logger.warn("No winner was present for a round in a tournament reduce.")
             continue
 
         try:
             index = int(text)
         except ValueError:
-            warnings.warn(
-                "Failed to parse index from tournament reduce response. Response was: {text}."
+            logger.warn(
+                f"Failed to parse index from tournament reduce response. Response was: {text}."
             )
             continue
         if int(index) == -1:
-            warnings.warn("GPT chose answer: None of the above.")
+            logger.warn("GPT chose answer: None of the above.")
             continue
 
         winner = competitor_batch[index]

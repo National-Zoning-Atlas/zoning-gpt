@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from typing import Annotated, Any, Optional
 import pandas as pd
 import polars as pl
@@ -15,7 +16,7 @@ from ..term_extraction.search import (
 )
 from ..term_extraction.semantic_comparison import semantic_comparison
 from ..term_extraction.types import District, LookupOutputConfirmed
-from ..utils import get_project_root, flatten
+from ..utils import get_project_root, flatten, logger
 from .utils import AsyncTyper
 
 DATA_ROOT = get_project_root() / "data"
@@ -27,6 +28,7 @@ SNAPSHOTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # If DEBUG=True, do not print rich tracking information
 DEBUG = False
+
 
 def calculate_verification_metrics(true_positives, false_positives, false_negatives):
     recall = true_positives / (true_positives + false_negatives) if true_positives + false_negatives > 0 else 0
@@ -72,6 +74,7 @@ async def compute_eval_result(
         is_empty = False
         searched_pages = {r.page_number for r in result.search_pages}
         searched_pages_expanded = set(result.search_pages_expanded)
+        logger.info(f"Term {term} in {town} in {district.full_name} has searched_pages_expanded: {searched_pages_expanded}")
         is_correct_page_searched = any(gt_page & set(expanded_pages))
         expected_extended = ground_truth[f"{term}_gt_orig"]
         label = result.search_pages[0].log["label"] if result.search_pages else ""
@@ -298,8 +301,7 @@ async def evaluate_term(
     num_correct_answer = len(search_results_df.filter(pl.col("correct_answer") > 0))
 
     number_of_rows_with_gt_page = len(gt.filter(pl.col(f"{term}_page_gt").is_not_null()))
-    print(f"Number of rows with ground truth page: {number_of_rows_with_gt_page}")
-    print(num_correct_page_searched)
+    logger.info(f"Number of rows with ground truth page: {number_of_rows_with_gt_page}")
 
     # groupby to calculate confirmation f1
     confirmation_df = results_df.groupby(pl.col("town", "district")).agg(
@@ -357,6 +359,8 @@ async def main(
         num_eval_rows: Annotated[Optional[int], typer.Option()] = None,
         tournament_k: Annotated[int, typer.Option()] = 1,
 ):
+    terms = [i.split(",") for i in terms]
+    terms = [i.strip() for i in flatten(terms)]
     metrics = {}
 
     # Load Ground Truth
