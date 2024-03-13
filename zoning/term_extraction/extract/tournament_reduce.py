@@ -93,7 +93,7 @@ async def tournament_reduce(
                 current_winner_index = i
 
     winner = results[current_winner_index]
-    logger.info(f"<tournament_reduce>: winner: {winner}")
+    logger.info(f"winner: {winner}")
     return [winner]
 
 

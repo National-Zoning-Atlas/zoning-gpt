@@ -79,8 +79,8 @@ def search_for_term(
             es_res = list(es_searcher.search(town, district, term))
             district_es_res = list(district_es_searcher.search(town, district, term))
             district_term_es_res = list(district_term_es_searcher.search(town, district, term))
-            logger.info(f"<search_for_term>: Term: [{term}], Town: [{town}], District: [{district.full_name}]")
-            logger.info(f"<search_for_term>: ES: {len(es_res)}, District ES: {len(district_es_res)}, District Term ES: {len(district_term_es_res)}")
+            logger.info(f"Term: [{term}], Town: [{town}], District: [{district.full_name}]")
+            logger.info(f"ES: {len(es_res)}, District ES: {len(district_es_res)}, District Term ES: {len(district_term_es_res)}")
             res = get_top_k_chunks((es_res + district_es_res + district_term_es_res), k)
             return res[:k]
 

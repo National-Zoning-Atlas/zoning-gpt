@@ -15,7 +15,7 @@ from ...utils import logger
 
 def expand_term(term: str):
     # term = term.replace("_", " ").strip()
-    logger.info(f"<expand_term>: Term: {term}")  # Initial logging of the term
+    logger.info(f"Term: {term}")  # Initial logging of the term
 
     min_variations = get_thesaurus().get("min", [])
     max_variations = get_thesaurus().get("max", [])
@@ -37,7 +37,7 @@ def expand_term(term: str):
             # logger.info(f"<expand_term>: Yielding: {query}")  # Log the unmodified query to be yielded
             expanded_count += 1
             yield query
-    logger.info(f"<expand_term>: Expanded {term} to {expanded_count} variations.")  # Log the total number of variations
+    logger.info(f"Expanded {term} to {expanded_count} variations.")  # Log the total number of variations
 
 
 @cache
@@ -120,7 +120,7 @@ def get_top_k_chunks(
         if res.page_number not in output_indices_set:
             output.append(res)
             output_indices_set.add(res.page_number)
-    logger.info(f"<get_top_k_chunks> From {len(search_result)} results, {len(output)} were selected.")
+    logger.info(f"From {len(search_result)} results, {len(output)} were selected.")
     return output
 
 

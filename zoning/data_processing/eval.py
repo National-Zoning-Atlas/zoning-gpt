@@ -362,7 +362,7 @@ async def main(
     raw_terms = terms
     terms = [i.split(",") for i in terms]
     terms = [i.strip() for i in flatten(terms)]
-    logger.info(f"<eval-main>: Term: {raw_terms} -> {terms}")
+    logger.info(f"Term: {raw_terms} -> {terms}")
     metrics = {}
 
     # Load Ground Truth

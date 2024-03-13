@@ -18,7 +18,7 @@ logging.getLogger('elasticsearch').setLevel(logging.WARNING)
 
 # If your logs are showing low-level HTTP connection details from urllib3, also set this to 'WARNING'
 logging.getLogger('urllib3').setLevel(logging.WARNING)
-FORMAT = "%(message)s"
+FORMAT = "<%(module)s-%(funcName)s> | %(message)s"
 logging.basicConfig(
     level="INFO",
     format=FORMAT,
