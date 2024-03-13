@@ -21,20 +21,21 @@ def expand_term(term: str):
     max_variations = get_thesaurus().get("max", [])
     expanded_count = 0
     for query in get_thesaurus().get(term, []):  # Iterate over thesaurus entries for the term
+        # query = query.replace("_", " ").strip()
         if "min" in query or "minimum" in query:  # Handling minimum variations
             for r in min_variations:
                 modified_query = query.replace("min", r)  # Replace 'min' with its variations
-                # logger.info(f"<expand_term>: Yielding: {modified_query}")  # Log the value to be yielded
+                # logger.info(f"Yielding: {modified_query}")  # Log the value to be yielded
                 expanded_count += 1
                 yield modified_query
         elif "max" in query or "maximum" in query:  # Handling maximum variations
             for r in max_variations:
                 modified_query = query.replace("max", r)  # Replace 'max' with its variations
-                # logger.info(f"<expand_term>: Yielding: {modified_query}")  # Log the value to be yielded
+                # logger.info(f"Yielding: {modified_query}")  # Log the value to be yielded
                 expanded_count += 1
                 yield modified_query
         else:
-            # logger.info(f"<expand_term>: Yielding: {query}")  # Log the unmodified query to be yielded
+            # logger.info(f"Yielding: {query}")  # Log the unmodified query to be yielded
             expanded_count += 1
             yield query
     logger.info(f"Expanded {term} to {expanded_count} variations.")  # Log the total number of variations

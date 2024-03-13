@@ -75,6 +75,7 @@ class ElasticSearcher(Searcher):
         )
 
         s.query = district_query & term_query & dim_query
+        logger.info(f"Query: {s.query.to_dict()}")
         # ensure that we have a maximum of k results 
         s = s.extra(size=self.k)
 

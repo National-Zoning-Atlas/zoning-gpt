@@ -82,6 +82,7 @@ async def tournament_reduce(
 
             try:
                 index = int(text)
+                logger.info(f"Index from GPT: {index}")
             except ValueError:
                 logger.warn(
                     f"Failed to parse index from tournament reduce response. Response was: {text}."
@@ -91,6 +92,7 @@ async def tournament_reduce(
             if index == 1:
                 # this means it chose option 2 which was the ith result
                 current_winner_index = i
+                logger.info(f"New winner index: {current_winner_index}")
 
     winner = results[current_winner_index]
     logger.info(f"winner: {winner}")

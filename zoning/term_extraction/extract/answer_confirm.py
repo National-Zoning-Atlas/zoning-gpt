@@ -57,7 +57,7 @@ async def answer_confirm(
         "gpt-4-1106-preview", [{"role": "user", "content": input_prompt}], max_tokens=1
     )
 
-    # print(town, district.full_name, "answer: ", result.output.answer, "response: ", text)
+    logger.info(f"<ConfirmExtractor>: town: {town}, district: {district.full_name}, answer: {result.output}, response: {text}")
     if text is None or text == "NO_ANSWER":
         logger.warn(
             "Null GPT response"
@@ -81,7 +81,7 @@ async def answer_confirm(
                 original_output=result.output
             )
     else:
-        logger.warn("GPT returned something unexpected")
+        logger.warn(f"GPT returned something unexpected, val: {text}")
 
 
 class ConfirmExtractor(TournamentReduceExtractor):
