@@ -32,7 +32,14 @@ def index_dataset(d, index_name):
         for j in range(10):
             if page + j not in d.index:
                 continue
-            text += f"\nNEW PAGE {page + j - 1}\n" + d.loc[page + j]["Text"]
+
+            # WARNING(justinchiu): HUGE HACK! not sure if this works
+            text_maybe = d.loc[page + j]["Text"]
+            if not isinstance(text_maybe, str):
+                text_maybe = list(text_maybe)[0]
+            # / WARNING
+
+            text += f"\nNEW PAGE {page + j - 1}\n" + text_maybe
 
         # Truncate to 2000 tokens
         text = enc.decode(enc.encode(text)[:2500])
