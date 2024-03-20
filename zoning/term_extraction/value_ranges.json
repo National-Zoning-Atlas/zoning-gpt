@@ -11,5 +11,5 @@
     "max_lot_coverage": [],
     "min_parking_spaces": [],
     "maximum building coverage": [],
-    "floor_to_area_ratio_gt": []
+    "floor_to_area_ratio": []
 }

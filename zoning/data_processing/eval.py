@@ -101,6 +101,7 @@ async def compute_eval_result(
             base_output["confirmed_flag"] = result.confirmed
             base_output["confirmed_raw"] = result.confirmed_raw
             base_output['actual_before_confirmation'] = result.original_output.answer
+            base_output['rational_before_confirmation'] = result.original_output.rationale
 
         if result.output is None:
             yield {
@@ -189,87 +190,175 @@ async def evaluate_term(
             results.append(result)
         progress.advance(eval_task)
     progress.update(eval_task, description=f"Evaluated {term}")
-    results_df = (
-        pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
-        # Attempt to normalize LLM responses
-        .with_columns(
-            pl.col("actual").apply(clean_string_units).alias("actual_normalized"),
-            pl.col("expected")
-            .apply(
-                lambda s: [float(f.strip()) for f in s.split(",")]
-                if s is not None
-                else [],
-                skip_nulls=False,
-            )
-            .alias("expected_normalized"),
-            pl.col("expected_extended").apply(clean_string_units).alias("expected_extended_normalized"),
+
+    # Load the data with schema overrides
+    results_df = pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
+
+    # Normalize LLM responses
+    results_df = results_df.with_columns(
+        pl.col("actual").apply(clean_string_units).alias("actual_normalized"),
+        pl.col("expected")
+        .apply(
+            lambda s: [float(f.strip()) for f in s.split(",")]
+            if s is not None
+            else [],
+            skip_nulls=False,
         )
-        # Explode all values so that we have one row per expected-actual-value pair.
-        .explode("actual_normalized")
-        .explode("expected_normalized")
-        .explode("expected_extended_normalized")
-        .with_columns(
-            pl.struct(
-                [
-                    "actual",
-                    "actual_normalized",
-                    "expected_normalized",
-                    "expected_extended",
-                    "expected_extended_normalized"
-                ]
-            )
-            .apply(
-                lambda s: compare_results(
-                    s["actual_normalized"],
-                    s["actual"],
-                    s["expected_normalized"],
-                    s["expected_extended"],
-                    s["expected_extended_normalized"]
-                )
-            )
-            .alias("correct_answer")
-        )
-        # Only used for the REDUCE_AND_CONFIRM method
-        .with_columns(
-            pl.col("actual_before_confirmation").apply(clean_string_units, skip_nulls=False).alias("actual_normalized"),
-            pl.col("expected").apply(lambda x: x is not None, skip_nulls=False).alias("expected_exists"),
-            pl.col("expected")
-            .apply(
-                lambda s: [float(f.strip()) for f in s.split(",")]
-                if s is not None
-                else [],
-                skip_nulls=False,
-            )
-            .alias("expected_normalized"),
-            pl.col("expected_extended").apply(clean_string_units, skip_nulls=False).alias(
-                "expected_extended_normalized"),
-        )
-        # Explode all values so that we have one row per expected-actual-value pair.
-        .explode("actual_normalized")
-        .explode("expected_normalized")
-        .explode("expected_extended_normalized")
-        .with_columns(
-            pl.struct(
-                [
-                    "actual_before_confirmation",
-                    "actual_normalized",
-                    "expected_normalized",
-                    "expected_extended",
-                    "expected_extended_normalized"
-                ]
-            )
-            .apply(
-                lambda s: compare_results(
-                    s["actual_normalized"],
-                    s["actual_before_confirmation"],
-                    s["expected_normalized"],
-                    s["expected_extended"],
-                    s["expected_extended_normalized"]
-                ), skip_nulls=False
-            )
-            .alias("correct_answer_before_confirmation")
-        )
+        .alias("expected_normalized"),
+        pl.col("expected_extended").apply(clean_string_units).alias("expected_extended_normalized"),
     )
+
+    # Explode values for one row per expected-actual-value pair
+    results_df = results_df.explode("actual_normalized").explode("expected_normalized").explode(
+        "expected_extended_normalized")
+
+    # Apply comparison function to check for correct answers
+    results_df = results_df.with_columns(
+        pl.struct(
+            [
+                "actual",
+                "actual_normalized",
+                "expected_normalized",
+                "expected_extended",
+                "expected_extended_normalized"
+            ]
+        )
+        .apply(
+            lambda s: compare_results(
+                s["actual_normalized"],
+                s["actual"],
+                s["expected_normalized"],
+                s["expected_extended"],
+                s["expected_extended_normalized"]
+            )
+        )
+        .alias("correct_answer")
+    )
+
+    # Normalize 'actual_before_confirmation' and check if 'expected' exists
+    results_df = results_df.with_columns(
+        pl.col("actual_before_confirmation").apply(clean_string_units, skip_nulls=False).alias("actual_normalized"),
+        pl.col("expected").apply(lambda x: x is not None, skip_nulls=False).alias("expected_exists"),
+        pl.col("expected")
+        .apply(
+            lambda s: [float(f.strip()) for f in s.split(",")]
+            if s is not None
+            else [],
+            skip_nulls=False,
+        )
+        .alias("expected_normalized"),
+        pl.col("expected_extended").apply(clean_string_units, skip_nulls=False).alias("expected_extended_normalized"),
+    )
+
+    # Explode values again for one row per expected-actual-value pair after confirmation
+    results_df = results_df.explode("actual_normalized").explode("expected_normalized").explode(
+        "expected_extended_normalized")
+
+    # Apply comparison function to check for correct answers before confirmation
+    results_df = results_df.with_columns(
+        pl.struct(
+            [
+                "actual_before_confirmation",
+                "actual_normalized",
+                "expected_normalized",
+                "expected_extended",
+                "expected_extended_normalized"
+            ]
+        )
+        .apply(
+            lambda s: compare_results(
+                s["actual_normalized"],
+                s["actual_before_confirmation"],
+                s["expected_normalized"],
+                s["expected_extended"],
+                s["expected_extended_normalized"]
+            ), skip_nulls=False
+        )
+        .alias("correct_answer_before_confirmation")
+    )
+
+    #
+    # results_df = (
+    #     pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
+    #     # Attempt to normalize LLM responses
+    #     .with_columns(
+    #         pl.col("actual").apply(clean_string_units).alias("actual_normalized"),
+    #         pl.col("expected")
+    #         .apply(
+    #             lambda s: [float(f.strip()) for f in s.split(",")]
+    #             if s is not None
+    #             else [],
+    #             skip_nulls=False,
+    #         )
+    #         .alias("expected_normalized"),
+    #         pl.col("expected_extended").apply(clean_string_units).alias("expected_extended_normalized"),
+    #     )
+    #     # Explode all values so that we have one row per expected-actual-value pair.
+    #     .explode("actual_normalized")
+    #     .explode("expected_normalized")
+    #     .explode("expected_extended_normalized")
+    #     .with_columns(
+    #         pl.struct(
+    #             [
+    #                 "actual",
+    #                 "actual_normalized",
+    #                 "expected_normalized",
+    #                 "expected_extended",
+    #                 "expected_extended_normalized"
+    #             ]
+    #         )
+    #         .apply(
+    #             lambda s: compare_results(
+    #                 s["actual_normalized"],
+    #                 s["actual"],
+    #                 s["expected_normalized"],
+    #                 s["expected_extended"],
+    #                 s["expected_extended_normalized"]
+    #             )
+    #         )
+    #         .alias("correct_answer")
+    #     )
+    #     # Only used for the REDUCE_AND_CONFIRM method
+    #     .with_columns(
+    #         pl.col("actual_before_confirmation").apply(clean_string_units, skip_nulls=False).alias("actual_normalized"),
+    #         pl.col("expected").apply(lambda x: x is not None, skip_nulls=False).alias("expected_exists"),
+    #         pl.col("expected")
+    #         .apply(
+    #             lambda s: [float(f.strip()) for f in s.split(",")]
+    #             if s is not None
+    #             else [],
+    #             skip_nulls=False,
+    #         )
+    #         .alias("expected_normalized"),
+    #         pl.col("expected_extended").apply(clean_string_units, skip_nulls=False).alias(
+    #             "expected_extended_normalized"),
+    #     )
+    #     # Explode all values so that we have one row per expected-actual-value pair.
+    #     .explode("actual_normalized")
+    #     .explode("expected_normalized")
+    #     .explode("expected_extended_normalized")
+    #     .with_columns(
+    #         pl.struct(
+    #             [
+    #                 "actual_before_confirmation",
+    #                 "actual_normalized",
+    #                 "expected_normalized",
+    #                 "expected_extended",
+    #                 "expected_extended_normalized"
+    #             ]
+    #         )
+    #         .apply(
+    #             lambda s: compare_results(
+    #                 s["actual_normalized"],
+    #                 s["actual_before_confirmation"],
+    #                 s["expected_normalized"],
+    #                 s["expected_extended"],
+    #                 s["expected_extended_normalized"]
+    #             ), skip_nulls=False
+    #         )
+    #         .alias("correct_answer_before_confirmation")
+    #     )
+    # )
 
     # groupby to calculate search page recall
     search_results_df = results_df.groupby(pl.col("town", "district")).agg(

@@ -21,6 +21,8 @@ If the document did not specify min or max values, you should return "N".
 If you think the answer is correct, you should return "Y". If it is incorrect, you should
 return "N". If the answer is not in the text, you should also return "N", DO NOT fake an answer or make assumptions.
 
+But if the answer is correct, you should return "Y". It is possible that the answer is not directly in the text, but you can infer it from the text. If you can infer the answer from the text, you should return "Y".
+
 Output MUST be a single character. Do not provide any explanation.
 
 Here is an example for reference:
@@ -56,6 +58,43 @@ N
 
 Explanation: 
 The output should be "N" because the extracted answer is for the R-23 Zone instead of the "{{district.full_name}}" Zone.
+
+# Example
+
+Input:
+
+Answer: "750"
+Rationale: "The section titled '193-28 Table of Area and Dimensional Requirements' specifies the minimum floor area per dwelling unit, which is synonymous with min_unit_size."
+Extracted Text: ["not be less than seven hundred fifty (750) square feet"]
+
+Supporting Text:
+Minimum floor area per dwelling unit shall not be less than seven hundred fifty (750) square feet
+
+Output:
+
+Y
+
+Explanation:
+The output should be "Y" because the extracted answer is contained in the supporting text.
+
+
+# Example
+
+Input:
+
+Answer: "900"
+Rationale: "The section for 'One- Story Dwelling' specifies the minimum floor area, which is synonymous with min_unit_size."
+Extracted Text: ["minimum 900 sq. ft."]
+
+Supporting Text:
+Type Structure Floor Area One- Story Dwelling minimum 900 sq. ft. Minimum finished floor area required for Certificate of Occupancy: 900 sq. ft. One and One-Half Story minimum 1,200 sq. ft. with a minimum 800 sq. ft. footprint 2 Story Dwelling minimum 1,600 sq. ft. with a minimum 800 sq. ft. footprint
+
+Output:
+
+Y
+
+Explanation:
+The output should be "Y" because the extracted answer is contained in the supporting text.
 
 
 # END of instructions

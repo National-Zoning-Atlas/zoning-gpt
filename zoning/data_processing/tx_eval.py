@@ -100,6 +100,7 @@ async def compute_eval_result(
             base_output["confirmed_flag"] = result.confirmed
             base_output["confirmed_raw"] = result.confirmed_raw
             base_output['actual_before_confirmation'] = result.original_output.answer
+            base_output['rational_before_confirmation'] = result.original_output.rationale
 
         if result.output is None:
             yield {

@@ -3,16 +3,16 @@ andover,AL,Andover Lake,14,60000 (year-round); 30000 (seasonal),,97,500,500,41,3
 ansonia,AA,AA Residence,17,0.69,30000,"52,150",,,,35,35,150,20,20,150,40,40,150,2,2,67,-1,-1,-1,,
 ashford,TD,Technology Development,21,,,,900,900,29,35,35,49,40,25,49,60,60,49,2,2,73,-1,-1,-1,,
 avon,IP,Industrial Park,"1,2",,,,,,,,,,,,,,,,,,,-1,-1,-1,,
-barkhamsted,B-1,Restricted Business,11,,43560,20,,750,20,,35,21,,,,,40,20,,2,30,-1,-1,-1,,"missing values for all fields, max lot coverage def on separate page"
-barkhamsted,B-2,General Business,11,,87120,20,,750,20,,35,21,,,,,40,20,,2,30,-1,-1,-1,,"missing values for all fields, max lot coverage def on separate page"
+barkhamsted,B-1,Restricted Business,11,,43560,20,750,750,20,,35,21,,,,,40,20,,2,30,-1,-1,-1,,"missing values for all fields, max lot coverage def on separate page"
+barkhamsted,B-2,General Business,11,,87120,20,750,750,20,,35,21,,,,,40,20,,2,30,-1,-1,-1,,"missing values for all fields, max lot coverage def on separate page"
 berlin,GI,General Industrial,33,,21780,102,,,,,45,102,,35,102,,80,102,,2,133,-1,-1,-1,,
 berlin,VDO,Village Overlay,33,,,,,,,,,,,,,,,,,2,133,-1,-1,-1,,
 bethany,HOD,Housing Opportunity Development,70,30,1306800,70,,,,35,35,71,10,10,71,20,20,71,2,2,49,-1,-1,-1,,district not mentioned in the main list of districts
 bethel,C,Commercial,,0.23,10000,72,,,,40,40,73,,,73,,,73,2,2,127,-1,-1,-1,,no single list of zones
 bloomfield,IND-1,I-1 General Industry,,,,,,,,,60,64,,50,64,,50,64,,2,128,-1,-1,-1,,no single list of zones
-bolton,GB,General Buiness,59,,,,,,,,40,112,,25,112,,65,112,,2,134,-1,-1,-1,,
+bolton,GB,General Buiness,59,,,,600,600,112,,40,112,,25,112,,65,112,,2,134,-1,-1,-1,,
 bozrah,I-30,Industrial-30,"9,10",,30000,26,,,,,35,26,,30,26,,,,,2,59,-1,-1,-1,,
-branford,R-3,Residence R-3,9,0.34,15000,40,,,,35,35,40,,25,40,25,,,2,2,113,-1,-1,-1,,districts are defined in a somewhat complex table
+branford,R-3,Residence R-3,9,0.34,15000,40,3500,3500,98,35,35,40,,25,40,25,,,2,2,113,-1,-1,-1,,districts are defined in a somewhat complex table
 branford,MF,Multifamily Residence,9,3,130680,40,,,,35,35,40,,20,40,20,50,40,2,2,113,-1,-1,-1,,orig lot coverage incorrect
 branford-pine-orchard,A-1,A-1,8,0.46,20000,20,,,,,,,,,,,,,,2,24,-1,-1,-1,,
 branford-short-beach,SB-C,Business C,12,0.1,4500,23,600,600,25,30,30,24,30,30,25,70,85,25,2,2,26,-1,-1,-1,,orig lot coverage incorrect
