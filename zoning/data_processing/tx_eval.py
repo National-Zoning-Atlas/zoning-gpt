@@ -1,5 +1,6 @@
 import asyncio
 from typing import Annotated, Any, Optional
+import numpy as np
 import pandas as pd
 import polars as pl
 import typer
@@ -59,7 +60,7 @@ async def compute_eval_result(
     )
 
     #gt_page = ground_truth[f"{term}_page_gt"]
-    gt_page = ground_truth["Pagenumber"]
+    gt_page = ground_truth["pagenumbers"]
     if gt_page is None:
         # No ground truth page
         gt_page = set()
@@ -67,7 +68,7 @@ async def compute_eval_result(
         gt_page = set(map(int, str(gt_page).split(",")))
 
     #expected = ground_truth[f"{term}_gt"]
-    expected = ground_truth["Excerpt"]
+    expected = ground_truth["values"]
     is_empty = True
 
     async for result in outputs:
@@ -76,7 +77,7 @@ async def compute_eval_result(
         searched_pages_expanded = set(result.search_pages_expanded)
         is_correct_page_searched = any(gt_page & set(expanded_pages))
         #expected_extended = ground_truth[f"{term}_gt_orig"]
-        expected_extended = ground_truth["Excerpt"]
+        expected_extended = ground_truth["values"]
         label = result.search_pages[0].log["label"] if result.search_pages else ""
 
         base_output = {
@@ -179,10 +180,10 @@ async def evaluate_term(
     results = []
     row_count = len(gt)
     for row in gt.iter_rows(named=True):
-        #town = row["town"]
-        town = row["JurisdictionName"].lower()
-        #district = District(full_name=row["district"], short_name=row["district_abb"])
-        district = District(full_name=row["County"].lower(), short_name=row["DistrictAbbrv"].lower())
+        town = row["town"].lower()
+        #town = row["JurisdictionName"].lower()
+        district = District(full_name=row["district"].lower(), short_name=row["district_abb"].lower())
+        #district = District(full_name=row["County"].lower(), short_name=row["DistrictAbbrv"].lower())
         progress.update(
             eval_task, description=f"Evaluating {term}, {town}, {district.full_name}"
         )
@@ -193,8 +194,6 @@ async def evaluate_term(
         progress.advance(eval_task)
     progress.update(eval_task, description=f"Evaluated {term}")
 
-    import pdb; pdb.set_trace()
-    return results
     results_df = (
         #pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
         pl.from_dicts(results)
@@ -307,7 +306,8 @@ async def evaluate_term(
     )
     num_correct_answer = len(search_results_df.filter(pl.col("correct_answer") > 0))
 
-    number_of_rows_with_gt_page = len(gt.filter(pl.col(f"{term}_page_gt").is_not_null()))
+    #number_of_rows_with_gt_page = len(gt.filter(pl.col(f"{term}_page_gt").is_not_null()))
+    number_of_rows_with_gt_page = len(gt.filter(pl.col(f"pagenumbers").is_not_null()))
     print(f"Number of rows with ground truth page: {number_of_rows_with_gt_page}")
     print(num_correct_page_searched)
 
@@ -372,32 +372,56 @@ async def main(
     # Load Ground Truth
     gts = []
     for gt_file in (DATA_ROOT / "texas-gt").iterdir():
-        gts.append(pl.read_csv(gt_file))
+        df = pl.read_csv(gt_file)
+        for column in df.columns:
+            df = df.with_columns(df[column].cast(pl.Utf8))
+        gts.append(df)
     gt = pl.concat(gts)
-    gt = gt.filter(
-        pl.col('Fieldname').str.contains('family1_minlotacres')
-        & pl.col("Type").str.contains("value")
-    )
-    explode_cols = list(gt.columns)
-    explode_cols.remove("JurisdictionID")
+    gt_term = "1-Family Min. Lot"
 
-    # sample gt
-    gt = (
-        gt.groupby("JurisdictionID")
-        .agg(pl.col("*").sample(n=1, with_replacement=False))
-        .explode(explode_cols)  # Explode the lists to get a flat DataFrame again
+    jurisdictions = gt["Jurisdiction"]
+    districts = gt["Abbreviated District Name"]
+    full_districts = gt["Full District Name"]
+    gt_values = gt[gt_term]
+
+    annotations = []
+    for f in (DATA_ROOT / "texas-annotations").iterdir():
+        annotations.append(pl.read_csv(f))
+    annotations = pl.concat(annotations)
+
+    idxs = [3, 15, 30, 48, 63, 75, 93, 108, 122, 137]
+
+    my_jurisdictions = jurisdictions[idxs]
+    my_districts = districts[idxs]
+    my_full_districts = full_districts[idxs]
+    my_gt_values = gt_values[idxs]
+
+    # get page number
+    filtered_annotations = annotations.filter(
+        (pl.col('JurisdictionName').is_in(my_jurisdictions))
+        & (pl.col('DistrictAbbrv').is_in(my_districts))
+        & pl.col('Fieldname').str.contains('family1_minlotacres')
     )
 
-    """
-    gt = pl.read_csv(
-        DATA_ROOT / "ground_truth.csv",
-        dtypes={
-            **{f"{tc}_gt": pl.Utf8 for tc in terms},
-            **{f"{tc}_page_gt": pl.Utf8 for tc in terms},
-        },
-        n_rows=num_eval_rows,
-    )
-    """
+    pagenumbers = []
+    for jurisdiction, district in zip(my_jurisdictions, my_districts):
+        rows = filtered_annotations.filter(
+            (pl.col('JurisdictionName') == jurisdiction)
+            & (pl.col('DistrictAbbrv') == district)
+        )
+        if rows.shape[0] == 0:
+            pagenumbers.append(None)
+        else:
+            # just pick last page for now
+            pagenumbers.append(",".join(map(str,set(rows["Pagenumber"]))))
+
+    gt = pl.DataFrame({
+        "town": my_jurisdictions,
+        "district": my_full_districts,
+        "district_abb": my_districts,
+        "values": my_gt_values,
+        "pagenumbers": pagenumbers,
+    })
 
     results_df = None
     # Run evaluation against entire ground truth for each term and aggregate all
@@ -411,6 +435,7 @@ async def main(
         term_task = progress.add_task("Terms", total=len(terms))
         for term in terms:
             metrics[term], new_results_df = await evaluate_term(
+            #new_results_df = await evaluate_term(
                 term, gt, progress, search_method, extraction_method, k, tournament_k
             )
             if results_df is not None:
