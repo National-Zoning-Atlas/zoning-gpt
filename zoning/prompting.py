@@ -46,7 +46,7 @@ async def prompt(
                 )
                 top_choice = resp.choices[0]  # type: ignore
                 return top_choice.text
-            case "gpt-3.5-turbo" | "gpt-4":
+            case "gpt-3.5-turbo" | "gpt-4" | "gpt-4-turbo-preview":
                 resp = await openai.ChatCompletion.acreate(
                     **base_params,
                     messages=input_prompt,
