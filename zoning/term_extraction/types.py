@@ -21,6 +21,9 @@ class ExtractionOutput(BaseModel):
     rationale: str
     answer: str
 
+    def __str__(self):
+        return f"ExtractionOutput(extracted_text={self.extracted_text}, rationale={self.rationale}, answer={self.answer})"
+
 
 class LookupOutput(BaseModel):
     output: ExtractionOutput | None
@@ -30,6 +33,8 @@ class LookupOutput(BaseModel):
     The set of pages, in descending order or relevance, used to produce the
     result.
     """
+    def __str__(self):
+        return f"LookupOutput(output={self.output}, search_pages=[...], search_pages_expanded={self.search_pages_expanded})"
 
 
 class LookupOutputConfirmed(LookupOutput):

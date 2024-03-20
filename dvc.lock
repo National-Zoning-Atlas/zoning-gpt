@@ -90,8 +90,9 @@ stages:
       size: 472917787
       nfiles: 7
     - path: zoning/data_processing/index_towns.py
-      md5: cd3c4af8c8e19c9927e28912aaf7ced5
-      size: 1580
+      hash: md5
+      md5: 0601f229376ae98b338a4b45cbd1c021
+      size: 1700
   evaluate:
     cmd: python -m zoning.data_processing.eval --num-eval-rows 10 --terms min_lot_size
       --terms min_unit_size --terms max_height --terms max_lot_coverage --terms max_lot_coverage_pavement
@@ -107,14 +108,14 @@ stages:
       size: 91
     - path: zoning/data_processing/eval.py
       hash: md5
-      md5: 99edf3faa05644b9c8a50a1f65411f10
-      size: 11765
+      md5: e570e8fd6a67f29c1102f67e8190c752
+      size: 17307
     outs:
     - path: data/results/eval.parquet
       hash: md5
-      md5: 20fa128ae230cba1c660f83a3d20f096
-      size: 11794
+      md5: 5af6d358f115732004af3930518f986a
+      size: 31829
     - path: data/results/eval.yaml
       hash: md5
-      md5: b7708530553938441893e2e14910660b
-      size: 1807
+      md5: 2193be01d62ab61e46e8fc7c46a5fe2e
+      size: 2720

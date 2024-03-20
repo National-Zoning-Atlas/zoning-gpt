@@ -1,0 +1,6 @@
+outs:
+- md5: 98f21540dc0a2c92ee1c5c1c98a0ed43.dir
+  size: 114075432
+  nfiles: 10
+  hash: md5
+  path: texas-documents

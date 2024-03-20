@@ -1,6 +1,6 @@
 import asyncio
-import logging
 from typing import Annotated, Any, Optional
+import numpy as np
 import pandas as pd
 import polars as pl
 import typer
@@ -16,7 +16,7 @@ from ..term_extraction.search import (
 )
 from ..term_extraction.semantic_comparison import semantic_comparison
 from ..term_extraction.types import District, LookupOutputConfirmed
-from ..utils import get_project_root, flatten, logger
+from ..utils import get_project_root, flatten
 from .utils import AsyncTyper
 
 DATA_ROOT = get_project_root() / "data"
@@ -29,7 +29,6 @@ SNAPSHOTS_DIR.mkdir(parents=True, exist_ok=True)
 # If DEBUG=True, do not print rich tracking information
 DEBUG = False
 
-
 def calculate_verification_metrics(true_positives, false_positives, false_negatives):
     recall = true_positives / (true_positives + false_negatives) if true_positives + false_negatives > 0 else 0
     precision = true_positives / (true_positives + false_positives) if true_positives + false_positives > 0 else 0
@@ -38,14 +37,14 @@ def calculate_verification_metrics(true_positives, false_positives, false_negati
 
 
 async def compute_eval_result(
-        town: str,
-        district: District,
-        term: str,
-        ground_truth: dict[str, Any],
-        search_method: SearchMethod,
-        extraction_method: ExtractionMethod,
-        k: int,
-        tournament_k: int,
+    town: str,
+    district: District,
+    term: str,
+    ground_truth: dict[str, Any],
+    search_method: SearchMethod,
+    extraction_method: ExtractionMethod,
+    k: int,
+    tournament_k: int,
 ):
     pages = search_for_term(town, district, term, search_method, k)
     expanded_pages = flatten(page_coverage(pages))
@@ -60,23 +59,25 @@ async def compute_eval_result(
         tournament_k=tournament_k,
     )
 
-    gt_page = ground_truth[f"{term}_page_gt"]
+    #gt_page = ground_truth[f"{term}_page_gt"]
+    gt_page = ground_truth["pagenumbers"]
     if gt_page is None:
         # No ground truth page
         gt_page = set()
     else:
         gt_page = set(map(int, str(gt_page).split(",")))
 
-    expected = ground_truth[f"{term}_gt"]
+    #expected = ground_truth[f"{term}_gt"]
+    expected = ground_truth["values"]
     is_empty = True
 
     async for result in outputs:
         is_empty = False
-        extracted_pages = {r.page_number for r in result.search_pages}
-        extracted_pages_expanded = set(result.search_pages_expanded)
-        logger.info(f"Term {term} in {town} in {district.full_name} has searched_pages_expanded: {extracted_pages_expanded}")
+        searched_pages = {r.page_number for r in result.search_pages}
+        searched_pages_expanded = set(result.search_pages_expanded)
         is_correct_page_searched = any(gt_page & set(expanded_pages))
-        expected_extended = ground_truth[f"{term}_gt_orig"]
+        #expected_extended = ground_truth[f"{term}_gt_orig"]
+        expected_extended = ground_truth["values"]
         label = result.search_pages[0].log["label"] if result.search_pages else ""
 
         base_output = {
@@ -84,13 +85,12 @@ async def compute_eval_result(
             "district": district.full_name,
             "term": term,
             "gt_page": list(gt_page),
-            "correct_page_searched": is_correct_page_searched,
-            "expanded_pages": list(expanded_pages),
-            "extracted_pages": list(extracted_pages),
-            "extracted_pages_expanded": list(extracted_pages_expanded),
+            "searched_pages": list(searched_pages),
+            "searched_pages_expanded": list(searched_pages_expanded),
             "expected": expected,
             "expected_extended": expected_extended,
             "label": label,
+            "expanded_pages": list(expanded_pages),
             "pages": [p.page_number for p in pages],
             "confirmed_flag": None,
             "confirmed_raw": None,
@@ -108,7 +108,7 @@ async def compute_eval_result(
                 "rationale": None,
                 "extracted_text": None,
                 "actual": None,
-
+                "correct_page_searched": is_correct_page_searched,
             }
         else:
             yield {
@@ -116,6 +116,7 @@ async def compute_eval_result(
                 "rationale": result.output.rationale,
                 "extracted_text": result.output.extracted_text,
                 "actual": result.output.answer,
+                "correct_page_searched": is_correct_page_searched,
             }
 
     # Handle case when elastic search return 0 results
@@ -125,15 +126,16 @@ async def compute_eval_result(
             "district": district.full_name,
             "term": term,
             "gt_page": list(gt_page),
-            "correct_page_searched": False,
-            "expanded_pages": None,
             "searched_pages": None,
             "searched_pages_expanded": None,
             "expected": expected,
-            "expected_extended": ground_truth[f"{term}_gt_orig"],
+            #"expected_extended": ground_truth[f"{term}_gt_orig"],
+            "expected_extended": ground_truth[f"Excerpt"],
             "rationale": None,
             "extracted_text": None,
             "actual": None,
+            "correct_page_searched": False,
+            "expanded_pages": None,
             "pages": None,
             "confirmed_flag": None,
             "confirmed_raw": None,
@@ -142,11 +144,11 @@ async def compute_eval_result(
 
 
 def compare_results(
-        actual_normalized: float | None,
-        actual_raw: str | None,
-        expected: str | None,
-        expected_extended: str | None,
-        expected_extended_normalized: float | None,
+    actual_normalized: float | None,
+    actual_raw: str | None,
+    expected: str | None,
+    expected_extended: str | None,
+    expected_extended_normalized: float | None,
 ) -> bool:
     if actual_raw is not None and expected is None and expected_extended is not None:
         # If no normalized expected answer exists, but an extended one does,
@@ -163,13 +165,13 @@ def compare_results(
 
 
 async def evaluate_term(
-        term: str,
-        gt: pl.DataFrame,
-        progress: Progress,
-        search_method: SearchMethod,
-        extraction_method: ExtractionMethod,
-        k: int,
-        tournament_k: int,
+    term: str,
+    gt: pl.DataFrame,
+    progress: Progress,
+    search_method: SearchMethod,
+    extraction_method: ExtractionMethod,
+    k: int,
+    tournament_k: int,
 ):
     eval_task = progress.add_task(f"Evaluating {term}", total=len(gt))
 
@@ -178,19 +180,23 @@ async def evaluate_term(
     results = []
     row_count = len(gt)
     for row in gt.iter_rows(named=True):
-        town = row["town"]
-        district = District(full_name=row["district"], short_name=row["district_abb"])
+        town = row["town"].lower()
+        #town = row["JurisdictionName"].lower()
+        district = District(full_name=row["district"].lower(), short_name=row["district_abb"].lower())
+        #district = District(full_name=row["County"].lower(), short_name=row["DistrictAbbrv"].lower())
         progress.update(
             eval_task, description=f"Evaluating {term}, {town}, {district.full_name}"
         )
         async for result in compute_eval_result(
-                town, district, term, row, search_method, extraction_method, k, tournament_k
+            town, district, term, row, search_method, extraction_method, k, tournament_k
         ):
             results.append(result)
         progress.advance(eval_task)
     progress.update(eval_task, description=f"Evaluated {term}")
+
     results_df = (
-        pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
+        #pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
+        pl.from_dicts(results)
         # Attempt to normalize LLM responses
         .with_columns(
             pl.col("actual").apply(clean_string_units).alias("actual_normalized"),
@@ -300,8 +306,10 @@ async def evaluate_term(
     )
     num_correct_answer = len(search_results_df.filter(pl.col("correct_answer") > 0))
 
-    number_of_rows_with_gt_page = len(gt.filter(pl.col(f"{term}_page_gt").is_not_null()))
-    logger.info(f"Number of rows with ground truth page: {number_of_rows_with_gt_page}")
+    #number_of_rows_with_gt_page = len(gt.filter(pl.col(f"{term}_page_gt").is_not_null()))
+    number_of_rows_with_gt_page = len(gt.filter(pl.col(f"pagenumbers").is_not_null()))
+    print(f"Number of rows with ground truth page: {number_of_rows_with_gt_page}")
+    print(num_correct_page_searched)
 
     # groupby to calculate confirmation f1
     confirmation_df = results_df.groupby(pl.col("town", "district")).agg(
@@ -350,30 +358,71 @@ async def evaluate_term(
 
 
 async def main(
-        search_method: Annotated[SearchMethod, typer.Option()],
-        extraction_method: Annotated[ExtractionMethod, typer.Option()],
-        terms: Annotated[list[str], typer.Option()],
-        k: Annotated[int, typer.Option()],
-        # We must use Optional here because the "|" syntax can't be used by typer
-        # yet for some reason.
-        num_eval_rows: Annotated[Optional[int], typer.Option()] = None,
-        tournament_k: Annotated[int, typer.Option()] = 1,
+    search_method: Annotated[SearchMethod, typer.Option()],
+    extraction_method: Annotated[ExtractionMethod, typer.Option()],
+    terms: Annotated[list[str], typer.Option()],
+    k: Annotated[int, typer.Option()],
+    # We must use Optional here because the "|" syntax can't be used by typer
+    # yet for some reason.
+    num_eval_rows: Annotated[Optional[int], typer.Option()] = None,
+    tournament_k: Annotated[int, typer.Option()] = 1,
 ):
-    raw_terms = terms
-    terms = [i.split(",") for i in terms]
-    terms = [i.strip() for i in flatten(terms)]
-    logger.info(f"Term: {raw_terms} -> {terms}")
     metrics = {}
 
     # Load Ground Truth
-    gt = pl.read_csv(
-        DATA_ROOT / "ground_truth.csv",
-        dtypes={
-            **{f"{tc}_gt": pl.Utf8 for tc in terms},
-            **{f"{tc}_page_gt": pl.Utf8 for tc in terms},
-        },
-        n_rows=num_eval_rows,
+    gts = []
+    for gt_file in (DATA_ROOT / "texas-gt").iterdir():
+        df = pl.read_csv(gt_file)
+        for column in df.columns:
+            df = df.with_columns(df[column].cast(pl.Utf8))
+        gts.append(df)
+    gt = pl.concat(gts)
+    gt_term = "1-Family Min. Lot"
+
+    jurisdictions = gt["Jurisdiction"]
+    districts = gt["Abbreviated District Name"]
+    full_districts = gt["Full District Name"]
+    gt_values = gt[gt_term]
+
+    annotations = []
+    for f in (DATA_ROOT / "texas-annotations").iterdir():
+        annotations.append(pl.read_csv(f))
+    annotations = pl.concat(annotations)
+
+    idxs = [3, 15, 30, 48, 63, 75, 93, 108, 122, 137]
+
+    my_jurisdictions = jurisdictions[idxs]
+    my_districts = districts[idxs]
+    my_full_districts = full_districts[idxs]
+    my_gt_values = gt_values[idxs]
+
+    # get page number
+    filtered_annotations = annotations.filter(
+        (pl.col('JurisdictionName').is_in(my_jurisdictions))
+        & (pl.col('DistrictAbbrv').is_in(my_districts))
+        & pl.col('Fieldname').str.contains('family1_minlotacres')
     )
+
+    pagenumbers = []
+    for jurisdiction, district in zip(my_jurisdictions, my_districts):
+        rows = filtered_annotations.filter(
+            (pl.col('JurisdictionName') == jurisdiction)
+            & (pl.col('DistrictAbbrv') == district)
+        )
+        if rows.shape[0] == 0:
+            pagenumbers.append(None)
+        else:
+            # just pick last page for now
+            pagenumbers.append(",".join(map(str,set(rows["Pagenumber"]))))
+
+    gt = pl.DataFrame({
+        "town": my_jurisdictions,
+        "district": my_full_districts,
+        "district_abb": my_districts,
+        "values": my_gt_values,
+        "pagenumbers": pagenumbers,
+    })
+
     results_df = None
     # Run evaluation against entire ground truth for each term and aggregate all
     # results into one object.
@@ -386,6 +435,7 @@ async def main(
         term_task = progress.add_task("Terms", total=len(terms))
         for term in terms:
             metrics[term], new_results_df = await evaluate_term(
+            #new_results_df = await evaluate_term(
                 term, gt, progress, search_method, extraction_method, k, tournament_k
             )
             if results_df is not None:

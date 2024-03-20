@@ -16,6 +16,8 @@ The value for {{term}} should be within the range of {{value_range}}. The first 
 
 Clarify that the "{{term}}" applies specifically to the "{{district.full_name}}" or "{{district.short_name}}", not to the other districts, despite both being mentioned on the same page.
 
+If the document did not specify min or max values, you should return "N".
+
 If you think the answer is correct, you should return "Y". If it is incorrect, you should
 return "N". If the answer is not in the text, you should also return "N", DO NOT fake an answer or make assumptions.
 

@@ -47,7 +47,7 @@
     "min gross floor area",
     "min ground floor area"
   ],
-  "floor-to-area ratio": [
+  "floor_to_area_ratio_gt": [
     "floor to area",
     "FAR",
     "floor area ratio",
@@ -99,6 +99,7 @@
     "ft."
   ],
   "max_lot_coverage": [
+    "max lot coverage",
     "building coverage",
     "lot coverage",
     "pervious surface",

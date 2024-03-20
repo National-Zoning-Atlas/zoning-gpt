@@ -1,7 +1,7 @@
 import warnings
 
 from ...prompting import prompt
-from ...utils import batched, get_jinja_environment
+from ...utils import batched, get_jinja_environment, logger
 from ..thesaurus import get_thesaurus
 from ..types import District, LookupOutput, PageSearchOutput
 from .map import MapExtractor
@@ -45,14 +45,14 @@ async def answer_confirm_test(
         town=town,
         answer=template_answer(result), 
     )
-    print(input_prompt)
+    # print(input_prompt)
 
     text = await prompt(
         "gpt-4-1106-preview", [{"role": "user", "content": input_prompt}], max_tokens=1
     )
     
     if text is None or text == "NO_ANSWER":
-        warnings.warn(
+        logger.warn(
             "Null GPT response"
         )
 

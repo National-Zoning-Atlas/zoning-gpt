@@ -3,7 +3,7 @@ import warnings
 import csv
 import datetime
 import itertools
-from zoning.utils import get_project_root
+from zoning.utils import get_project_root, logger
 import re
 
 import rich
@@ -176,9 +176,9 @@ def include_context_around_phrase(
         new_phrase = find_regex_matched_phrase_cell(phrase, document)
 
         if new_phrase not in document:
-            warnings.warn(
-                f"Phrase {phrase} was not in the supplied. document: {document}"
-            )
+            # warnings.warn(
+            #     f"Phrase {phrase} was not in the supplied. document: {document}"
+            # )
             middle = len(document) // 2
             before, after = document[:middle], document[-middle:]
         else:
@@ -194,7 +194,7 @@ def include_context_around_phrase(
     elif occurrence == "found-once":
         before, after = occurrences_list[0], occurrences_list[1]
     else:
-        warnings.warn(f"Phrase {phrase} was found more than once in the document.")
+        logger.warn(f"Phrase {phrase} was found more than once in the document.")
         # can be improved
         before, after = occurrences_list[0], "".join(occurrences_list[1:])
         phrase_token_length = len(enc.encode(phrase))

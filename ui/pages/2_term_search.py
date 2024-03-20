@@ -51,6 +51,8 @@ def main():
     if st.button("Search"):
         st.write("Searching for term...")
         results = zoning.term_extraction.search.search_for_term(town, district, term, search_method, k)
+        st.write(f"Found {len(results)} results.")
+        st.markdown("## Results")
         st.write(results)
 
 

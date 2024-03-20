@@ -11,6 +11,14 @@ from .utils import get_project_root
 from . import data_processing
 from . import term_extraction
 
+import warnings
+import polars.exceptions
+
+warnings.filterwarnings(
+    action="ignore",
+    category=polars.exceptions.PolarsInefficientApplyWarning
+)
+
 # Get the absolute path to the .env file
 dotenv_path = os.path.join(get_project_root(), ".env")
 
@@ -20,7 +28,7 @@ load_dotenv(dotenv_path)
 # Check and set the OpenAI API key
 open_api_key = os.environ.get("OPENAI_API_KEY")
 if not open_api_key:
-    raise ValueError("OPEN_API_KEY not found in .env file!")
+    raise ValueError("OPENAI_API_KEY not found in .env file!")
 openai.api_key = open_api_key
 
 # to validate key is loaded, print the first two letters
