@@ -1,4 +1,6 @@
 import warnings
+import re
+import json
 
 from zoning.term_extraction.extract.tournament_reduce import TournamentReduceExtractor
 from ..value_ranges import get_value_ranges
@@ -54,11 +56,13 @@ async def answer_confirm(
         answer=template_answer(result),
     )
 
-    text = await prompt(
-        "gpt-4-1106-preview", [{"role": "user", "content": input_prompt}], max_tokens=1
+    output = await prompt(
+        "gpt-4-1106-preview", [{"role": "user", "content": input_prompt}],
+        max_tokens=256,
     )
-    if town == "ashford":
-        import pdb; pdb.set_trace()
+    pattern = r"(\{[^}]+\})"
+    matches = re.findall(pattern, output)
+    text = json.loads(matches[0])["Answer"] if len(matches) > 0 else "N"
 
     logger.info(f"<ConfirmExtractor>: town: {town}, district: {district.full_name}, answer: {result.output}, response: {text}")
     if text is None or text == "NO_ANSWER":

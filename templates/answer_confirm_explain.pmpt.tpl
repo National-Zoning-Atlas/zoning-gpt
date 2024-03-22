@@ -86,6 +86,7 @@ Type Structure Floor Area One- Story Dwelling minimum 900 sq. ft. Minimum finish
 Output:
 
 The output should be "Y" because the extracted answer is contained in the supporting text.
+No district is explicitly mentioned, but this appears to be a general requirement for all districts.
 {"Answer": "Y"}
 
 
