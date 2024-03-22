@@ -22,7 +22,7 @@ If you think the answer is correct, you should return "Y". If it is incorrect, y
 
 But if the answer is correct, you should return "Y". It is possible that the answer is not directly in the text, but you can infer it from the text. If you can infer the answer from the text, you should return "Y".
 
-Output MUST be a single character. Do not provide any explanation.
+Provide an explanation, then the output in JSON format.
 
 Here is an example for reference:
 
@@ -52,11 +52,9 @@ CELL (4, 2):
 10,000
 
 Output: 
-
-N
-
-Explanation: 
 The output should be "N" because the extracted answer is for the R-23 Zone instead of the "{{district.full_name}}" Zone.
+{"Answer": "N"}
+
 
 # Example
 
@@ -70,11 +68,8 @@ Supporting Text:
 Minimum floor area per dwelling unit shall not be less than seven hundred fifty (750) square feet
 
 Output:
-
-Y
-
-Explanation:
 The output should be "Y" because the extracted answer is contained in the supporting text.
+{"Answer": "Y"}
 
 
 # Example
@@ -90,10 +85,8 @@ Type Structure Floor Area One- Story Dwelling minimum 900 sq. ft. Minimum finish
 
 Output:
 
-Y
-
-Explanation:
 The output should be "Y" because the extracted answer is contained in the supporting text.
+{"Answer": "Y"}
 
 
 # END of instructions

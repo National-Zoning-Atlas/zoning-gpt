@@ -10,7 +10,8 @@ from ..types import District, LookupOutput, PageSearchOutput, LookupOutputConfir
 from .utils import include_context_around_phrase
 
 TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER = 3500
-final_answer_tmpl = get_jinja_environment().get_template("answer_confirm.pmpt.tpl")
+#final_answer_tmpl = get_jinja_environment().get_template("answer_confirm.pmpt.tpl")
+final_answer_tmpl = get_jinja_environment().get_template("answer_confirm_explain.pmpt.tpl")
 
 
 
@@ -56,6 +57,8 @@ async def answer_confirm(
     text = await prompt(
         "gpt-4-1106-preview", [{"role": "user", "content": input_prompt}], max_tokens=1
     )
+    if town == "ashford":
+        import pdb; pdb.set_trace()
 
     logger.info(f"<ConfirmExtractor>: town: {town}, district: {district.full_name}, answer: {result.output}, response: {text}")
     if text is None or text == "NO_ANSWER":
