@@ -1,6 +1,6 @@
 town,district_abb,district,district_page,min_lot_size_gt_orig,min_lot_size_gt,min_lot_size_page_gt,min_unit_size_gt_orig,min_unit_size_gt,min_unit_size_page_gt,max_height_gt_orig,max_height_gt,max_height_page_gt,max_lot_coverage_gt_orig,max_lot_coverage_gt,max_lot_coverage_page_gt,max_lot_coverage_pavement_gt_orig,max_lot_coverage_pavement_gt,max_lot_coverage_pavement_page_gt,min_parking_spaces_gt_orig,min_parking_spaces_gt,min_parking_spaces_page_gt,floor_to_area_ratio_gt_orig,floor_to_area_ratio_page_gt,floor_to_area_ratio_gt,review,notes
 andover,AL,Andover Lake,14,60000 (year-round); 30000 (seasonal),,97,500,500,41,35,35,97,,,,12,12,97,2,2,103,-1,-1,-1,,
-ansonia,AA,AA Residence,17,0.69,30000,"52,150",,,,35,35,150,20,20,150,40,40,150,2,2,67,-1,-1,-1,,
+ansonia,AA,AA Residence,17,0.69,30000,"52,150",600,600,127,35,35,150,20,20,150,40,40,150,2,2,67,-1,-1,-1,,
 ashford,TD,Technology Development,21,,,,900,900,29,35,35,49,40,25,49,60,60,49,2,2,73,-1,-1,-1,,
 avon,IP,Industrial Park,"1,2",,,,,,,,,,,,,,,,,,,-1,-1,-1,,
 barkhamsted,B-1,Restricted Business,11,,43560,20,750,750,20,,35,21,,,,,40,20,,2,30,-1,-1,-1,,"missing values for all fields, max lot coverage def on separate page"
@@ -23,7 +23,7 @@ brooklyn,IND,Industrial,,,87120,86,,,,,35,86,,,86,,,86,,2,164,-1,-1,-1,,no singl
 brooklyn,RB,Restricted Business,,0.459,20000,"74,228",,,,35,35,"74,228",20,20,74,80,80,74,2,2,164,-1,-1,-1,,no single list of zones
 burlington,I,Industrial,5,1,43560,58,,,,35,35,58,,,,25,25,58,2,2,61,-1,-1,-1,,No min unit size for I zone?
 canaan-falls-village,Rural Business,Rural Business,,0.92,40000,21,,,,35,35,21,25,25,21,50,50,21,,2,44,-1,-1,-1,,no single list of zones
-canterbury,VC,Village Commercial,,,60000,28,,,,35,35,28,15,,,,,,,2,61,-1,-1,-1,,no single list of zones
+canterbury,VC,Village Commercial,,,60000,28,750,750,10,35,35,28,15,,,,,,,2,61,-1,-1,-1,,no single list of zones
 canton,R-3,R-3 Residential,,87120 (front); 130680 (rear),,70,,,,35,35,74,10,10,74,30,30,74,2,2,136,-1,-1,-1,,no single list of zones; lot coverage requires 2-step table lookup
 chaplin,AZ,Aquifer Protection,15,,,,,,,,,,,,,,,,,2,38,-1,-1,-1,,
 cheshire,R-20A,Residential R-20A,18,"20000, 16000 (subdivisions)",,"90,157",,,,40,40,90,,,,35,35,90,2,2,94,-1,-1,-1,,
