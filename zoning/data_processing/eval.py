@@ -27,7 +27,7 @@ SNAPSHOTS_DIR = DATA_ROOT / "results" / "snapshots"
 SNAPSHOTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # If DEBUG=True, do not print rich tracking information
-DEBUG = True
+DEBUG = False
 
 
 def calculate_verification_metrics(true_positives, false_positives, false_negatives):
