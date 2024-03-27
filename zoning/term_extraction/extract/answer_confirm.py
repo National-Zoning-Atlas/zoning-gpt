@@ -58,7 +58,7 @@ async def answer_confirm(
 
     output = await prompt(
         "gpt-4-1106-preview", [{"role": "user", "content": input_prompt}],
-        max_tokens=128,
+        max_tokens=256,
     )
     logger.info(f"<ConfirmExtractor>: GPT Response: {output}")
     pattern = r"(\{[^}]+\})"

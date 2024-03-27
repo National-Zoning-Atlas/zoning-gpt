@@ -18,6 +18,8 @@ Clarify that the "{{term}}" applies specifically to the "{{district.full_name}}"
 
 If the document did not specify min or max values, you should return "N".
 
+Somtimes, the value for "{{term}}" are applied to general districts, it may not mention the specific district "{{district.full_name}}" or "{{district.short_name}}". In this case, you should return "Y" if the value is correct.
+
 If you think the answer is correct, you should return "Y". If it is incorrect, you should return "N". If the answer is not in the text, you should also return "N", DO NOT fake an answer or make assumptions.
 
 But if the answer is correct, you should return "Y". It is possible that the answer is not directly in the text, but you can infer it from the text. If you can infer the answer from the text, you should return "Y".
