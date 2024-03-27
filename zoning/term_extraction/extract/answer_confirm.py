@@ -1,4 +1,6 @@
 import warnings
+import re
+import json
 
 from zoning.term_extraction.extract.tournament_reduce import TournamentReduceExtractor
 from ..value_ranges import get_value_ranges
@@ -10,13 +12,14 @@ from ..types import District, LookupOutput, PageSearchOutput, LookupOutputConfir
 from .utils import include_context_around_phrase
 
 TOURNAMENT_REDUCE_CONTEXT_TOKENS_PER_ANSWER = 3500
-final_answer_tmpl = get_jinja_environment().get_template("answer_confirm.pmpt.tpl")
-
+# final_answer_tmpl = get_jinja_environment().get_template("answer_confirm.pmpt.tpl")
+final_answer_tmpl = get_jinja_environment().get_template("answer_confirm_explain.pmpt.tpl")
 
 
 async def answer_confirm(
-    result: LookupOutput, term: str, district: District, town: str
+        result: LookupOutput, term: str, district: District, town: str
 ) -> LookupOutputConfirmed:
+    logger.info(f"Starting answer_confirm for term: {term}, district: {district.full_name}, town: {town}")
 
     thesaurus = get_thesaurus()
     value_ranges = get_value_ranges()
@@ -53,11 +56,20 @@ async def answer_confirm(
         answer=template_answer(result),
     )
 
-    text = await prompt(
-        "gpt-4-1106-preview", [{"role": "user", "content": input_prompt}], max_tokens=1
+    output = await prompt(
+        "gpt-4-1106-preview", [{"role": "user", "content": input_prompt}],
+        max_tokens=128,
     )
-
-    logger.info(f"<ConfirmExtractor>: town: {town}, district: {district.full_name}, answer: {result.output}, response: {text}")
+    logger.info(f"<ConfirmExtractor>: GPT Response: {output}")
+    pattern = r"(\{[^}]+\})"
+    matches = re.findall(pattern, output)
+    try:
+        text = json.loads(matches[0])["Answer"] if len(matches) > 0 else "N"
+    except json.JSONDecodeError:
+        text = "N"
+    logger.info(f"<ConfirmExtractor>: Text: {text}")
+    logger.info(
+        f"<ConfirmExtractor>: town: {town}, district: {district.full_name}, answer: {result.output}, response: {text}")
     if text is None or text == "NO_ANSWER":
         logger.warn(
             "Null GPT response"
@@ -68,18 +80,18 @@ async def answer_confirm(
             search_pages=result.search_pages,
             search_pages_expanded=result.search_pages_expanded,
             confirmed=True,
-            confirmed_raw=text,
+            confirmed_raw=output,
             original_output=result.output
         )
     elif text == "N":
         return LookupOutputConfirmed(
-                output=None,
-                search_pages=result.search_pages,
-                search_pages_expanded=result.search_pages_expanded,
-                confirmed=False,
-                confirmed_raw=text,
-                original_output=result.output
-            )
+            output=None,
+            search_pages=result.search_pages,
+            search_pages_expanded=result.search_pages_expanded,
+            confirmed=False,
+            confirmed_raw=output,
+            original_output=result.output
+        )
     else:
         logger.warn(f"GPT returned something unexpected, val: {text}")
 
@@ -90,7 +102,7 @@ class ConfirmExtractor(TournamentReduceExtractor):
         self.k = k
 
     async def extract(
-        self, pages: list[PageSearchOutput], district: District, term: str, town: str
+            self, pages: list[PageSearchOutput], district: District, term: str, town: str
     ):
         # We first tournament reduce
         results = []
