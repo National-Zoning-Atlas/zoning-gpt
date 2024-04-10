@@ -83,11 +83,17 @@ async def answer_confirm(
     is_district_presented = get_json_value("is_district_presented", "N")
     is_term_presented = get_json_value("is_term_presented", "N")
     is_correct_value_present = get_json_value("is_correct_value_present", "N")
+    extracted_district = get_json_value("extracted_district", "N/A")
+    extracted_term = get_json_value("extracted_term", "N/A")
+
     logger.info(f"<ConfirmExtractor>: answer_confirm_flag: {answer_confirm_flag}")
     logger.info(f"<ConfirmExtractor>: rationale: {rationale}")
     logger.info(f"<ConfirmExtractor>: is_district_presented: {is_district_presented}")
     logger.info(f"<ConfirmExtractor>: is_term_presented: {is_term_presented}")
     logger.info(f"<ConfirmExtractor>: is_correct_value_present: {is_correct_value_present}")
+    logger.info(f"<ConfirmExtractor>: extracted_district: {extracted_district}")
+    logger.info(f"<ConfirmExtractor>: extracted_term: {extracted_term}")
+
     logger.info(
         f"<ConfirmExtractor>: town: {town}, district: {district.full_name}, answer: {result.output}, response: {answer_confirm_flag}")
 
@@ -96,6 +102,8 @@ async def answer_confirm(
         "is_term_presented": is_term_presented,
         "is_correct_value_present": is_correct_value_present,
         'answer_confirm_flag': answer_confirm_flag,
+        'extracted_district': extracted_district,
+        'extracted_term': extracted_term,
     }
 
     if answer_confirm_flag is None or answer_confirm_flag == "NO_ANSWER":

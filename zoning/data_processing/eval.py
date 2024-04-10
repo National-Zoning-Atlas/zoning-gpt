@@ -102,6 +102,12 @@ async def compute_eval_result(
             base_output["confirmed_raw"] = result.confirmed_raw
             base_output['actual_before_confirmation'] = result.original_output.answer
             base_output['rational_before_confirmation'] = result.original_output.rationale
+            base_output['subquestions'] = result.subquestions
+            base_output['extracted_district'] = result.subquestions['extracted_district']
+            base_output['is_district_presented'] = result.subquestions['is_district_presented']
+            base_output['extracted_term'] = result.subquestions['extracted_term']
+            base_output['is_term_presented'] = result.subquestions['is_term_presented']
+            base_output['is_correct_value_present'] = result.subquestions['is_correct_value_present']
 
         if result.output is None:
             yield {

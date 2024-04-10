@@ -23,9 +23,9 @@ class MapExtractor(Extractor):
             )
 
         for page, result in await gather(*map(worker, pages)):
-            logger.info(
-                f"<MapExtractor>: search_pages_expanded: {flatten(page_coverage([page]))}"
-            )
+            # logger.info(
+            #     f"<MapExtractor>: search_pages_expanded: {flatten(page_coverage([page]))}"
+            # )
             yield LookupOutput(
                 output=result,
                 search_pages=[page],

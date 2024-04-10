@@ -54,7 +54,9 @@ CELL (4, 2):
 Output:
 ```json
 {
+    "extracted_district": "R-23 Zone",
     "is_district_presented": "N",
+    "extracted_term": "{{term}}",
     "is_term_presented": "Y",
     "is_correct_value_present": "N",
     "Rationale": "The output should be 'N' because the extracted answer is for the R-23 Zone instead of the '{{district.full_name}}' Zone.",
@@ -76,7 +78,9 @@ In {{district.full_name}}, Minimum floor area per dwelling unit shall not be les
 Output:
 ```json
 {
+    extracted_district: "{{district.full_name}}",
     "is_district_presented": "Y",
+    "extracted_term": "minimum floor area per dwelling unit",
     "is_term_presented": "Y",
     "is_correct_value_present": "Y",
     "Rationale": "The output should be 'Y' because the extracted answer is contained in the supporting text.",
@@ -98,7 +102,9 @@ Type Structure Floor Area One- Story Dwelling minimum 900 sq. ft. Minimum finish
 Output:
 ```json
 {
+    "extracted_district": "General Requirements",
     "is_district_presented": "N",
+    "extracted_term": "minimum floor area",
     "is_term_presented": "Y",
     "is_correct_value_present": "Y",
     "Rationale": "The output should be 'Y' because the extracted answer is contained in the supporting text. No district is explicitly mentioned, but this appears to be a general requirement for all districts.",
