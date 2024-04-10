@@ -51,9 +51,14 @@ Apartment Area
 CELL (4, 2):
 10,000
 
-Output: 
-The output should be "N" because the extracted answer is for the R-23 Zone instead of the "{{district.full_name}}" Zone.
-{"Answer": "N"}
+Output:
+{
+    "is_district_presented": "N",
+    "is_term_presented": "Y",
+    "is_correct_value_present": "N",
+    "Answer": "N",
+    "Rationale": "The output should be 'N' because the extracted answer is for the R-23 Zone instead of the '{{district.full_name}}' Zone.",
+}
 
 
 # Example
@@ -65,11 +70,17 @@ Rationale: "The section titled '193-28 Table of Area and Dimensional Requirement
 Extracted Text: ["not be less than seven hundred fifty (750) square feet"]
 
 Supporting Text:
-Minimum floor area per dwelling unit shall not be less than seven hundred fifty (750) square feet
+In {{district.full_name}}, Minimum floor area per dwelling unit shall not be less than seven hundred fifty (750) square feet
 
 Output:
-The output should be "Y" because the extracted answer is contained in the supporting text.
-{"Answer": "Y"}
+
+{
+    "is_district_presented": "Y",
+    "is_term_presented": "Y",
+    "is_correct_value_present": "Y",
+    "Answer": "Y",
+    "Rationale": "The output should be 'Y' because the extracted answer is contained in the supporting text."
+}
 
 
 # Example
@@ -84,10 +95,13 @@ Supporting Text:
 Type Structure Floor Area One- Story Dwelling minimum 900 sq. ft. Minimum finished floor area required for Certificate of Occupancy: 900 sq. ft. One and One-Half Story minimum 1,200 sq. ft. with a minimum 800 sq. ft. footprint 2 Story Dwelling minimum 1,600 sq. ft. with a minimum 800 sq. ft. footprint
 
 Output:
-
-The output should be "Y" because the extracted answer is contained in the supporting text.
-No district is explicitly mentioned, but this appears to be a general requirement for all districts.
-{"Answer": "Y"}
+{
+    "is_district_presented": "N",
+    "is_term_presented": "Y",
+    "is_correct_value_present": "Y",
+    "Answer": "Y",
+    "Rationale": "The output should be 'Y' because the extracted answer is contained in the supporting text. No district is explicitly mentioned, but this appears to be a general requirement for all districts."
+}
 
 
 # END of instructions
