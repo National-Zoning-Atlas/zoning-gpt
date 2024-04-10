@@ -58,7 +58,7 @@ Output:
     "is_term_presented": "Y",
     "is_correct_value_present": "N",
     "Rationale": "The output should be 'N' because the extracted answer is for the R-23 Zone instead of the '{{district.full_name}}' Zone.",
-    "Answer": "N",
+    "Answer": "N"
 }
 ```
 
@@ -80,7 +80,7 @@ Output:
     "is_term_presented": "Y",
     "is_correct_value_present": "Y",
     "Rationale": "The output should be 'Y' because the extracted answer is contained in the supporting text."
-    "Answer": "Y",
+    "Answer": "Y"
 }
 ```
 
@@ -102,7 +102,7 @@ Output:
     "is_term_presented": "Y",
     "is_correct_value_present": "Y",
     "Rationale": "The output should be 'Y' because the extracted answer is contained in the supporting text. No district is explicitly mentioned, but this appears to be a general requirement for all districts."
-    "Answer": "Y",
+    "Answer": "Y"
 }
 ```
 
