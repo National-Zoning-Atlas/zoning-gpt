@@ -18,13 +18,11 @@ Clarify that the "{{term}}" applies specifically to the "{{district.full_name}}"
 
 If the document did not specify min or max values, you should return "N".
 
-Somtimes, the value for "{{term}}" are applied to general districts, it may not mention the specific district "{{district.full_name}}" or "{{district.short_name}}". In this case, you should return "Y" if the value is correct.
-
 If you think the answer is correct, you should return "Y". If it is incorrect, you should return "N". If the answer is not in the text, you should also return "N", DO NOT fake an answer or make assumptions.
 
 But if the answer is correct, you should return "Y". It is possible that the answer is not directly in the text, but you can infer it from the text. If you can infer the answer from the text, you should return "Y".
 
-Output MUST be a single character. Do not provide any explanation.
+Provide an explanation, then the output in JSON format.
 
 Here is an example for reference:
 
@@ -53,12 +51,15 @@ Apartment Area
 CELL (4, 2):
 10,000
 
-Output: 
+Output:
+{
+    "is_district_presented": "N",
+    "is_term_presented": "Y",
+    "is_correct_value_present": "N",
+    "Answer": "N",
+    "Rationale": "The output should be 'N' because the extracted answer is for the R-23 Zone instead of the '{{district.full_name}}' Zone.",
+}
 
-N
-
-Explanation: 
-The output should be "N" because the extracted answer is for the R-23 Zone instead of the "{{district.full_name}}" Zone.
 
 # Example
 
@@ -69,14 +70,17 @@ Rationale: "The section titled '193-28 Table of Area and Dimensional Requirement
 Extracted Text: ["not be less than seven hundred fifty (750) square feet"]
 
 Supporting Text:
-Minimum floor area per dwelling unit shall not be less than seven hundred fifty (750) square feet
+In {{district.full_name}}, Minimum floor area per dwelling unit shall not be less than seven hundred fifty (750) square feet
 
 Output:
 
-Y
-
-Explanation:
-The output should be "Y" because the extracted answer is contained in the supporting text.
+{
+    "is_district_presented": "Y",
+    "is_term_presented": "Y",
+    "is_correct_value_present": "Y",
+    "Answer": "Y",
+    "Rationale": "The output should be 'Y' because the extracted answer is contained in the supporting text."
+}
 
 
 # Example
@@ -91,11 +95,13 @@ Supporting Text:
 Type Structure Floor Area One- Story Dwelling minimum 900 sq. ft. Minimum finished floor area required for Certificate of Occupancy: 900 sq. ft. One and One-Half Story minimum 1,200 sq. ft. with a minimum 800 sq. ft. footprint 2 Story Dwelling minimum 1,600 sq. ft. with a minimum 800 sq. ft. footprint
 
 Output:
-
-Y
-
-Explanation:
-The output should be "Y" because the extracted answer is contained in the supporting text.
+{
+    "is_district_presented": "N",
+    "is_term_presented": "Y",
+    "is_correct_value_present": "Y",
+    "Answer": "Y",
+    "Rationale": "The output should be 'Y' because the extracted answer is contained in the supporting text. No district is explicitly mentioned, but this appears to be a general requirement for all districts."
+}
 
 
 # END of instructions
