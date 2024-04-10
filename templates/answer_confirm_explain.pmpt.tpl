@@ -79,7 +79,7 @@ Output:
     "is_district_presented": "Y",
     "is_term_presented": "Y",
     "is_correct_value_present": "Y",
-    "Rationale": "The output should be 'Y' because the extracted answer is contained in the supporting text."
+    "Rationale": "The output should be 'Y' because the extracted answer is contained in the supporting text.",
     "Answer": "Y"
 }
 ```
@@ -101,7 +101,7 @@ Output:
     "is_district_presented": "N",
     "is_term_presented": "Y",
     "is_correct_value_present": "Y",
-    "Rationale": "The output should be 'Y' because the extracted answer is contained in the supporting text. No district is explicitly mentioned, but this appears to be a general requirement for all districts."
+    "Rationale": "The output should be 'Y' because the extracted answer is contained in the supporting text. No district is explicitly mentioned, but this appears to be a general requirement for all districts.",
     "Answer": "Y"
 }
 ```
