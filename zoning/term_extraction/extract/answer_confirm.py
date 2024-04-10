@@ -35,10 +35,10 @@ async def answer_confirm(
         )
 
         return (
-            f"- Answer: {record.output.answer}\n"
-            f"- Rationale: {record.output.rationale}\n"
-            f"- Extracted Text: {record.output.extracted_text}\n"
-            f"- Supporting Text:\n{context}"
+            f"Answer: {record.output.answer}\n"
+            f"Rationale: {record.output.rationale}\n"
+            f"Extracted Text: {record.output.extracted_text}\n"
+            f"Supporting Text:\n{context}"
         )
 
     not_synonyms = []
@@ -60,9 +60,11 @@ async def answer_confirm(
         "gpt-4-1106-preview", [{"role": "user", "content": input_prompt}],
         max_tokens=256,
     )
+
     logger.info(f"<ConfirmExtractor>: GPT Response: {output}")
     pattern = r"(\{[^}]+\})"
     matches = re.findall(pattern, output)
+
     try:
         # {
         #     "is_district_presented": "Y",
