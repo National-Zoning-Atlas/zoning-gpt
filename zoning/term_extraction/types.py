@@ -41,6 +41,7 @@ class LookupOutputConfirmed(LookupOutput):
     confirmed: bool
     confirmed_raw: str
     original_output: ExtractionOutput | None
+    subquestions: dict[str, str] | None
     """
     The confirmed result by GPT.
     """

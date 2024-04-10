@@ -64,25 +64,23 @@ async def answer_confirm(
     pattern = r"(\{[^}]+\})"
     matches = re.findall(pattern, output)
     try:
-        # {
-        #     "is_district_presented": "Y",
-        #     "is_term_presented": "Y",
-        #     "is_correct_value_present": "Y",
-        #     "Answer": "Y",
-        #     "Rationale": "The output should be 'Y' because the extracted answer is contained in the supporting text."
-        # }
-        answer_confirm_flag = json.loads(matches[0])["Answer"] if len(matches) > 0 else "N"
-        rationale = json.loads(matches[0])["Rationale"] if len(matches) > 0 else "Explanation not provided"
-        is_district_presented = json.loads(matches[0])["is_district_presented"] if len(matches) > 0 else "N"
-        is_term_presented = json.loads(matches[0])["is_term_presented"] if len(matches) > 0 else "N"
-        is_correct_value_present = json.loads(matches[0])["is_correct_value_present"] if len(matches) > 0 else "N"
+        parsed_json = json.loads(matches[0]) if len(matches) > 0 else {}
     except json.JSONDecodeError:
-        answer_confirm_flag = "N"
-        rationale = "Explanation not provided"
-        is_district_presented = "N"
-        is_term_presented = "N"
-        is_correct_value_present = "N"
-        logger.error(f"Error parsing GPT response: {output}")
+        logger.error(f"Error parsing JSON: {matches[0]}")
+        parsed_json = {}
+
+    def get_json_value(key, default_value):
+        try:
+            return parsed_json.get(key, default_value)
+        except KeyError:
+            logger.error(f"Key {key} not found in JSON.")
+            return default_value
+
+    answer_confirm_flag = get_json_value("Answer", "N")
+    rationale = get_json_value("Rationale", "Explanation not provided")
+    is_district_presented = get_json_value("is_district_presented", "N")
+    is_term_presented = get_json_value("is_term_presented", "N")
+    is_correct_value_present = get_json_value("is_correct_value_present", "N")
     logger.info(f"<ConfirmExtractor>: answer_confirm_flag: {answer_confirm_flag}")
     logger.info(f"<ConfirmExtractor>: rationale: {rationale}")
     logger.info(f"<ConfirmExtractor>: is_district_presented: {is_district_presented}")
@@ -90,6 +88,14 @@ async def answer_confirm(
     logger.info(f"<ConfirmExtractor>: is_correct_value_present: {is_correct_value_present}")
     logger.info(
         f"<ConfirmExtractor>: town: {town}, district: {district.full_name}, answer: {result.output}, response: {answer_confirm_flag}")
+
+    subquestions = {
+        "is_district_presented": is_district_presented,
+        "is_term_presented": is_term_presented,
+        "is_correct_value_present": is_correct_value_present,
+        'answer_confirm_flag': answer_confirm_flag,
+    }
+
     if answer_confirm_flag is None or answer_confirm_flag == "NO_ANSWER":
         logger.warn(
             "Null GPT response"
@@ -101,7 +107,8 @@ async def answer_confirm(
             search_pages_expanded=result.search_pages_expanded,
             confirmed=True,
             confirmed_raw=output,
-            original_output=result.output
+            original_output=result.output,
+            subquestions=subquestions
         )
     elif answer_confirm_flag == "N":
         return LookupOutputConfirmed(
@@ -110,7 +117,8 @@ async def answer_confirm(
             search_pages_expanded=result.search_pages_expanded,
             confirmed=False,
             confirmed_raw=output,
-            original_output=result.output
+            original_output=result.output,
+            subquestions=subquestions
         )
     else:
         logger.warn(f"GPT returned something unexpected, val: {answer_confirm_flag}")
