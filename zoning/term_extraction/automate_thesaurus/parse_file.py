@@ -11,7 +11,7 @@ enc = tiktoken.encoding_for_model("text-davinci-003")
 create_thesaurus_tmpl = get_jinja_environment().get_template(
     "create_thesaurus.pmpt.tpl"
 )
-DOCUMENT_PATH = get_project_root() / "zoning/term_extraction/thesaurus"
+DOCUMENT_PATH = get_project_root() / "zoning/term_extraction/automate_thesaurus"
 
 
 async def process_chunk(index, data_input, term):
@@ -73,12 +73,12 @@ async def extract_text_from_page():
     with open(DOCUMENT_PATH / "zoning_atlas.json", "w") as f:
         json.dump(zoning_atlas, f)
 
-    chunk_size = 2
+    chunk_size = 1
     values = list(zoning_atlas.values())
     # chunks = [data[i:i+chunk_size] for i in range(0, len(data), chunk_size)]
     chunks = [values[i : i + chunk_size] for i in range(0, len(values), chunk_size)]
 
-    await create_thesaurus("floor_to_area_ratio", chunks)
+    await create_thesaurus("max_lot_coverage", chunks)
 
 
 async def main(st=None):
