@@ -56,7 +56,5 @@ def main():
         st.write(results)
 
 
-
-
 if __name__ == '__main__':
     main()
