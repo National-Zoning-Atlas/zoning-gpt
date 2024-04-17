@@ -57,6 +57,7 @@ async def compute_eval_result(
         method=extraction_method,
         # model_name="gpt-4",
         model_name="gpt-4-1106-preview",  # getting better results with this
+        #model_name="gpt-4-turbo",
         tournament_k=tournament_k,
     )
 

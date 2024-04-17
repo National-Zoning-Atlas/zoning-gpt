@@ -231,6 +231,7 @@ TEMPLATE_MAPPING = {
     "gpt-3.5-turbo": extraction_chat_completion_tmpl,
     "gpt-4": extraction_chat_completion_tmpl,
     "gpt-4-1106-preview": extraction_chat_completion_tmpl,
+    "gpt-4-turbo": extraction_chat_completion_tmpl,
 }
 
 
@@ -282,7 +283,7 @@ def lookup_extraction_prompt(
                     "content": f"Input: \n\n {page_text}\n\n Output:",
                 },
             ]
-        case "gpt-4-1106-preview":
+        case "gpt-4-1106-preview" | "gpt-4-turbo":
             return [
                 {
                     "role": "system",
