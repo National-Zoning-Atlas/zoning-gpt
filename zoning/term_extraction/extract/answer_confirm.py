@@ -57,7 +57,9 @@ async def answer_confirm(
     )
 
     output = await prompt(
-        "gpt-4-1106-preview", [{"role": "user", "content": input_prompt}],
+        "gpt-4-1106-preview",
+        #"gpt-4-turbo",
+        [{"role": "user", "content": input_prompt}],
         max_tokens=256,
     )
 
