@@ -18,11 +18,19 @@ from ...prompting import prompt
 from .utils import lookup_extraction_prompt
 from ..search.utils import page_coverage
 
+from ...utils import get_jinja_environment
+
+
+tmpl = get_jinja_environment().get_template("extract_chat_completion.pmpt.tpl")
+
 
 def get_json(text):
     match = re.search(r'```json\n(\{.*?\})\n```', text, re.DOTALL)
     return json.loads(match.group(1)) if match else None
 
+
+def blah():
+    pass
 
 class MapUnionExtractor(MapExtractor):
     def __init__(self, model_name: str, k: int):
@@ -35,6 +43,14 @@ class MapUnionExtractor(MapExtractor):
     ):
         results = []
         for page in pages:
+            prompt = tmpl.render(
+                passage = page.text,
+                term = term,
+                synonyms = ", ".join(get_thesaurus().get(term, [])),
+                zone_name=district.full_name,
+                zone_abbreviation=district.short_name,
+                districts=district.districts,
+            )
             r = get_json(asyncio.run(prompt(
                 self.model_name,
                 lookup_extraction_prompt(self.model_name, page.text, district, term),

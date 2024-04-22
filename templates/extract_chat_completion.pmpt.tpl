@@ -1,12 +1,12 @@
 # Instructions
 
 You are an expert architectural lawyer.
-You will be giving a legal document, called a zoning code.
+You will be giving a legal document on the town {{town}}.
 You need to find the value of the term "{{term}}" for the district "{{zone_name}}" (abbreviation "{{zone_abbreviation}}").
 
-Within the town {{town}}, these are the districts:
+The town {{town}}, these are the districts:
 {{districts}}
-Gather information for the {{zone_name}} district, not the other districts.
+Retrieve information only regarding the {{zone_name}} district, not the other districts.
 
 The term "{{term}}" also goes by the following other names: {{synonyms}}.
 
