@@ -32,6 +32,7 @@ dependencies = [
     "pylint>=3.0.1",
     "pytest>=8.0.0",
     "boto3>=1.34.61",
+    "openpyxl",
 ]
 requires-python = ">=3.11"
 name = "zoning-gpt"

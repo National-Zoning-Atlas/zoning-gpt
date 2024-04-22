@@ -28,6 +28,7 @@ def extract_answer(
     term: str,
     town: str,
     district: District,
+    districts: list[District],
     method: ExtractionMethod,
     model_name: str,
     tournament_k: int = 1,
@@ -61,6 +62,6 @@ def extract_answer(
             extractor = MapUnionExtractor(model_name, tournament_k)
         case _:
             extractor = DummyExtractor()
-    return extractor.extract(pages, district, term, town)
+    return extractor.extract(pages, district, districts, term, town)
     #async for result in extractor.extract(pages, district, term, town):
         #yield result

@@ -9,7 +9,13 @@ from ..value_ranges import get_value_ranges
 from ...prompting import prompt
 from ...utils import batched, get_jinja_environment, logger
 from ..thesaurus import get_thesaurus
-from ..types import District, LookupOutput, PageSearchOutput, ExtractionOutput, ExtractionOutput2
+from ..types import (
+    District,
+    LookupOutput,
+    PageSearchOutput,
+    ExtractionOutput,
+    ExtractionOutput2,
+)
 from .map import MapExtractor
 from .utils import include_context_around_phrase
 from ...utils import flatten, logger
@@ -25,59 +31,75 @@ tmpl = get_jinja_environment().get_template("extract_chat_completion.pmpt.tpl")
 
 
 def get_json(text):
-    match = re.search(r'```json\n(\{.*?\})\n```', text, re.DOTALL)
+    match = re.search(r"```json\n(\{.*?\})\n```", text, re.DOTALL)
     return json.loads(match.group(1)) if match else None
 
 
-def blah():
-    pass
+def format_districts(districts):
+    import pdb; pdb.set_trace()
+
 
 class MapUnionExtractor(MapExtractor):
     def __init__(self, model_name: str, k: int):
         super().__init__(model_name)
         self.k = k
 
-    #async def extract(
+    # async def extract(
     def extract(
-        self, pages: list[PageSearchOutput], district: District, term: str, town: str
+        self,
+        pages: list[PageSearchOutput],
+        district: District,
+        districts: list[District],
+        term: str,
+        town: str,
     ):
         results = []
         for page in pages:
             prompt = tmpl.render(
-                passage = page.text,
-                term = term,
-                synonyms = ", ".join(get_thesaurus().get(term, [])),
+                passage=page.text,
+                term=term,
+                synonyms=", ".join(get_thesaurus().get(term, [])),
                 zone_name=district.full_name,
                 zone_abbreviation=district.short_name,
-                districts=district.districts,
+                districts=format_districts(districts),
             )
-            r = get_json(asyncio.run(prompt(
-                self.model_name,
-                lookup_extraction_prompt(self.model_name, page.text, district, term),
-                max_tokens=384,
-            )))
+            r = get_json(
+                asyncio.run(
+                    prompt(
+                        self.model_name,
+                        lookup_extraction_prompt(
+                            self.model_name, page.text, district, term
+                        ),
+                        max_tokens=384,
+                    )
+                )
+            )
             o = ExtractionOutput2(
-                district_explanation = r["district_explanation"],
-                district = r["district"],
-                term_explanation = r["term_explanation"],
-                term = r["term"],
-                explanation = r["explanation"],
-                answer = r["answer"],
+                district_explanation=r["district_explanation"],
+                district=r["district"],
+                term_explanation=r["term_explanation"],
+                term=r["term"],
+                explanation=r["explanation"],
+                answer=r["answer"],
             )
             o = ExtractionOutput(
-                extracted_text = [
+                extracted_text=[
                     r["district_explanation"],
                     r["district"],
                     r["term_explanation"],
                     r["term"],
                 ],
-                rationale = r["explanation"],
-                answer = r["answer"],
+                rationale=r["explanation"],
+                answer=r["answer"],
             )
-            results.append(LookupOutput(
-                output = o,
-                search_pages = [page],
-                search_pages_expanded=flatten(page_coverage([page])),
-            ))
-        import pdb; pdb.set_trace()
+            results.append(
+                LookupOutput(
+                    output=o,
+                    search_pages=[page],
+                    search_pages_expanded=flatten(page_coverage([page])),
+                )
+            )
+        import pdb
+
+        pdb.set_trace()
         return results

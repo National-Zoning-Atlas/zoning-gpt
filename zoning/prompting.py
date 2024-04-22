@@ -14,12 +14,10 @@ cache = dc.Cache(get_project_root() / ".diskcache")
 @retry(
     retry=retry_if_exception_type(
         (
-            openai.error.APIError,
-            openai.error.RateLimitError,
-            openai.error.APIConnectionError,
-            openai.error.ServiceUnavailableError,
-            openai.error.Timeout,
-            openai.error.TryAgain,
+            openai.APIError,
+            openai.RateLimitError,
+            openai.APIConnectionError,
+            openai.Timeout,
         )
     ),
     wait=wait_random_exponential(multiplier=1, max=60),
@@ -71,6 +69,6 @@ async def prompt(
                     return top_choice.message.content
             case _:
                 raise ValueError(f"Unknown model name: {model_name}")
-    except openai.error.InvalidRequestError as exc:
+    except openai.InvalidRequestError as exc:
         rich.print("Error running prompt", exc)
         return None

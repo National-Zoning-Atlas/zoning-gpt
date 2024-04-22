@@ -1,4 +1,5 @@
 import asyncio
+from collections import defaultdict
 import logging
 from typing import Annotated, Any, Optional
 import pandas as pd
@@ -39,14 +40,15 @@ def calculate_verification_metrics(true_positives, false_positives, false_negati
 
 #async def compute_eval_result(
 def compute_eval_result(
-        town: str,
-        district: District,
-        term: str,
-        ground_truth: dict[str, Any],
-        search_method: SearchMethod,
-        extraction_method: ExtractionMethod,
-        k: int,
-        tournament_k: int,
+    town: str,
+    district: District,
+    districts: list[District],
+    term: str,
+    ground_truth: dict[str, Any],
+    search_method: SearchMethod,
+    extraction_method: ExtractionMethod,
+    k: int,
+    tournament_k: int,
 ):
     pages = search_for_term(town, district, term, search_method, k)
     expanded_pages = flatten(page_coverage(pages))
@@ -55,6 +57,7 @@ def compute_eval_result(
         term=term,
         town=town,
         district=district,
+        districts=districts,
         method=extraction_method,
         # model_name="gpt-4",
         #model_name="gpt-4-1106-preview",  # getting better results with this
@@ -152,11 +155,11 @@ def compute_eval_result(
 
 
 def compare_results(
-        actual_normalized: float | None,
-        actual_raw: str | None,
-        expected: str | None,
-        expected_extended: str | None,
-        expected_extended_normalized: float | None,
+    actual_normalized: float | None,
+    actual_raw: str | None,
+    expected: str | None,
+    expected_extended: str | None,
+    expected_extended_normalized: float | None,
 ) -> bool:
     if actual_raw is not None and expected is None and expected_extended is not None:
         # If no normalized expected answer exists, but an extended one does,
@@ -174,15 +177,16 @@ def compare_results(
 
 #async def evaluate_term(
 def evaluate_term(
-        term: str,
-        gt: pl.DataFrame,
-        progress: Progress,
-        search_method: SearchMethod,
-        extraction_method: ExtractionMethod,
-        k: int,
-        tournament_k: int,
+    term: str,
+    gt: pl.DataFrame,
+    progress: Progress,
+    search_method: SearchMethod,
+    extraction_method: ExtractionMethod,
+    k: int,
+    tournament_k: int,
 ):
     eval_task = progress.add_task(f"Evaluating {term}", total=len(gt))
+
 
     # Generate results for the given term in parallel, showing progress along
     # the way.
@@ -196,7 +200,7 @@ def evaluate_term(
         )
         #async for result in compute_eval_result(
         for result in compute_eval_result(
-            town, district, term, row, search_method, extraction_method, k, tournament_k
+            town, district, districts[town], term, row, search_method, extraction_method, k, tournament_k,
         ):
             results.append(result)
         progress.advance(eval_task)
@@ -449,16 +453,20 @@ def evaluate_term(
     return eval_metrics, results_df
 
 
+def extract_districts():
+    data = pd.read_excel(DATA_ROOT / "ct-data.xlsx")
+    import pdb; pdb.set_trace()
+
 #async def main(
 def main(
-        search_method: Annotated[SearchMethod, typer.Option()],
-        extraction_method: Annotated[ExtractionMethod, typer.Option()],
-        terms: Annotated[list[str], typer.Option()],
-        k: Annotated[int, typer.Option()],
-        # We must use Optional here because the "|" syntax can't be used by typer
-        # yet for some reason.
-        num_eval_rows: Annotated[Optional[int], typer.Option()] = None,
-        tournament_k: Annotated[int, typer.Option()] = 1,
+    search_method: Annotated[SearchMethod, typer.Option()],
+    extraction_method: Annotated[ExtractionMethod, typer.Option()],
+    terms: Annotated[list[str], typer.Option()],
+    k: Annotated[int, typer.Option()],
+    # We must use Optional here because the "|" syntax can't be used by typer
+    # yet for some reason.
+    num_eval_rows: Annotated[Optional[int], typer.Option()] = None,
+    tournament_k: Annotated[int, typer.Option()] = 1,
 ):
     raw_terms = terms
     terms = [i.split(",") for i in terms]
@@ -475,20 +483,24 @@ def main(
         },
         n_rows=num_eval_rows,
     )
+
+    districts = extract_districts()
+
     results_df = None
     # Run evaluation against entire ground truth for each term and aggregate all
     # results into one object.
     with Progress(
-            SpinnerColumn(),
-            *Progress.get_default_columns(),
-            TimeElapsedColumn(),
-            disable=DEBUG,
+        SpinnerColumn(),
+        *Progress.get_default_columns(),
+        TimeElapsedColumn(),
+        disable=DEBUG,
     ) as progress:
         term_task = progress.add_task("Terms", total=len(terms))
         for term in terms:
             #metrics[term], new_results_df = await evaluate_term(
             metrics[term], new_results_df = evaluate_term(
-                term, gt, progress, search_method, extraction_method, k, tournament_k
+                term, gt, progress, search_method, extraction_method, k, tournament_k,
+                districts,
             )
             if results_df is not None:
                 results_df = pl.concat((results_df, new_results_df))

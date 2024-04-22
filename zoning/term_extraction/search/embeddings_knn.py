@@ -1,7 +1,7 @@
 from typing import Generator
 
 import numpy as np
-from openai.embeddings_utils import get_embedding
+#from openai.embeddings_utils import get_embedding
 
 from ..types import District, PageSearchOutput
 from .base import Searcher
@@ -20,6 +20,7 @@ class EmbeddingsKNNSearcher(Searcher):
         self, town: str, district: District, term: str
     ) -> Generator[PageSearchOutput, None, None]:
         query = next(expand_term(term)) + district.full_name + district.short_name
+        raise NotImplementedError
         query_embedding = np.array(get_embedding(query, "text-embedding-ada-002"))
 
         filtered_ds = self.ds.filter(lambda x: x["Town"] == town)
