@@ -19,7 +19,7 @@ class PageSearchOutput(BaseModel):
 class ExtractionOutput(BaseModel):
     extracted_text: list[str]
     rationale: str
-    answer: str
+    answer: str | None
 
     def __str__(self):
         return f"ExtractionOutput(extracted_text={self.extracted_text}, rationale={self.rationale}, answer={self.answer})"

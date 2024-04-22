@@ -9,7 +9,7 @@ from ..value_ranges import get_value_ranges
 from ...prompting import prompt
 from ...utils import batched, get_jinja_environment, logger
 from ..thesaurus import get_thesaurus
-from ..types import District, LookupOutput, PageSearchOutput, ExtractionOutput2
+from ..types import District, LookupOutput, PageSearchOutput, ExtractionOutput, ExtractionOutput2
 from .map import MapExtractor
 from .utils import include_context_around_phrase
 from ...utils import flatten, logger
@@ -46,6 +46,16 @@ class MapUnionExtractor(MapExtractor):
                 term_explanation = r["term_explanation"],
                 term = r["term"],
                 explanation = r["explanation"],
+                answer = r["answer"],
+            )
+            o = ExtractionOutput(
+                extracted_text = [
+                    r["district_explanation"],
+                    r["district"],
+                    r["term_explanation"],
+                    r["term"],
+                ],
+                rationale = r["explanation"],
                 answer = r["answer"],
             )
             results.append(LookupOutput(

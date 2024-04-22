@@ -196,7 +196,7 @@ def evaluate_term(
         )
         #async for result in compute_eval_result(
         for result in compute_eval_result(
-                town, district, term, row, search_method, extraction_method, k, tournament_k
+            town, district, term, row, search_method, extraction_method, k, tournament_k
         ):
             results.append(result)
         progress.advance(eval_task)
