@@ -225,13 +225,17 @@ extraction_completion_tmpl = get_jinja_environment().get_template(
     "extraction_completion.pmpt.tpl"
 )
 
+extract_chat_completion_tmpl = get_jinja_environment().get_template(
+    "extract_chat_completion.pmpt.tpl"
+)
+
 
 TEMPLATE_MAPPING = {
     "text-davinci-003": extraction_completion_tmpl,
     "gpt-3.5-turbo": extraction_chat_completion_tmpl,
     "gpt-4": extraction_chat_completion_tmpl,
     "gpt-4-1106-preview": extraction_chat_completion_tmpl,
-    "gpt-4-turbo": extraction_chat_completion_tmpl,
+    "gpt-4-turbo": extract_chat_completion_tmpl,
 }
 
 

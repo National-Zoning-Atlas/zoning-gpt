@@ -9,6 +9,7 @@ from .stuff import StuffExtractor
 from .tournament_reduce import TournamentReduceExtractor
 from .multiple_choice import MultipleChoiceExtractor
 from .answer_confirm import ConfirmExtractor
+from .map_union import MapUnionExtractor
 
 
 class ExtractionMethod(str, Enum):
@@ -18,9 +19,11 @@ class ExtractionMethod(str, Enum):
     TOURNAMENT_REDUCE = "tournament_reduce"
     MULTIPLE_CHOICE = "multiple_choice"
     REDUCE_AND_CONFIRM = "answer_confirm"
+    MAP_UNION = "map_union"
 
 
-async def extract_answer(
+#async def extract_answer(
+def extract_answer(
     pages: list[PageSearchOutput],
     term: str,
     town: str,
@@ -54,7 +57,10 @@ async def extract_answer(
             extractor = MapExtractor(model_name)
         case ExtractionMethod.REDUCE_AND_CONFIRM:
             extractor = ConfirmExtractor(model_name, tournament_k)
+        case ExtractionMethod.MAP_UNION:
+            extractor = MapUnionExtractor(model_name, tournament_k)
         case _:
             extractor = DummyExtractor()
-    async for result in extractor.extract(pages, district, term, town):
-        yield result
+    return extractor.extract(pages, district, term, town)
+    #async for result in extractor.extract(pages, district, term, town):
+        #yield result

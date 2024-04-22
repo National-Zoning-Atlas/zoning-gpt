@@ -27,7 +27,7 @@ SNAPSHOTS_DIR = DATA_ROOT / "results" / "snapshots"
 SNAPSHOTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # If DEBUG=True, do not print rich tracking information
-DEBUG = False
+DEBUG = True
 
 
 def calculate_verification_metrics(true_positives, false_positives, false_negatives):
@@ -37,7 +37,8 @@ def calculate_verification_metrics(true_positives, false_positives, false_negati
     return recall, precision, f1
 
 
-async def compute_eval_result(
+#async def compute_eval_result(
+def compute_eval_result(
         town: str,
         district: District,
         term: str,
@@ -56,8 +57,8 @@ async def compute_eval_result(
         district=district,
         method=extraction_method,
         # model_name="gpt-4",
-        model_name="gpt-4-1106-preview",  # getting better results with this
-        #model_name="gpt-4-turbo",
+        #model_name="gpt-4-1106-preview",  # getting better results with this
+        model_name="gpt-4-turbo",
         tournament_k=tournament_k,
     )
 
@@ -71,7 +72,8 @@ async def compute_eval_result(
     expected = ground_truth[f"{term}_gt"]
     is_empty = True
 
-    async for result in outputs:
+    #async for result in outputs:
+    for result in outputs:
         is_empty = False
         extracted_pages = {r.page_number for r in result.search_pages}
         extracted_pages_expanded = set(result.search_pages_expanded)
@@ -170,7 +172,8 @@ def compare_results(
         return actual_normalized == expected
 
 
-async def evaluate_term(
+#async def evaluate_term(
+def evaluate_term(
         term: str,
         gt: pl.DataFrame,
         progress: Progress,
@@ -191,7 +194,8 @@ async def evaluate_term(
         progress.update(
             eval_task, description=f"Evaluating {term}, {town}, {district.full_name}"
         )
-        async for result in compute_eval_result(
+        #async for result in compute_eval_result(
+        for result in compute_eval_result(
                 town, district, term, row, search_method, extraction_method, k, tournament_k
         ):
             results.append(result)
@@ -445,7 +449,8 @@ async def evaluate_term(
     return eval_metrics, results_df
 
 
-async def main(
+#async def main(
+def main(
         search_method: Annotated[SearchMethod, typer.Option()],
         extraction_method: Annotated[ExtractionMethod, typer.Option()],
         terms: Annotated[list[str], typer.Option()],
@@ -481,7 +486,8 @@ async def main(
     ) as progress:
         term_task = progress.add_task("Terms", total=len(terms))
         for term in terms:
-            metrics[term], new_results_df = await evaluate_term(
+            #metrics[term], new_results_df = await evaluate_term(
+            metrics[term], new_results_df = evaluate_term(
                 term, gt, progress, search_method, extraction_method, k, tournament_k
             )
             if results_df is not None:

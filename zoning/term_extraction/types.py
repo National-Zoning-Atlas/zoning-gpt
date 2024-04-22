@@ -25,8 +25,19 @@ class ExtractionOutput(BaseModel):
         return f"ExtractionOutput(extracted_text={self.extracted_text}, rationale={self.rationale}, answer={self.answer})"
 
 
+class ExtractionOutput2(BaseModel):
+    district_explanation: str
+    district: str
+    term_explanation: str
+    term: str
+    explanation: str
+    answer: str | None
+
+    def __str__(self):
+        return f"ExtractionOutput(extracted_text={self.extracted_text}, rationale={self.rationale}, answer={self.answer})"
+
 class LookupOutput(BaseModel):
-    output: ExtractionOutput | None
+    output: ExtractionOutput | ExtractionOutput2 | None
     search_pages: list[PageSearchOutput]
     search_pages_expanded: list[int]
     """
