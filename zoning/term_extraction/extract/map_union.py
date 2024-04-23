@@ -36,7 +36,7 @@ def get_json(text):
 
 
 def format_districts(districts):
-    import pdb; pdb.set_trace()
+    return "\n".join([f"* {d.full_name} ({d.short_name})" for d in districts])
 
 
 class MapUnionExtractor(MapExtractor):
@@ -55,7 +55,7 @@ class MapUnionExtractor(MapExtractor):
     ):
         results = []
         for page in pages:
-            prompt = tmpl.render(
+            instruction = tmpl.render(
                 passage=page.text,
                 term=term,
                 synonyms=", ".join(get_thesaurus().get(term, [])),
@@ -67,9 +67,7 @@ class MapUnionExtractor(MapExtractor):
                 asyncio.run(
                     prompt(
                         self.model_name,
-                        lookup_extraction_prompt(
-                            self.model_name, page.text, district, term
-                        ),
+                        instruction,
                         max_tokens=384,
                     )
                 )

@@ -184,6 +184,7 @@ def evaluate_term(
     extraction_method: ExtractionMethod,
     k: int,
     tournament_k: int,
+    districts,
 ):
     eval_task = progress.add_task(f"Evaluating {term}", total=len(gt))
 
@@ -455,7 +456,15 @@ def evaluate_term(
 
 def extract_districts():
     data = pd.read_excel(DATA_ROOT / "ct-data.xlsx")
-    import pdb; pdb.set_trace()
+    map = {jurisdiction.lower(): [] for jurisdiction in set(data["Jurisdiction"])}
+    for i, row in data.iterrows():
+        town = row["Jurisdiction"].lower()
+        district = District(
+            full_name=row["Full District Name"],
+            short_name=row["AbbreviatedDistrict"],
+        )
+        map[town].append(district)
+    return map
 
 #async def main(
 def main(
