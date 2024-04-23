@@ -2,6 +2,7 @@ import asyncio
 from collections import defaultdict
 import logging
 from typing import Annotated, Any, Optional
+import re
 import pandas as pd
 import polars as pl
 import typer
@@ -38,8 +39,8 @@ def calculate_verification_metrics(true_positives, false_positives, false_negati
     return recall, precision, f1
 
 
-#async def compute_eval_result(
-def compute_eval_result(
+async def compute_eval_result(
+#def compute_eval_result(
     town: str,
     district: District,
     districts: list[District],
@@ -75,8 +76,8 @@ def compute_eval_result(
     expected = ground_truth[f"{term}_gt"]
     is_empty = True
 
-    #async for result in outputs:
-    for result in outputs:
+    async for result in outputs:
+    #for result in outputs:
         is_empty = False
         extracted_pages = {r.page_number for r in result.search_pages}
         extracted_pages_expanded = set(result.search_pages_expanded)
@@ -175,8 +176,8 @@ def compare_results(
         return actual_normalized == expected
 
 
-#async def evaluate_term(
-def evaluate_term(
+async def evaluate_term(
+#def evaluate_term(
     term: str,
     gt: pl.DataFrame,
     progress: Progress,
@@ -199,8 +200,8 @@ def evaluate_term(
         progress.update(
             eval_task, description=f"Evaluating {term}, {town}, {district.full_name}"
         )
-        #async for result in compute_eval_result(
-        for result in compute_eval_result(
+        async for result in compute_eval_result(
+        #for result in compute_eval_result(
             town, district, districts[town], term, row, search_method, extraction_method, k, tournament_k,
         ):
             results.append(result)
@@ -454,11 +455,19 @@ def evaluate_term(
     return eval_metrics, results_df
 
 
+def normalize_town(x):
+    x = x.lower().strip()
+    x = re.sub(r"\s*-\s*", "-", x)
+    x = re.sub(r"\s*/\s*", "-", x)
+    x = re.sub(r"\s+", "-", x)
+    return x
+
+
 def extract_districts():
     data = pd.read_excel(DATA_ROOT / "ct-data.xlsx")
-    map = {jurisdiction.lower(): [] for jurisdiction in set(data["Jurisdiction"])}
+    map = {normalize_town(jurisdiction): [] for jurisdiction in set(data["Jurisdiction"])}
     for i, row in data.iterrows():
-        town = row["Jurisdiction"].lower()
+        town = normalize_town(row["Jurisdiction"])
         district = District(
             full_name=row["Full District Name"],
             short_name=row["AbbreviatedDistrict"],
@@ -466,8 +475,9 @@ def extract_districts():
         map[town].append(district)
     return map
 
-#async def main(
-def main(
+
+async def main(
+#def main(
     search_method: Annotated[SearchMethod, typer.Option()],
     extraction_method: Annotated[ExtractionMethod, typer.Option()],
     terms: Annotated[list[str], typer.Option()],
@@ -506,8 +516,8 @@ def main(
     ) as progress:
         term_task = progress.add_task("Terms", total=len(terms))
         for term in terms:
-            #metrics[term], new_results_df = await evaluate_term(
-            metrics[term], new_results_df = evaluate_term(
+            metrics[term], new_results_df = await evaluate_term(
+            #metrics[term], new_results_df = evaluate_term(
                 term, gt, progress, search_method, extraction_method, k, tournament_k,
                 districts,
             )

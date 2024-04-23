@@ -2,11 +2,15 @@ import json
 
 import diskcache as dc
 import openai
+from openai import OpenAI
+
 from tenacity import retry, retry_if_exception_type, wait_random_exponential
 
 from ..utils import get_jinja_environment, get_project_root, cached
 
-template  = get_jinja_environment().get_template("semantic_comparison.pmpt.tpl")
+
+client = OpenAI()
+template = get_jinja_environment().get_template("semantic_comparison.pmpt.tpl")
 cache = dc.Cache(get_project_root() / ".diskcache")
 
 
@@ -25,9 +29,9 @@ cache = dc.Cache(get_project_root() / ".diskcache")
 def semantic_comparison(expected: str, actual: str) -> bool:
     # TODO: Is there a way to share this implementation with our generic prompt
     # function?
-    resp = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        temperature=0.0, # We want these responses to be deterministic
+    resp = client.chat.completions.create(
+        model="gpt-4.5-turbo",
+        temperature=0.0,  # We want these responses to be deterministic
         max_tokens=1,
         messages=[
             {

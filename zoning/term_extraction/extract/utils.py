@@ -310,6 +310,7 @@ def lookup_extraction_prompt(
 async def run_extraction_prompt(
     model_name: str, district: District, term: str, contents: str
 ):
+    raise NotImplementedError
     return parse_extraction_output(
         await prompt(
             model_name,

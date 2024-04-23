@@ -29,6 +29,7 @@ async def prompt(
     max_tokens=256,
     formatted_response=False,
 ) -> str | None:
+    raise NotImplementedError
     base_params = {
         "model": model_name,
         "max_tokens": max_tokens,
@@ -63,12 +64,12 @@ async def prompt(
                     resp = await openai.ChatCompletion.acreate(
                         **base_params,
                         messages=input_prompt,
-                        response_format={"type": "json_object"}
+                        response_format={"type": "json_object"},
                     )
                     top_choice = resp.choices[0]  # type: ignore
                     return top_choice.message.content
             case _:
                 raise ValueError(f"Unknown model name: {model_name}")
-    except openai.InvalidRequestError as exc:
+    except Exception as exc:
         rich.print("Error running prompt", exc)
         return None

@@ -16,7 +16,7 @@ If you cannot extract reasonable text, then you should not return an answer.
 For {{term}} in residential districts, return answer for single-family homes.
 
 # Special cases
-* Rear lot size is different from min lot size
+* Rear lot size is not the same term as min lot size.
 
 # Input format
 The input will be an excerpt of text from the zoning document.
@@ -259,3 +259,5 @@ Output:
 ```
 
 # New input
+Input:
+{{passage}}
