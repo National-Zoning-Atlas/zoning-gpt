@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+import json
 
 
 class District(BaseModel):
@@ -33,6 +34,7 @@ class LookupOutput(BaseModel):
     The set of pages, in descending order or relevance, used to produce the
     result.
     """
+
     def __str__(self):
         return f"LookupOutput(output={self.output}, search_pages=[...], search_pages_expanded={self.search_pages_expanded})"
 

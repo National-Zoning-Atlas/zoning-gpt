@@ -6,51 +6,30 @@
 @IDE  : PyCharm
 """
 import argparse
+import datetime
+import json
+import time
+import warnings
+import zoning
+from zoning.main.ZoningModule import ZoningModule
+from zoning.term_extraction.types import District
+import jsonpickle
+
+warnings.filterwarnings("ignore")
 
 
-# #
-# def main():
-#     st.title("Zoning Document Search")
-#     st.write("This page allows you to search for terms in zoning documents.")
-#
-#     # Get the term to search for
-#     term = st.text_input("Enter the term to search for", "min lot size")
-#
-#     # Get the town to search in
-#     town = st.text_input("Enter the town to search in", "andover")
-#
-#     # Get the district to search in
-#     district_name = st.text_input("Enter the district to search in", "Andover Lake")
-#     district_abb = st.text_input("Enter the district abbreviation", "AL")
-#
-#     district = District(full_name=district_name, short_name=district_abb)
-#
-#     # Get the search method to use
-#     search_method = st.selectbox(
-#         "Select the search method to use",
-#         [
-#             "elasticsearch",
-#         ],
-#     )
-#
-#     # Get the number of results to return
-#     k = st.number_input("Enter the number of results to return", 10)
-#
-#     # Search for the term
-#     if st.button("Search"):
-#         st.write("Searching for term...")
-#         results = zoning.term_extraction.search.search_for_term(town, district, term, search_method, k)
-#         st.write(f"Found {len(results)} results.")
-#         st.markdown("## Results")
-#         st.write(results)
-#
-#
-# if __name__ == '__main__':
-#     main()
-
-class ZoningModule:
+class ZoningSearchModule(ZoningModule):
     def __init__(self):
-        parser = argparse.ArgumentParser(description='Zoning Document Search')
+        super().__init__()
+        self.term = self.args.term
+        self.town = self.args.town
+        self.district_name = self.args.district_name
+        self.district_abb = self.args.district_abb
+        self.district = District(full_name=self.district_name, short_name=self.district_abb)
+        self.search_method = self.args.search_method
+        self.k = self.args.k
+
+    def config_args(self, parser):
         parser.add_argument('--term', type=str, help='Enter the term to search for', default='min lot size')
         parser.add_argument('--town', type=str, help='Enter the town to search in', default='andover')
         parser.add_argument('--district_name', type=str, help='Enter the district to search in', default='Andover Lake')
@@ -58,18 +37,32 @@ class ZoningModule:
         parser.add_argument('--search_method', type=str, help='Select the search method to use',
                             default='elasticsearch')
         parser.add_argument('--k', type=int, help='Enter the number of results to return', default=10)
-        self.args = parser.parse_args()
-        print(f"Search term: {self.args.term}\n"
-              f"Search town: {self.args.town}\n"
-              f"Search district name: {self.args.district_name}\n"
-              f"Search district abbreviation: {self.args.district_abb}\n"
-              f"Search method: {self.args.search_method}\n"
-              f"Number of results: {self.args.k}"
-              f"Search for term...")
 
-    def search(self):
-        pass
+    def get_stdin(self):
+        return None
+
+    def main(self):
+        results = zoning.term_extraction.search.search_for_term(self.town, self.district, self.term, self.search_method,
+                                                                self.k)
+        return results
+
+    def output(self, results):
+        print(self.DATA_START_FLAG)
+        data = {
+            'metadata': {
+                'term': self.term,
+                'town': self.town,
+                'district_name': self.district_name,
+                'district_abb': self.district_abb,
+                'search_method': self.search_method,
+                'k': self.k
+            },
+            'time': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'results': json.loads(jsonpickle.encode(results))
+        }
+        print(json.dumps(data, indent=4))
 
 
 if __name__ == '__main__':
-    pass
+    module = ZoningSearchModule()
+    module.output(module.main())
