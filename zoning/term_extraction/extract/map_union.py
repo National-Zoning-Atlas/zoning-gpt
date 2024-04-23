@@ -125,6 +125,7 @@ class MapUnionExtractor(Extractor):
                 search_pages=[page],
                 search_pages_expanded=flatten(page_coverage([page])),
             )
+            """
             # non async
             results.append(
                 LookupOutput(
@@ -133,6 +134,7 @@ class MapUnionExtractor(Extractor):
                     search_pages_expanded=flatten(page_coverage([page])),
                 )
             )
+            """
 
         # non async
         #pdb.set_trace()
