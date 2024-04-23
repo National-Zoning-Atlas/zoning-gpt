@@ -1,7 +1,9 @@
 import json
 
 import diskcache as dc
-import openai
+from openai import AsyncOpenAI
+
+aclient = AsyncOpenAI()
 import rich
 from tenacity import retry, retry_if_exception_type, wait_random_exponential
 
@@ -11,17 +13,6 @@ cache = dc.Cache(get_project_root() / ".diskcache")
 
 
 @cached(cache, lambda *args, **kwargs: json.dumps(args) + json.dumps(kwargs))
-@retry(
-    retry=retry_if_exception_type(
-        (
-            openai.APIError,
-            openai.RateLimitError,
-            openai.APIConnectionError,
-            openai.Timeout,
-        )
-    ),
-    wait=wait_random_exponential(multiplier=1, max=60),
-)
 @limit_global_concurrency(100)
 async def prompt(
     model_name: str,
@@ -29,7 +20,7 @@ async def prompt(
     max_tokens=256,
     formatted_response=False,
 ) -> str | None:
-    raise NotImplementedError
+    #raise NotImplementedError
     base_params = {
         "model": model_name,
         "max_tokens": max_tokens,
@@ -39,33 +30,25 @@ async def prompt(
     try:
         match model_name:
             case "text-davinci-003":
-                resp = await openai.Completion.acreate(
-                    **base_params,
-                    prompt=input_prompt,
-                )
+                resp = await aclient.completions.create(**base_params,
+                prompt=input_prompt)
                 top_choice = resp.choices[0]  # type: ignore
                 return top_choice.text
             case "gpt-3.5-turbo" | "gpt-4" | "gpt-4-turbo-preview" | "gpt-4-turbo":
-                resp = await openai.ChatCompletion.acreate(
-                    **base_params,
-                    messages=input_prompt,
-                )
+                resp = await aclient.chat.completions.create(**base_params,
+                messages=input_prompt)
                 top_choice = resp.choices[0]  # type: ignore
                 return top_choice.message.content
             case "gpt-4-1106-preview":
                 if not formatted_response:
-                    resp = await openai.ChatCompletion.acreate(
-                        **base_params,
-                        messages=input_prompt,
-                    )
+                    resp = await aclient.chat.completions.create(**base_params,
+                    messages=input_prompt)
                     top_choice = resp.choices[0]  # type: ignore
                     return top_choice.message.content
                 else:
-                    resp = await openai.ChatCompletion.acreate(
-                        **base_params,
-                        messages=input_prompt,
-                        response_format={"type": "json_object"},
-                    )
+                    resp = await aclient.chat.completions.create(**base_params,
+                    messages=input_prompt,
+                    response_format={"type": "json_object"})
                     top_choice = resp.choices[0]  # type: ignore
                     return top_choice.message.content
             case _:

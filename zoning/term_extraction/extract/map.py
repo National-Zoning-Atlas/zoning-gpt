@@ -14,7 +14,7 @@ class MapExtractor(Extractor):
         self.model_name = model_name
 
     async def extract(
-        self, pages: list[PageSearchOutput], district: District, term: str, town: str
+        self, pages: list[PageSearchOutput], district: District, districts: list[District], term: str, town: str
     ):
         async def worker(page):
             return (

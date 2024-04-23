@@ -235,7 +235,7 @@ TEMPLATE_MAPPING = {
     "gpt-3.5-turbo": extraction_chat_completion_tmpl,
     "gpt-4": extraction_chat_completion_tmpl,
     "gpt-4-1106-preview": extraction_chat_completion_tmpl,
-    "gpt-4-turbo": extract_chat_completion_tmpl,
+    "gpt-4-turbo": extraction_chat_completion_tmpl,
 }
 
 
@@ -310,7 +310,7 @@ def lookup_extraction_prompt(
 async def run_extraction_prompt(
     model_name: str, district: District, term: str, contents: str
 ):
-    raise NotImplementedError
+    #raise NotImplementedError
     return parse_extraction_output(
         await prompt(
             model_name,
