@@ -5,18 +5,12 @@
 @File : extract.py
 @IDE  : PyCharm
 """
-import argparse
 import asyncio
 import json
-import rich
-import zoning
-from zoning.main.ZoningModule import ZoningModule
+from zoning.main.base.ZoningModule import ZoningModule
 from zoning.term_extraction.extract import extract_answer
-from zoning.term_extraction.search.utils import page_coverage
 from zoning.term_extraction.types import District
 import jsonpickle
-
-from zoning.utils import flatten
 
 
 class ZoningExtractModule(ZoningModule):
