@@ -205,8 +205,8 @@ def get_metrics(results_df):
 
     # 2. answer accuracy
     answers_df = results_df.with_columns(
-        pl.struct(["actual", "expected_extended"])
-        .apply(lambda x: semantic_comparison(x["actual"], x["expected_extended"]))
+        pl.struct(["actual", "expected_extended", "expected"])
+        .apply(lambda x: semantic_comparison(x["actual"], x["expected_extended"]) or semantic_comparison(x["actual"], x["expected"]))
         .alias("correct_answer")
     )
     answers_results_df = answers_df.groupby(pl.col("town", "district")).agg(
@@ -232,10 +232,10 @@ def get_metrics(results_df):
         .apply(lambda x: x["actual"] != "None")
         .alias("predicted_positive")
     ).with_columns(
-        pl.struct(["this_correct_page_searched", "expected_extended", "actual"])
+        pl.struct(["this_correct_page_searched", "expected_extended", "expected", "actual"])
         .apply(lambda x:
             x["this_correct_page_searched"]
-            and x["expected_extended"] is not None
+            and (x["expected_extended"] is not None or x["expected"] is not None)
             and x["actual"] != "None"
         ) 
         .alias("true_predicted_positive")
