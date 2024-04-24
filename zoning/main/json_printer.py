@@ -2,7 +2,7 @@
 """
 @Time : 4/22/2024 10:35 PM
 @Auth : Wang Yuyang
-@File : printer.py
+@File : json_printer.py
 @IDE  : PyCharm
 """
 import json
@@ -11,14 +11,7 @@ import rich
 
 from zoning.main.base.ZoningModule import ZoningModule
 
-
-# input = ""
-# for line in sys.stdin:
-#     input += line
-#
-# json_data = json.loads(input)
-# rich.print(json_data)
-class ZoningPrinterModule(ZoningModule):
+class ZoningJSONPrinterModule(ZoningModule):
     def __init__(self):
         self.data = None
 
@@ -36,5 +29,5 @@ class ZoningPrinterModule(ZoningModule):
 
 
 if __name__ == '__main__':
-    module = ZoningPrinterModule()
+    module = ZoningJSONPrinterModule()
     module.output(module.main())

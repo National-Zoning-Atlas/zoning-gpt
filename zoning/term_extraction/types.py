@@ -16,6 +16,9 @@ class PageSearchOutput(BaseModel):
     query: str
     log: dict[str, str]
 
+    def to_dict(self):
+        return json.loads(self.model_dump_json())
+
 
 class ExtractionOutput(BaseModel):
     extracted_text: list[str]
@@ -38,6 +41,8 @@ class LookupOutput(BaseModel):
     def __str__(self):
         return f"LookupOutput(output={self.output}, search_pages=[...], search_pages_expanded={self.search_pages_expanded})"
 
+    def to_dict(self):
+        return json.loads(self.model_dump_json())
 
 class LookupOutputConfirmed(LookupOutput):
     confirmed: bool
