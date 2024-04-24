@@ -26,7 +26,7 @@ cache = dc.Cache(get_project_root() / ".diskcache")
     ),
     wait=wait_random_exponential(multiplier=1, max=60),
 )
-def semantic_comparison(expected: str, actual: str) -> bool:
+def semantic_comparison(true_answer: str, predicted: str) -> bool:
     # TODO: Is there a way to share this implementation with our generic prompt
     # function?
     resp = client.chat.completions.create(
@@ -37,8 +37,8 @@ def semantic_comparison(expected: str, actual: str) -> bool:
             {
                 "role": "user",
                 "content": template.render(
-                    actual=actual,
-                    expected=expected,
+                    predicted=predicted,
+                    true_answer=true_answer,
                 ),
             },
         ],

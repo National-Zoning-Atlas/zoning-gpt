@@ -73,6 +73,7 @@ async def compute_eval_result(
     else:
         gt_page = set(map(int, str(gt_page).split(",")))
 
+    # true answer
     expected = ground_truth[f"{term}_gt"]
     is_empty = True
 
@@ -82,7 +83,9 @@ async def compute_eval_result(
         extracted_pages = {r.page_number for r in result.search_pages}
         extracted_pages_expanded = set(result.search_pages_expanded)
         logger.info(f"Term {term} in {town} in {district.full_name} has searched_pages_expanded: {extracted_pages_expanded}")
+        # this will be true for all chunks
         is_correct_page_searched = any(gt_page & set(expanded_pages))
+        this_correct_page_searched = any(gt_page & set(extracted_pages_expanded))
         expected_extended = ground_truth[f"{term}_gt_orig"]
         label = result.search_pages[0].log["label"] if result.search_pages else ""
 
@@ -92,6 +95,7 @@ async def compute_eval_result(
             "term": term,
             "gt_page": list(gt_page),
             "correct_page_searched": is_correct_page_searched,
+            "this_correct_page_searched": this_correct_page_searched,
             "expanded_pages": list(expanded_pages),
             "extracted_pages": list(extracted_pages),
             "extracted_pages_expanded": list(extracted_pages_expanded),
@@ -140,6 +144,7 @@ async def compute_eval_result(
             "term": term,
             "gt_page": list(gt_page),
             "correct_page_searched": False,
+            "this_correct_page_searched": False,
             "expanded_pages": None,
             "searched_pages": None,
             "searched_pages_expanded": None,
@@ -175,6 +180,116 @@ def compare_results(
         # The correct answer is something simple (or nothing)
         return actual_normalized == expected
 
+def get_metrics(results_df):
+    """
+    We need to compute
+    1. page search recall
+    2. answer accuracy
+    3. answer + page accuracy
+    4. prec/rec/f1 of answers
+    5. answer accuracy | correct page
+    """
+
+    # 1. page search recall
+    search_results_df = results_df.groupby(pl.col("town", "district")).agg(
+        pl.col("this_correct_page_searched").sum(),
+        pl.col("gt_page").list.len().sum(),
+    )
+    page_search_correct = len(
+        search_results_df.filter(pl.col("this_correct_page_searched") > 0)
+    )
+    page_search_exists = len(
+        search_results_df.filter(pl.col("gt_page") > 0)
+    )
+    page_search_recall = page_search_correct / page_search_exists
+
+    # 2. answer accuracy
+    answers_df = results_df.with_columns(
+        pl.struct(["actual", "expected_extended"])
+        .apply(lambda x: semantic_comparison(x["actual"], x["expected_extended"]))
+        .alias("correct_answer")
+    )
+    answers_results_df = answers_df.groupby(pl.col("town", "district")).agg(
+        pl.col("correct_answer").sum(),
+    )
+    answer_correct = len(answers_results_df.filter(pl.col("correct_answer") > 0))
+
+    # 3. answer + page accuracy
+    answers_page_df = answers_df.with_columns(
+        pl.struct(["correct_answer", "this_correct_page_searched"])
+        .apply(lambda x: x["correct_answer"] and x["this_correct_page_searched"])
+        .alias("correct_answer_and_page")
+    )
+    answers_page_results_df = answers_page_df.groupby(pl.col("town", "district")).agg(
+        pl.col("correct_answer_and_page").sum(),
+    )
+    answer_page_correct = len(answers_page_results_df.filter(pl.col("correct_answer_and_page") > 0))
+
+    # 4. answer prec/rec/f1
+    # does there exist an answer when the correct page is found?
+    pr_answers_df = answers_df.with_columns(
+        pl.struct(["this_correct_page_searched", "actual"])
+        .apply(lambda x: x["actual"] != "None")
+        .alias("predicted_positive")
+    ).with_columns(
+        pl.struct(["this_correct_page_searched", "expected_extended", "actual"])
+        .apply(lambda x:
+            x["this_correct_page_searched"]
+            and x["expected_extended"] is not None
+            and x["actual"] != "None"
+        ) 
+        .alias("true_predicted_positive")
+    ).with_columns(
+        pl.struct(["this_correct_page_searched", "actual"])
+        .apply(lambda x: x["this_correct_page_searched"] and x["actual"] != "None")
+        .alias("positive")
+    ).with_columns(
+        pl.struct(["this_correct_page_searched", "actual"])
+        .apply(lambda x: x["this_correct_page_searched"] and x["actual"] == "None")
+        .alias("false_negative")
+    ).with_columns(
+        pl.struct(["this_correct_page_searched", "actual"])
+        .apply(lambda x: not x["this_correct_page_searched"] and x["actual"] != "None")
+        .alias("false_positive")
+    )
+    predicted_positive = pr_answers_df["predicted_positive"].sum()
+    true_predicted_positive = pr_answers_df["true_predicted_positive"].sum()
+    positive = pr_answers_df["positive"].sum()
+
+    false_positive = pr_answers_df["false_positive"].sum()
+    false_negative = pr_answers_df["false_negative"].sum()
+
+    precision = true_predicted_positive / predicted_positive
+    recall = true_predicted_positive / positive
+
+    # 5. answer accuracy | correct page
+    correct_page_df = answers_df.filter(pl.col("this_correct_page_searched"))
+    answer_accuracy_given_correct_page = correct_page_df["correct_answer"].sum() / len(correct_page_df)
+
+
+    num_rows = len(search_results_df)
+    num_rows_with_answers = page_search_exists
+
+
+    eval_metrics = {
+        "num_results": num_rows,
+        "num_row_processed": num_rows,
+        "num_row_input": num_rows_with_answers,
+        "num_correct_page_searched": page_search_correct,
+        "num_correct_answer": answer_correct,
+        "row_processed": num_rows,
+        "page_search_recall": page_search_recall,
+        # This is the answer accuracy conditional on the correct page having
+        # been looked up by search
+        "conditional_answer_accuracy": answer_accuracy_given_correct_page,
+        "answer_accuracy": answer_correct / num_rows,
+        "answer_page_accuracy": answer_page_correct / num_rows_with_answers,
+        "answer_false_positive": false_positive,
+        "answer_false_negative": false_negative,
+        "answer_precision": precision,
+        "answer_recall": recall,
+    }
+    return eval_metrics
 
 async def evaluate_term(
 #def evaluate_term(
@@ -210,6 +325,11 @@ async def evaluate_term(
 
     # Load the data with schema overrides
     results_df = pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
+
+    # OVERLOAD
+    # compute results before things get messed up
+    eval_metrics2 = get_metrics(results_df)
+    # / OVERLOAD
 
     # Normalize LLM responses
     results_df = results_df.with_columns(
@@ -452,7 +572,8 @@ async def evaluate_term(
             'e_confirmed_precision': precision,
             'e_confirmed_f1': f1,
         })
-    return eval_metrics, results_df
+
+    return eval_metrics2, results_df
 
 
 def normalize_town(x):
