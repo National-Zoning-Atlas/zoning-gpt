@@ -289,7 +289,7 @@ def get_metrics(results_df):
         "answer_precision": precision,
         "answer_recall": recall,
     }
-    return eval_metrics
+    return eval_metrics, pr_answers_df
 
 async def evaluate_term(
 #def evaluate_term(
@@ -328,7 +328,7 @@ async def evaluate_term(
 
     # OVERLOAD
     # compute results before things get messed up
-    eval_metrics2 = get_metrics(results_df)
+    eval_metrics2, good_results_df = get_metrics(results_df)
     # / OVERLOAD
 
     # Normalize LLM responses
@@ -573,7 +573,8 @@ async def evaluate_term(
             'e_confirmed_f1': f1,
         })
 
-    return eval_metrics2, results_df
+    #return eval_metrics, results_df
+    return eval_metrics2, good_results_df
 
 
 def normalize_town(x):
