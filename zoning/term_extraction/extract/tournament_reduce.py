@@ -105,12 +105,13 @@ class TournamentReduceExtractor(MapExtractor):
         self.k = k
 
     async def extract(
-        self, pages: list[PageSearchOutput], district: District, term: str, town: str
+        self, pages: list[PageSearchOutput], district: District, districts: list[District], term: str, town: str
+
     ):
         # We first map extraction across all pages.
         results = []
         empty_results = []
-        async for r in super().extract(pages, district, term, town):
+        async for r in super().extract(pages, district, districts, term, town):
             if (r.output is not None) and r.output.extracted_text:
                 results.append(r)
             else:

@@ -16,7 +16,7 @@ import polars.exceptions
 
 warnings.filterwarnings(
     action="ignore",
-    category=polars.exceptions.PolarsInefficientMapWarning
+    category=polars.exceptions.PolarsInefficientApplyWarning
 )
 
 # Get the absolute path to the .env file

@@ -40,16 +40,16 @@ def calculate_verification_metrics(true_positives, false_positives, false_negati
 
 
 async def compute_eval_result(
-#def compute_eval_result(
-    town: str,
-    district: District,
-    districts: list[District],
-    term: str,
-    ground_truth: dict[str, Any],
-    search_method: SearchMethod,
-    extraction_method: ExtractionMethod,
-    k: int,
-    tournament_k: int,
+        #def compute_eval_result(
+        town: str,
+        district: District,
+        districts: list[District],
+        term: str,
+        ground_truth: dict[str, Any],
+        search_method: SearchMethod,
+        extraction_method: ExtractionMethod,
+        k: int,
+        tournament_k: int,
 ):
     pages = search_for_term(town, district, term, search_method, k)
     expanded_pages = flatten(page_coverage(pages))
@@ -78,11 +78,12 @@ async def compute_eval_result(
     is_empty = True
 
     async for result in outputs:
-    #for result in outputs:
+        #for result in outputs:
         is_empty = False
         extracted_pages = {r.page_number for r in result.search_pages}
         extracted_pages_expanded = set(result.search_pages_expanded)
-        logger.info(f"Term {term} in {town} in {district.full_name} has searched_pages_expanded: {extracted_pages_expanded}")
+        logger.info(
+            f"Term {term} in {town} in {district.full_name} has searched_pages_expanded: {extracted_pages_expanded}")
         # this will be true for all chunks
         is_correct_page_searched = any(gt_page & set(expanded_pages))
         this_correct_page_searched = any(gt_page & set(extracted_pages_expanded))
@@ -161,11 +162,11 @@ async def compute_eval_result(
 
 
 def compare_results(
-    actual_normalized: float | None,
-    actual_raw: str | None,
-    expected: str | None,
-    expected_extended: str | None,
-    expected_extended_normalized: float | None,
+        actual_normalized: float | None,
+        actual_raw: str | None,
+        expected: str | None,
+        expected_extended: str | None,
+        expected_extended_normalized: float | None,
 ) -> bool:
     if actual_raw is not None and expected is None and expected_extended is not None:
         # If no normalized expected answer exists, but an extended one does,
@@ -179,6 +180,7 @@ def compare_results(
     else:
         # The correct answer is something simple (or nothing)
         return actual_normalized == expected
+
 
 def get_metrics(results_df):
     """
@@ -206,7 +208,8 @@ def get_metrics(results_df):
     # 2. answer accuracy
     answers_df = results_df.with_columns(
         pl.struct(["actual", "expected_extended", "expected"])
-        .apply(lambda x: semantic_comparison(x["actual"], x["expected_extended"]) or semantic_comparison(x["actual"], x["expected"]))
+        .apply(lambda x: semantic_comparison(x["actual"], x["expected_extended"]) or semantic_comparison(x["actual"],
+                                                                                                         x["expected"]))
         .alias("correct_answer")
     )
     answers_results_df = answers_df.groupby(pl.col("town", "district")).agg(
@@ -234,10 +237,10 @@ def get_metrics(results_df):
     ).with_columns(
         pl.struct(["this_correct_page_searched", "expected_extended", "expected", "actual"])
         .apply(lambda x:
-            x["this_correct_page_searched"]
-            and (x["expected_extended"] is not None or x["expected"] is not None)
-            and x["actual"] != "None"
-        ) 
+               x["this_correct_page_searched"]
+               and (x["expected_extended"] is not None or x["expected"] is not None)
+               and x["actual"] != "None"
+               )
         .alias("true_predicted_positive")
     ).with_columns(
         pl.struct(["this_correct_page_searched", "actual"])
@@ -266,10 +269,8 @@ def get_metrics(results_df):
     correct_page_df = answers_df.filter(pl.col("this_correct_page_searched"))
     answer_accuracy_given_correct_page = correct_page_df["correct_answer"].sum() / len(correct_page_df)
 
-
     num_rows = len(search_results_df)
     num_rows_with_answers = page_search_exists
-
 
     eval_metrics = {
         "num_results": num_rows,
@@ -291,19 +292,19 @@ def get_metrics(results_df):
     }
     return eval_metrics, pr_answers_df
 
+
 async def evaluate_term(
-#def evaluate_term(
-    term: str,
-    gt: pl.DataFrame,
-    progress: Progress,
-    search_method: SearchMethod,
-    extraction_method: ExtractionMethod,
-    k: int,
-    tournament_k: int,
-    districts,
+        #def evaluate_term(
+        term: str,
+        gt: pl.DataFrame,
+        progress: Progress,
+        search_method: SearchMethod,
+        extraction_method: ExtractionMethod,
+        k: int,
+        tournament_k: int,
+        districts,
 ):
     eval_task = progress.add_task(f"Evaluating {term}", total=len(gt))
-
 
     # Generate results for the given term in parallel, showing progress along
     # the way.
@@ -316,8 +317,8 @@ async def evaluate_term(
             eval_task, description=f"Evaluating {term}, {town}, {district.full_name}"
         )
         async for result in compute_eval_result(
-        #for result in compute_eval_result(
-            town, district, districts[town], term, row, search_method, extraction_method, k, tournament_k,
+                #for result in compute_eval_result(
+                town, district, districts[town], term, row, search_method, extraction_method, k, tournament_k,
         ):
             results.append(result)
         progress.advance(eval_task)
@@ -599,15 +600,15 @@ def extract_districts():
 
 
 async def main(
-#def main(
-    search_method: Annotated[SearchMethod, typer.Option()],
-    extraction_method: Annotated[ExtractionMethod, typer.Option()],
-    terms: Annotated[list[str], typer.Option()],
-    k: Annotated[int, typer.Option()],
-    # We must use Optional here because the "|" syntax can't be used by typer
-    # yet for some reason.
-    num_eval_rows: Annotated[Optional[int], typer.Option()] = None,
-    tournament_k: Annotated[int, typer.Option()] = 1,
+        #def main(
+        search_method: Annotated[SearchMethod, typer.Option()],
+        extraction_method: Annotated[ExtractionMethod, typer.Option()],
+        terms: Annotated[list[str], typer.Option()],
+        k: Annotated[int, typer.Option()],
+        # We must use Optional here because the "|" syntax can't be used by typer
+        # yet for some reason.
+        num_eval_rows: Annotated[Optional[int], typer.Option()] = None,
+        tournament_k: Annotated[int, typer.Option()] = 1,
 ):
     raw_terms = terms
     terms = [i.split(",") for i in terms]
@@ -631,15 +632,15 @@ async def main(
     # Run evaluation against entire ground truth for each term and aggregate all
     # results into one object.
     with Progress(
-        SpinnerColumn(),
-        *Progress.get_default_columns(),
-        TimeElapsedColumn(),
-        disable=DEBUG,
+            SpinnerColumn(),
+            *Progress.get_default_columns(),
+            TimeElapsedColumn(),
+            disable=DEBUG,
     ) as progress:
         term_task = progress.add_task("Terms", total=len(terms))
         for term in terms:
             metrics[term], new_results_df = await evaluate_term(
-            #metrics[term], new_results_df = evaluate_term(
+                #metrics[term], new_results_df = evaluate_term(
                 term, gt, progress, search_method, extraction_method, k, tournament_k,
                 districts,
             )
