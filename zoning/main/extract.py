@@ -7,6 +7,8 @@
 """
 import asyncio
 import json
+
+from zoning.data_processing.eval import extract_districts
 from zoning.main.base.ZoningModule import ZoningModule
 from zoning.term_extraction.extract import extract_answer
 from zoning.term_extraction.types import District
@@ -46,10 +48,13 @@ class ZoningExtractModule(ZoningModule):
 
     async def _async_helper(self):
         outputs = []
+        districts = extract_districts()
+
         async_gen = extract_answer(
             pages=self.pages_result,
             term=self.term,
             town=self.town,
+            districts=districts,
             district=District(full_name=self.district_name, short_name=self.district_abb),
             method=self.extraction_method,
             model_name=self.model_name,

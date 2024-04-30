@@ -310,7 +310,6 @@ async def evaluate_term(
     # Generate results for the given term in parallel, showing progress along
     # the way.
     results = []
-    row_count = len(gt)
     for row in gt.iter_rows(named=True):
         town = row["town"]
         district = District(full_name=row["district"], short_name=row["district_abb"])
@@ -325,16 +324,22 @@ async def evaluate_term(
         progress.advance(eval_task)
     progress.update(eval_task, description=f"Evaluated {term}")
 
+    eval_metrics2, good_results_df = eval_result(extraction_method, gt, results, term)
+
+    #return eval_metrics, results_df
+    return eval_metrics2, good_results_df
+
+
+def eval_result(extraction_method, gt, results, term):
+    row_count = len(gt)
+
     # Load the data with schema overrides
     results_df = pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
-
     # OVERLOAD
     # compute results before things get messed up
     eval_metrics2, good_results_df = get_metrics(results_df)
     # / OVERLOAD
-
     # Normalize LLM responses
-
     results_df = results_df.with_columns(
         pl.col("actual").apply(clean_string_units, return_dtype=pl.Utf8).alias("actual_normalized"),
         pl.col("expected")
@@ -347,11 +352,9 @@ async def evaluate_term(
         pl.col("expected_extended").apply(clean_string_units, return_dtype=pl.Utf8).alias(
             "expected_extended_normalized"),
     )
-
     # Explode values for one row per expected-actual-value pair
     results_df = results_df.explode("actual_normalized").explode("expected_normalized").explode(
         "expected_extended_normalized")
-
     # Apply comparison function to check for correct answers
     results_df = results_df.with_columns(
         pl.struct(
@@ -374,7 +377,6 @@ async def evaluate_term(
         )
         .alias("correct_answer")
     )
-
     # Normalize 'actual_before_confirmation' and check if 'expected' exists
     results_df = results_df.with_columns(
         pl.col("actual_before_confirmation").apply(clean_string_units, skip_nulls=False).alias("actual_normalized"),
@@ -389,11 +391,9 @@ async def evaluate_term(
         .alias("expected_normalized"),
         pl.col("expected_extended").apply(clean_string_units, skip_nulls=False).alias("expected_extended_normalized"),
     )
-
     # Explode values again for one row per expected-actual-value pair after confirmation
     results_df = results_df.explode("actual_normalized").explode("expected_normalized").explode(
         "expected_extended_normalized")
-
     # Apply comparison function to check for correct answers before confirmation
     results_df = results_df.with_columns(
         pl.struct(
@@ -416,7 +416,6 @@ async def evaluate_term(
         )
         .alias("correct_answer_before_confirmation")
     )
-
     #
     # results_df = (
     #     pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
@@ -499,39 +498,32 @@ async def evaluate_term(
     #         .alias("correct_answer_before_confirmation")
     #     )
     # )
-
     # groupby to calculate search page recall
     search_results_df = results_df.groupby(pl.col("town", "district")).agg(
         pl.col("correct_page_searched").sum(),
         pl.col("correct_answer").sum(),
     )
-
     # groupby to calculate search page recall
     search_results_df_before_confirmation = results_df.groupby(pl.col("town", "district")).agg(
         pl.col("correct_page_searched").sum(),
         pl.col("correct_answer_before_confirmation").sum(),
         pl.col("confirmed_flag").sum(),
     )
-
     # filter entries that have correct page searched and answered
     filtered_answer_page_df = results_df.filter(
         (pl.col("correct_page_searched") == True) & (pl.col("correct_answer") == True)
     )
-
     # groupby to calculate accuracy
     agg_answer_page_df = filtered_answer_page_df.groupby(
         pl.col("town", "district")
     ).agg(pl.col("correct_page_searched").sum(), pl.col("correct_answer").sum())
-
     num_results = len(results_df)
     num_correct_page_searched = len(
         search_results_df.filter(pl.col("correct_page_searched") > 0)
     )
     num_correct_answer = len(search_results_df.filter(pl.col("correct_answer") > 0))
-
     number_of_rows_with_gt_page = len(gt.filter(pl.col(f"{term}_page_gt").is_not_null()))
     logger.info(f"Number of rows with ground truth page: {number_of_rows_with_gt_page}")
-
     # groupby to calculate confirmation f1
     confirmation_df = results_df.groupby(pl.col("town", "district")).agg(
         pl.col("confirmed_flag").sum(),
@@ -545,9 +537,7 @@ async def evaluate_term(
         (pl.col("expected_exists") > 0) & (pl.col("confirmed_flag") == 0)))
     true_negatives = len(confirmation_df.filter(
         (pl.col("expected_exists") == 0) & (pl.col("confirmed_flag") == 0)))
-
     precision, recall, f1 = calculate_verification_metrics(true_positives, false_positives, false_negatives)
-
     eval_metrics = {
         #
         "num_results": num_results,
@@ -575,8 +565,6 @@ async def evaluate_term(
             'e_confirmed_precision': precision,
             'e_confirmed_f1': f1,
         })
-
-    #return eval_metrics, results_df
     return eval_metrics2, good_results_df
 
 
