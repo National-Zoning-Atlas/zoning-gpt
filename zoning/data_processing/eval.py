@@ -193,10 +193,11 @@ def get_metrics(results_df):
     """
 
     # 1. page search recall
-    search_results_df = results_df.groupby(pl.col("town", "district")).agg(
+    search_results_df = results_df.groupby(["town", "district"]).agg([
         pl.col("this_correct_page_searched").sum(),
-        pl.col("gt_page").list.len().sum(),
-    )
+        pl.col("gt_page").list.lengths().sum()
+    ])
+
     page_search_correct = len(
         search_results_df.filter(pl.col("this_correct_page_searched") > 0)
     )
@@ -333,17 +334,18 @@ async def evaluate_term(
     # / OVERLOAD
 
     # Normalize LLM responses
+
     results_df = results_df.with_columns(
-        pl.col("actual").apply(clean_string_units).alias("actual_normalized"),
+        pl.col("actual").apply(clean_string_units, return_dtype=pl.Utf8).alias("actual_normalized"),
         pl.col("expected")
         .apply(
-            lambda s: [float(f.strip()) for f in s.split(",")]
-            if s is not None
-            else [],
+            lambda s: [float(f.strip()) for f in s.split(",")] if s is not None and s.strip() != "" else [float('nan')],
+            return_dtype=pl.List(pl.Float64),
             skip_nulls=False,
         )
         .alias("expected_normalized"),
-        pl.col("expected_extended").apply(clean_string_units).alias("expected_extended_normalized"),
+        pl.col("expected_extended").apply(clean_string_units, return_dtype=pl.Utf8).alias(
+            "expected_extended_normalized"),
     )
 
     # Explode values for one row per expected-actual-value pair
