@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+import json
 
 
 class District(BaseModel):
@@ -14,6 +15,9 @@ class PageSearchOutput(BaseModel):
     score: float
     query: str
     log: dict[str, str]
+
+    def to_dict(self):
+        return json.loads(self.model_dump_json())
 
 
 class ExtractionOutput(BaseModel):
@@ -44,9 +48,12 @@ class LookupOutput(BaseModel):
     The set of pages, in descending order or relevance, used to produce the
     result.
     """
+
     def __str__(self):
         return f"LookupOutput(output={self.output}, search_pages=[...], search_pages_expanded={self.search_pages_expanded})"
 
+    def to_dict(self):
+        return json.loads(self.model_dump_json())
 
 class LookupOutputConfirmed(LookupOutput):
     confirmed: bool

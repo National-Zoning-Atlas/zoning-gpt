@@ -32,4 +32,4 @@ if not open_api_key:
 openai.api_key = open_api_key
 
 # to validate key is loaded, print the first two letters
-print(openai.api_key[:2])
+# print(openai.api_key[:2])
