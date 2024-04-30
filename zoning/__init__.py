@@ -14,10 +14,10 @@ from . import term_extraction
 import warnings
 import polars.exceptions
 
-warnings.filterwarnings(
-    action="ignore",
-    category=polars.exceptions.PolarsInefficientApplyWarning
-)
+# warnings.filterwarnings(
+#     action="ignore",
+#     category=polars.exceptions.PolarsInefficientApplyWarning
+# )
 
 # Get the absolute path to the .env file
 dotenv_path = os.path.join(get_project_root(), ".env")
