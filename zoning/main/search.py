@@ -28,7 +28,7 @@ class ZoningSearchModule(ZoningModule):
         self.k = self.args.k
 
     def config_args(self, parser):
-        parser.add_argument('--term', type=str, help='Enter the term to search for', default='min lot size')
+        parser.add_argument('--term', type=str, help='Enter the term to search for', default='min_lot_size')
         parser.add_argument('--town', type=str, help='Enter the town to search in', default='andover')
         parser.add_argument('--district_name', type=str, help='Enter the district to search in', default='Andover Lake')
         parser.add_argument('--district_abb', type=str, help='Enter the district abbreviation', default='AL')

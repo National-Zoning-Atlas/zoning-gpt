@@ -11,6 +11,7 @@ import rich
 
 from zoning.main.base.ZoningModule import ZoningModule
 
+
 class ZoningJSONPrinterModule(ZoningModule):
     def __init__(self):
         self.data = None

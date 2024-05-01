@@ -58,7 +58,7 @@ class ZoningEvalModule(ZoningModule):
 
         outputs = eval_result(
             extraction_method=self.extraction_method,
-            gt=self.pages_result,
+            gt=gt,
             results=self.pages_result,
             term=self.term
         )
@@ -85,3 +85,7 @@ class ZoningEvalModule(ZoningModule):
             'results': json.loads(jsonpickle.encode(results))
         }
         print(json.dumps(data, indent=4))
+
+if __name__ == '__main__':
+    module = ZoningEvalModule()
+    module.output(module.main())
