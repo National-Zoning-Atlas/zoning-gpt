@@ -338,6 +338,7 @@ def eval_result(extraction_method, gt, results, term):
     # OVERLOAD
     # compute results before things get messed up
     eval_metrics2, good_results_df = get_metrics(results_df)
+    return eval_metrics2, good_results_df
     # / OVERLOAD
     # Normalize LLM responses
     results_df = results_df.with_columns(
