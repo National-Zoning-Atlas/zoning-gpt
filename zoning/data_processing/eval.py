@@ -31,17 +31,10 @@ SNAPSHOTS_DIR = DATA_ROOT / "results" / "snapshots"
 SNAPSHOTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # If DEBUG=True, do not print rich tracking information
-DEBUG = True
+DEBUG = False
 
-from openai import OpenAI
-client = OpenAI()
-def prompt(message):
-    return client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": message}],
-    )
 
-def calculate_verification_metrics(true_positives, false_positives, false_negatives):
+def calculate_f1(true_positives, false_positives, false_negatives):
     recall = true_positives / (true_positives + false_negatives) if true_positives + false_negatives > 0 else 0
     precision = true_positives / (true_positives + false_positives) if true_positives + false_positives > 0 else 0
     f1 = 2 * (precision * recall) / (precision + recall) if precision + recall > 0 else 0
@@ -82,7 +75,7 @@ async def compute_eval_result(
         gt_page = set(map(int, str(gt_page).split(",")))
 
     # true answer
-    expected = ground_truth[f"{term}_gt"]
+    true_answer = ground_truth[f"{term}_gt"]
     is_empty = True
 
     async for result in outputs:
@@ -95,7 +88,7 @@ async def compute_eval_result(
         # this will be true for all chunks
         is_correct_page_searched = any(gt_page & set(expanded_pages))
         this_correct_page_searched = any(gt_page & set(extracted_pages_expanded))
-        expected_extended = ground_truth[f"{term}_gt_orig"]
+        true_answer_extended = ground_truth[f"{term}_gt_orig"]
         label = result.search_pages[0].log["label"] if result.search_pages else ""
 
         base_output = {
@@ -108,19 +101,19 @@ async def compute_eval_result(
             "expanded_pages": list(expanded_pages),
             "extracted_pages": list(extracted_pages),
             "extracted_pages_expanded": list(extracted_pages_expanded),
-            "expected": expected,
-            "expected_extended": expected_extended,
+            "true_answer": true_answer,
+            "true_answer_extended": true_answer_extended,
             "label": label,
             "pages": [p.page_number for p in pages],
             "confirmed_flag": None,
             "confirmed_raw": None,
-            "actual_before_confirmation": None,
+            "predicted_answer_before_confirmation": None,
         }
         if extraction_method == ExtractionMethod.REDUCE_AND_CONFIRM and isinstance(result, LookupOutputConfirmed):
             # If we are using the REDUCE_AND_CONFIRM method, then the result class is LookupOutputConfirmed
             base_output["confirmed_flag"] = result.confirmed
             base_output["confirmed_raw"] = result.confirmed_raw
-            base_output['actual_before_confirmation'] = result.original_output.answer
+            base_output['predicted_answer_before_confirmation'] = result.original_output.answer
             base_output['rational_before_confirmation'] = result.original_output.rationale
             base_output['subquestions'] = result.subquestions
             base_output['extracted_district'] = result.subquestions['extracted_district']
@@ -134,7 +127,7 @@ async def compute_eval_result(
                 **base_output,
                 "rationale": None,
                 "extracted_text": None,
-                "actual": None,
+                "predicted_answer": None,
 
             }
         else:
@@ -142,7 +135,7 @@ async def compute_eval_result(
                 **base_output,
                 "rationale": result.output.rationale,
                 "extracted_text": result.output.extracted_text,
-                "actual": result.output.answer,
+                "predicted_answer": result.output.answer,
             }
 
     # Handle case when elastic search return 0 results
@@ -157,15 +150,15 @@ async def compute_eval_result(
             "expanded_pages": None,
             "searched_pages": None,
             "searched_pages_expanded": None,
-            "expected": expected,
-            "expected_extended": ground_truth[f"{term}_gt_orig"],
+            "true_answer": true_answer,
+            "true_answer_extended": ground_truth[f"{term}_gt_orig"],
             "rationale": None,
             "extracted_text": None,
-            "actual": None,
+            "predicted_answer": None,
             "pages": None,
             "confirmed_flag": None,
             "confirmed_raw": None,
-            "actual_before_confirmation": None,
+            "predicted_answer_before_confirmation": None,
         }
 
 def compare_json(x, y):
@@ -239,15 +232,12 @@ def get_metrics(results_df):
     page_search_recall = page_search_correct / page_search_exists
 
     # 2. answer accuracy
-    # actual := predicted answer
-    # expected := ground truth answer
-    # expected_extended := another ground truth answer
     answers_df = results_df.with_columns(
-        pl.struct(["actual", "expected_extended", "expected"])
+        pl.struct(["predicted_answer", "true_answer_extended", "true_answer"])
         .apply(lambda x:
-            #semantic_comparison(x["actual"], x["expected_extended"])
-            #or semantic_comparison(x["actual"], x["expected"])
-            compare_answers(x["actual"], x["expected_extended"], x["expected"])
+            #semantic_comparison(x["predicted_answer"], x["expected_extended"])
+            #or semantic_comparison(x["predicted_answer"], x["expected"])
+            compare_answers(x["predicted_answer"], x["true_answer_extended"], x["true_answer"])
         )
         .alias("correct_answer")
     )
@@ -271,16 +261,16 @@ def get_metrics(results_df):
     # does there exist an answer when the correct page is found?
     pr_answers_df = answers_df.with_columns(
         # is there an answer on this page?
-        pl.struct(["this_correct_page_searched", "actual"])
-        .apply(lambda x: x["actual"] != "None")
+        pl.struct(["this_correct_page_searched", "predicted_answer"])
+        .apply(lambda x: x["predicted_answer"] != "None")
         .alias("predicted_positive")
     ).with_columns(
         # did we correctly predict that a page has an answer?
-        pl.struct(["this_correct_page_searched", "expected_extended", "expected", "actual"])
+        pl.struct(["this_correct_page_searched", "expected_extended", "expected", "predicted_answer"])
         .apply(lambda x:
             x["this_correct_page_searched"]
             and (x["expected_extended"] is not None or x["expected"] is not None)
-            and x["actual"] != "None"
+            and x["predicted_answer"] != "None"
          )
         .alias("true_predicted_positive")
     ).with_columns(
@@ -290,13 +280,13 @@ def get_metrics(results_df):
         .alias("positive")
     ).with_columns(
         # did we incorrectly predict there was no answer?
-        pl.struct(["this_correct_page_searched", "actual"])
-        .apply(lambda x: x["this_correct_page_searched"] and x["actual"] == "None")
+        pl.struct(["this_correct_page_searched", "predicted_answer"])
+        .apply(lambda x: x["this_correct_page_searched"] and x["predicted_answer"] == "None")
         .alias("false_negative")
     ).with_columns(
         # did we incorrectly predict that there was an answer?
-        pl.struct(["this_correct_page_searched", "actual"])
-        .apply(lambda x: not x["this_correct_page_searched"] and x["actual"] != "None")
+        pl.struct(["this_correct_page_searched", "predicted_answer"])
+        .apply(lambda x: not x["this_correct_page_searched"] and x["predicted_answer"] != "None")
         .alias("false_positive")
     )
     predicted_positive = pr_answers_df["predicted_positive"].sum()
@@ -308,7 +298,7 @@ def get_metrics(results_df):
 
     precision = true_predicted_positive / predicted_positive
     recall = true_predicted_positive / positive
-    #print(calculate_verification_metrics(true_predicted_positive, false_positive, false_negative))
+    #print(calculate_f1(true_predicted_positive, false_positive, false_negative))
     #print(precision, recall)
 
 
