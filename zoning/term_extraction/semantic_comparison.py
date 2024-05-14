@@ -30,7 +30,8 @@ def semantic_comparison(true_answer: str, predicted: str) -> bool:
     # TODO: Is there a way to share this implementation with our generic prompt
     # function?
     resp = client.chat.completions.create(
-        model="gpt-4-turbo",
+        #model="gpt-4-turbo",
+        model="gpt-4o",
         temperature=0.0,  # We want these responses to be deterministic
         max_tokens=1,
         messages=[

@@ -60,9 +60,8 @@ async def compute_eval_result(
         district=district,
         districts=districts,
         method=extraction_method,
-        # model_name="gpt-4",
-        #model_name="gpt-4-1106-preview",  # getting better results with this
-        model_name="gpt-4-turbo",
+        #model_name="gpt-4-turbo",
+        model_name="gpt-4o",
         tournament_k=tournament_k,
     )
 
@@ -233,10 +232,12 @@ def get_metrics(results_df):
     # 4. answer prec/rec/f1
     # does there exist an answer when the correct page is found?
     pr_answers_df = answers_df.with_columns(
+        # is there an answer on this page?
         pl.struct(["this_correct_page_searched", "actual"])
         .apply(lambda x: x["actual"] != "None")
         .alias("predicted_positive")
     ).with_columns(
+        # did we correctly predict that a page has an answer?
         pl.struct(["this_correct_page_searched", "expected_extended", "expected", "actual"])
         .apply(lambda x:
                x["this_correct_page_searched"]
@@ -245,14 +246,17 @@ def get_metrics(results_df):
                )
         .alias("true_predicted_positive")
     ).with_columns(
+        # was there an answer on the page?
         pl.struct(["this_correct_page_searched", "actual"])
         .apply(lambda x: x["this_correct_page_searched"] and x["actual"] != "None")
         .alias("positive")
     ).with_columns(
+        # did we incorrectly predict there was no answer?
         pl.struct(["this_correct_page_searched", "actual"])
         .apply(lambda x: x["this_correct_page_searched"] and x["actual"] == "None")
         .alias("false_negative")
     ).with_columns(
+        # did we incorrectly predict that there was an answer?
         pl.struct(["this_correct_page_searched", "actual"])
         .apply(lambda x: not x["this_correct_page_searched"] and x["actual"] != "None")
         .alias("false_positive")
