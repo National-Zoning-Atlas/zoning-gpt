@@ -8,6 +8,7 @@ import polars as pl
 import typer
 import yaml
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
+import json
 
 from zoning.term_extraction.search.utils import page_coverage
 from ..term_extraction.eval_results import clean_string_units
@@ -17,6 +18,7 @@ from ..term_extraction.search import (
     search_for_term,
 )
 from ..term_extraction.semantic_comparison import semantic_comparison
+from ..term_extraction.to_json import to_json
 from ..term_extraction.types import District, LookupOutputConfirmed
 from ..utils import get_project_root, flatten, logger
 from .utils import AsyncTyper
@@ -31,6 +33,13 @@ SNAPSHOTS_DIR.mkdir(parents=True, exist_ok=True)
 # If DEBUG=True, do not print rich tracking information
 DEBUG = True
 
+from openai import OpenAI
+client = OpenAI()
+def prompt(message):
+    return client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": message}],
+    )
 
 def calculate_verification_metrics(true_positives, false_positives, false_negatives):
     recall = true_positives / (true_positives + false_negatives) if true_positives + false_negatives > 0 else 0
@@ -159,28 +168,51 @@ async def compute_eval_result(
             "actual_before_confirmation": None,
         }
 
+def compare_json(x, y):
+    # y: {
+    #     "value-type": {
+    #         "unit": value
+    #     }
+    # }
+    # every value-type key in y must have a match with a value-type in x
+    equals = True
+    for k, yvalues in y.items():
+        if k not in x:
+            return False
+        xvalues = x[k]
+        # the keys are now the units
+        unit_match = False
+        for unit, yv in yvalues.items():
+            if unit == "none":
+                # compare against everything in x
+                unit_match |= any(yv == xv for xv in xvalues.values())
+            else:
+                unit_match |= unit in xvalues and yv == xvalues[unit]
+            # TODO: unit conversions
+        equals &= unit_match
+    return equals
 
-def compare_results(
-        actual_normalized: float | None,
-        actual_raw: str | None,
-        expected: str | None,
-        expected_extended: str | None,
-        expected_extended_normalized: float | None,
-) -> bool:
-    import pdb; pdb.set_trace()
-    if actual_raw is not None and expected is None and expected_extended is not None:
-        # If no normalized expected answer exists, but an extended one does,
-        # then compare the un-normalized answer from the LLM with our extended
-        # ground truth using an LLM comparison.
 
-        # TODO: If this returns true, then what we actually want to return to
-        # the user is the raw answer, not the normalized one.
-        # expected_extended_normalized is not none if expected_extended is not none
-        return semantic_comparison(expected_extended, actual_raw) or actual_normalized == expected_extended_normalized
-    else:
-        # The correct answer is something simple (or nothing)
-        return actual_normalized == expected
+def compare_answers(predicted, true_answer1, true_answer2):
+    true_is_none = true_answer1 is None and true_answer2 is None
+    all_none = predicted == "None" and true_is_none
+    if all_none: return True
+    if predicted == "None" and not true_is_none: return False
 
+    # structured check if answers match
+    # convert all answers to json, then check json fields
+    predicted_json = to_json(predicted)
+
+    pred_equals_answer1 = False
+    pred_equals_answer2 = False
+    if true_answer1 is not None:
+        true_answer1_json = to_json(true_answer1)
+        pred_equals_answer1 = compare_json(predicted_json, true_answer1_json)
+    if true_answer2 is not None:
+        true_answer2_json = to_json(true_answer2)
+        pred_equals_answer2 = compare_json(predicted_json, true_answer2_json)
+
+    return pred_equals_answer1 or pred_equals_answer2
 
 def get_metrics(results_df):
     """
@@ -207,10 +239,16 @@ def get_metrics(results_df):
     page_search_recall = page_search_correct / page_search_exists
 
     # 2. answer accuracy
+    # actual := predicted answer
+    # expected := ground truth answer
+    # expected_extended := another ground truth answer
     answers_df = results_df.with_columns(
         pl.struct(["actual", "expected_extended", "expected"])
-        .apply(lambda x: semantic_comparison(x["actual"], x["expected_extended"]) or semantic_comparison(x["actual"],
-                                                                                                         x["expected"]))
+        .apply(lambda x:
+            #semantic_comparison(x["actual"], x["expected_extended"])
+            #or semantic_comparison(x["actual"], x["expected"])
+            compare_answers(x["actual"], x["expected_extended"], x["expected"])
+        )
         .alias("correct_answer")
     )
     answers_results_df = answers_df.groupby(pl.col("town", "district")).agg(
@@ -240,15 +278,15 @@ def get_metrics(results_df):
         # did we correctly predict that a page has an answer?
         pl.struct(["this_correct_page_searched", "expected_extended", "expected", "actual"])
         .apply(lambda x:
-               x["this_correct_page_searched"]
-               and (x["expected_extended"] is not None or x["expected"] is not None)
-               and x["actual"] != "None"
-               )
+            x["this_correct_page_searched"]
+            and (x["expected_extended"] is not None or x["expected"] is not None)
+            and x["actual"] != "None"
+         )
         .alias("true_predicted_positive")
     ).with_columns(
         # was there an answer on the page?
-        pl.struct(["this_correct_page_searched", "actual"])
-        .apply(lambda x: x["this_correct_page_searched"] and x["actual"] != "None")
+        pl.struct(["this_correct_page_searched", "expected"])
+        .apply(lambda x: x["this_correct_page_searched"] and x["expected"] is not "None")
         .alias("positive")
     ).with_columns(
         # did we incorrectly predict there was no answer?
@@ -270,10 +308,14 @@ def get_metrics(results_df):
 
     precision = true_predicted_positive / predicted_positive
     recall = true_predicted_positive / positive
+    #print(calculate_verification_metrics(true_predicted_positive, false_positive, false_negative))
+    #print(precision, recall)
+
 
     # 5. answer accuracy | correct page
     correct_page_df = answers_df.filter(pl.col("this_correct_page_searched"))
     answer_accuracy_given_correct_page = correct_page_df["correct_answer"].sum() / len(correct_page_df)
+
     import pdb; pdb.set_trace()
 
     num_rows = len(search_results_df)
