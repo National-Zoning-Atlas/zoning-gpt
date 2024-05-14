@@ -168,6 +168,7 @@ def compare_results(
         expected_extended: str | None,
         expected_extended_normalized: float | None,
 ) -> bool:
+    import pdb; pdb.set_trace()
     if actual_raw is not None and expected is None and expected_extended is not None:
         # If no normalized expected answer exists, but an extended one does,
         # then compare the un-normalized answer from the LLM with our extended
@@ -269,6 +270,7 @@ def get_metrics(results_df):
     # 5. answer accuracy | correct page
     correct_page_df = answers_df.filter(pl.col("this_correct_page_searched"))
     answer_accuracy_given_correct_page = correct_page_df["correct_answer"].sum() / len(correct_page_df)
+    import pdb; pdb.set_trace()
 
     num_rows = len(search_results_df)
     num_rows_with_answers = page_search_exists
@@ -295,15 +297,15 @@ def get_metrics(results_df):
 
 
 async def evaluate_term(
-        #def evaluate_term(
-        term: str,
-        gt: pl.DataFrame,
-        progress: Progress,
-        search_method: SearchMethod,
-        extraction_method: ExtractionMethod,
-        k: int,
-        tournament_k: int,
-        districts,
+    #def evaluate_term(
+    term: str,
+    gt: pl.DataFrame,
+    progress: Progress,
+    search_method: SearchMethod,
+    extraction_method: ExtractionMethod,
+    k: int,
+    tournament_k: int,
+    districts,
 ):
     eval_task = progress.add_task(f"Evaluating {term}", total=len(gt))
 
@@ -317,256 +319,15 @@ async def evaluate_term(
             eval_task, description=f"Evaluating {term}, {town}, {district.full_name}"
         )
         async for result in compute_eval_result(
-                #for result in compute_eval_result(
-                town, district, districts[town], term, row, search_method, extraction_method, k, tournament_k,
+            town, district, districts[town], term, row, search_method, extraction_method, k, tournament_k,
         ):
             results.append(result)
         progress.advance(eval_task)
     progress.update(eval_task, description=f"Evaluated {term}")
 
-    eval_metrics2, good_results_df = eval_result(extraction_method, gt, results, term)
-
-    #return eval_metrics, results_df
-    return eval_metrics2, good_results_df
-
-
-def eval_result(extraction_method, gt, results, term):
-    row_count = len(gt)
-
-    # Load the data with schema overrides
     results_df = pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
-    # OVERLOAD
-    # compute results before things get messed up
-    eval_metrics2, good_results_df = get_metrics(results_df)
-    return eval_metrics2, good_results_df
-    # / OVERLOAD
-    # Normalize LLM responses
-    results_df = results_df.with_columns(
-        pl.col("actual").apply(clean_string_units, return_dtype=pl.Utf8).alias("actual_normalized"),
-        pl.col("expected")
-        .apply(
-            lambda s: [float(f.strip()) for f in s.split(",")] if s is not None and s.strip() != "" else [float('nan')],
-            return_dtype=pl.List(pl.Float64),
-            skip_nulls=False,
-        )
-        .alias("expected_normalized"),
-        pl.col("expected_extended").apply(clean_string_units, return_dtype=pl.Utf8).alias(
-            "expected_extended_normalized"),
-    )
-    # Explode values for one row per expected-actual-value pair
-    results_df = results_df.explode("actual_normalized").explode("expected_normalized").explode(
-        "expected_extended_normalized")
-    # Apply comparison function to check for correct answers
-    results_df = results_df.with_columns(
-        pl.struct(
-            [
-                "actual",
-                "actual_normalized",
-                "expected_normalized",
-                "expected_extended",
-                "expected_extended_normalized"
-            ]
-        )
-        .apply(
-            lambda s: compare_results(
-                s["actual_normalized"],
-                s["actual"],
-                s["expected_normalized"],
-                s["expected_extended"],
-                s["expected_extended_normalized"]
-            )
-        )
-        .alias("correct_answer")
-    )
-    # Normalize 'actual_before_confirmation' and check if 'expected' exists
-    results_df = results_df.with_columns(
-        pl.col("actual_before_confirmation").apply(clean_string_units, skip_nulls=False).alias("actual_normalized"),
-        pl.col("expected").apply(lambda x: x is not None, skip_nulls=False).alias("expected_exists"),
-        pl.col("expected")
-        .apply(
-            lambda s: [float(f.strip()) for f in s.split(",")]
-            if s is not None
-            else [],
-            skip_nulls=False,
-        )
-        .alias("expected_normalized"),
-        pl.col("expected_extended").apply(clean_string_units, skip_nulls=False).alias("expected_extended_normalized"),
-    )
-    # Explode values again for one row per expected-actual-value pair after confirmation
-    results_df = results_df.explode("actual_normalized").explode("expected_normalized").explode(
-        "expected_extended_normalized")
-    # Apply comparison function to check for correct answers before confirmation
-    results_df = results_df.with_columns(
-        pl.struct(
-            [
-                "actual_before_confirmation",
-                "actual_normalized",
-                "expected_normalized",
-                "expected_extended",
-                "expected_extended_normalized"
-            ]
-        )
-        .apply(
-            lambda s: compare_results(
-                s["actual_normalized"],
-                s["actual_before_confirmation"],
-                s["expected_normalized"],
-                s["expected_extended"],
-                s["expected_extended_normalized"]
-            ), skip_nulls=False
-        )
-        .alias("correct_answer_before_confirmation")
-    )
-    #
-    # results_df = (
-    #     pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
-    #     # Attempt to normalize LLM responses
-    #     .with_columns(
-    #         pl.col("actual").apply(clean_string_units).alias("actual_normalized"),
-    #         pl.col("expected")
-    #         .apply(
-    #             lambda s: [float(f.strip()) for f in s.split(",")]
-    #             if s is not None
-    #             else [],
-    #             skip_nulls=False,
-    #         )
-    #         .alias("expected_normalized"),
-    #         pl.col("expected_extended").apply(clean_string_units).alias("expected_extended_normalized"),
-    #     )
-    #     # Explode all values so that we have one row per expected-actual-value pair.
-    #     .explode("actual_normalized")
-    #     .explode("expected_normalized")
-    #     .explode("expected_extended_normalized")
-    #     .with_columns(
-    #         pl.struct(
-    #             [
-    #                 "actual",
-    #                 "actual_normalized",
-    #                 "expected_normalized",
-    #                 "expected_extended",
-    #                 "expected_extended_normalized"
-    #             ]
-    #         )
-    #         .apply(
-    #             lambda s: compare_results(
-    #                 s["actual_normalized"],
-    #                 s["actual"],
-    #                 s["expected_normalized"],
-    #                 s["expected_extended"],
-    #                 s["expected_extended_normalized"]
-    #             )
-    #         )
-    #         .alias("correct_answer")
-    #     )
-    #     # Only used for the REDUCE_AND_CONFIRM method
-    #     .with_columns(
-    #         pl.col("actual_before_confirmation").apply(clean_string_units, skip_nulls=False).alias("actual_normalized"),
-    #         pl.col("expected").apply(lambda x: x is not None, skip_nulls=False).alias("expected_exists"),
-    #         pl.col("expected")
-    #         .apply(
-    #             lambda s: [float(f.strip()) for f in s.split(",")]
-    #             if s is not None
-    #             else [],
-    #             skip_nulls=False,
-    #         )
-    #         .alias("expected_normalized"),
-    #         pl.col("expected_extended").apply(clean_string_units, skip_nulls=False).alias(
-    #             "expected_extended_normalized"),
-    #     )
-    #     # Explode all values so that we have one row per expected-actual-value pair.
-    #     .explode("actual_normalized")
-    #     .explode("expected_normalized")
-    #     .explode("expected_extended_normalized")
-    #     .with_columns(
-    #         pl.struct(
-    #             [
-    #                 "actual_before_confirmation",
-    #                 "actual_normalized",
-    #                 "expected_normalized",
-    #                 "expected_extended",
-    #                 "expected_extended_normalized"
-    #             ]
-    #         )
-    #         .apply(
-    #             lambda s: compare_results(
-    #                 s["actual_normalized"],
-    #                 s["actual_before_confirmation"],
-    #                 s["expected_normalized"],
-    #                 s["expected_extended"],
-    #                 s["expected_extended_normalized"]
-    #             ), skip_nulls=False
-    #         )
-    #         .alias("correct_answer_before_confirmation")
-    #     )
-    # )
-    # groupby to calculate search page recall
-    search_results_df = results_df.groupby(pl.col("town", "district")).agg(
-        pl.col("correct_page_searched").sum(),
-        pl.col("correct_answer").sum(),
-    )
-    # groupby to calculate search page recall
-    search_results_df_before_confirmation = results_df.groupby(pl.col("town", "district")).agg(
-        pl.col("correct_page_searched").sum(),
-        pl.col("correct_answer_before_confirmation").sum(),
-        pl.col("confirmed_flag").sum(),
-    )
-    # filter entries that have correct page searched and answered
-    filtered_answer_page_df = results_df.filter(
-        (pl.col("correct_page_searched") == True) & (pl.col("correct_answer") == True)
-    )
-    # groupby to calculate accuracy
-    agg_answer_page_df = filtered_answer_page_df.groupby(
-        pl.col("town", "district")
-    ).agg(pl.col("correct_page_searched").sum(), pl.col("correct_answer").sum())
-    num_results = len(results_df)
-    num_correct_page_searched = len(
-        search_results_df.filter(pl.col("correct_page_searched") > 0)
-    )
-    num_correct_answer = len(search_results_df.filter(pl.col("correct_answer") > 0))
-    number_of_rows_with_gt_page = len(gt.filter(pl.col(f"{term}_page_gt").is_not_null()))
-    logger.info(f"Number of rows with ground truth page: {number_of_rows_with_gt_page}")
-    # groupby to calculate confirmation f1
-    confirmation_df = results_df.groupby(pl.col("town", "district")).agg(
-        pl.col("confirmed_flag").sum(),
-        pl.col("expected_exists").sum(),
-    )
-    true_positives = len(confirmation_df.filter(
-        (pl.col("expected_exists") > 0) & (pl.col("confirmed_flag") > 0)))
-    false_positives = len(confirmation_df.filter(
-        (pl.col("expected_exists") == 0) & (pl.col("confirmed_flag") > 0)))
-    false_negatives = len(confirmation_df.filter(
-        (pl.col("expected_exists") > 0) & (pl.col("confirmed_flag") == 0)))
-    true_negatives = len(confirmation_df.filter(
-        (pl.col("expected_exists") == 0) & (pl.col("confirmed_flag") == 0)))
-    precision, recall, f1 = calculate_verification_metrics(true_positives, false_positives, false_negatives)
-    eval_metrics = {
-        #
-        "num_results": num_results,
-        "num_row_processed": len(search_results_df),
-        "num_row_input": row_count,
-        "num_correct_page_searched": num_correct_page_searched,
-        "num_correct_answer": num_correct_answer,
-        "row_processed": len(search_results_df) / row_count,
-        "page_search_recall": num_correct_page_searched / number_of_rows_with_gt_page,
-        # This is the answer accuracy conditional on the correct page having
-        # been looked up by search
-        "conditional_answer_accuracy": (
-                len(agg_answer_page_df) / num_correct_page_searched
-        ) if num_correct_page_searched != 0 else 0,
-        "answer_accuracy": num_correct_answer / len(search_results_df),
-        "answer_page_accuracy": (len(agg_answer_page_df) / len(search_results_df)),
-    }
-    if extraction_method == ExtractionMethod.REDUCE_AND_CONFIRM:
-        eval_metrics.update({
-            'e_true_positives': true_positives,
-            'e_false_positives': false_positives,
-            'e_false_negatives': false_negatives,
-            'e_true_negatives': true_negatives,
-            'e_confirmed_recall': recall,
-            'e_confirmed_precision': precision,
-            'e_confirmed_f1': f1,
-        })
-    return eval_metrics2, good_results_df
+    eval_metrics, results_df = get_metrics(results_df)
+    return eval_metrics, results_df
 
 
 def normalize_town(x):
