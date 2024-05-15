@@ -31,7 +31,7 @@ SNAPSHOTS_DIR = DATA_ROOT / "results" / "snapshots"
 SNAPSHOTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # If DEBUG=True, do not print rich tracking information
-DEBUG = False
+DEBUG = True
 
 
 def calculate_f1(true_positives, false_positives, false_negatives):
@@ -235,8 +235,8 @@ def get_metrics(results_df):
     answers_df = results_df.with_columns(
         pl.struct(["predicted_answer", "true_answer_extended", "true_answer"])
         .apply(lambda x:
-            #semantic_comparison(x["predicted_answer"], x["expected_extended"])
-            #or semantic_comparison(x["predicted_answer"], x["expected"])
+            #semantic_comparison(x["predicted_answer"], x["true_answer_extended"])
+            #or semantic_comparison(x["predicted_answer"], x["true_answer"])
             compare_answers(x["predicted_answer"], x["true_answer_extended"], x["true_answer"])
         )
         .alias("correct_answer")
@@ -266,17 +266,17 @@ def get_metrics(results_df):
         .alias("predicted_positive")
     ).with_columns(
         # did we correctly predict that a page has an answer?
-        pl.struct(["this_correct_page_searched", "expected_extended", "expected", "predicted_answer"])
+        pl.struct(["this_correct_page_searched", "true_answer_extended", "true_answer", "predicted_answer"])
         .apply(lambda x:
             x["this_correct_page_searched"]
-            and (x["expected_extended"] is not None or x["expected"] is not None)
+            and (x["true_answer_extended"] is not None or x["true_answer"] is not None)
             and x["predicted_answer"] != "None"
          )
         .alias("true_predicted_positive")
     ).with_columns(
         # was there an answer on the page?
-        pl.struct(["this_correct_page_searched", "expected"])
-        .apply(lambda x: x["this_correct_page_searched"] and x["expected"] is not "None")
+        pl.struct(["this_correct_page_searched", "true_answer"])
+        .apply(lambda x: x["this_correct_page_searched"] and x["true_answer"] is not "None")
         .alias("positive")
     ).with_columns(
         # did we incorrectly predict there was no answer?
@@ -305,8 +305,6 @@ def get_metrics(results_df):
     # 5. answer accuracy | correct page
     correct_page_df = answers_df.filter(pl.col("this_correct_page_searched"))
     answer_accuracy_given_correct_page = correct_page_df["correct_answer"].sum() / len(correct_page_df)
-
-    import pdb; pdb.set_trace()
 
     num_rows = len(search_results_df)
     num_rows_with_answers = page_search_exists
@@ -361,7 +359,7 @@ async def evaluate_term(
         progress.advance(eval_task)
     progress.update(eval_task, description=f"Evaluated {term}")
 
-    results_df = pl.from_dicts(results, schema_overrides={"expected_extended": pl.Utf8})
+    results_df = pl.from_dicts(results, schema_overrides={"true_answer_extended": pl.Utf8})
     eval_metrics, results_df = get_metrics(results_df)
     return eval_metrics, results_df
 
