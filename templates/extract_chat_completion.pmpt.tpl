@@ -16,7 +16,8 @@ If you cannot extract reasonable text, then you should not return an answer.
 For {{term}} in residential districts, return answer for single-family homes.
 
 # Special cases
-* Rear lot size is not the same term as min lot size.
+* Rear lot size is not the same term as min lot size. Do not return rear lot size as an answer for min lot size.
+* If there are other special cases, mention this explicitly in the explanation.
 
 # Input format
 The input will be an excerpt of text from the zoning document.

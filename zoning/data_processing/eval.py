@@ -418,10 +418,10 @@ async def main(
     # Run evaluation against entire ground truth for each term and aggregate all
     # results into one object.
     with Progress(
-            SpinnerColumn(),
-            *Progress.get_default_columns(),
-            TimeElapsedColumn(),
-            disable=DEBUG,
+        SpinnerColumn(),
+        *Progress.get_default_columns(),
+        TimeElapsedColumn(),
+        disable=DEBUG,
     ) as progress:
         term_task = progress.add_task("Terms", total=len(terms))
         for term in terms:
